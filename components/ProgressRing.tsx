@@ -105,8 +105,8 @@ export function DualProgressRing({
   const proteinTargetMet = proteinTotal >= proteinTarget;
 
   // Spotify Colors: Calorie = Neon Orange (#F97316), Protein = Spotify Green (#1DB954)
-  const calorieRingColor = calorieExceeded ? "#EF4444" : "#F97316";
-  const calorieRingGlow = calorieExceeded ? "#EF4444" : "#F97316";
+  const calorieRingColor = calorieExceeded ? "#FF5252" : "#F97316";
+  const calorieRingGlow = calorieExceeded ? "#FF5252" : "#F97316";
 
   const calorieDiff = calorieTotal - calorieTarget;
   const proteinDiff = proteinTotal - proteinTarget;
@@ -138,12 +138,12 @@ export function DualProgressRing({
         <span className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase font-sans">
           Calories
         </span>
-        <span className={`text-3xl font-extrabold tracking-tight tabular-nums font-sans mt-0.5 ${calorieExceeded ? "text-red-500" : "text-white"}`}>
+        <span className={`text-3xl font-extrabold tracking-tight tabular-nums font-sans mt-0.5 ${calorieExceeded ? "text-[#FF5252] drop-shadow-[0_0_8px_rgba(255,82,82,0.5)]" : "text-white"}`}>
           {calorieTotal.toLocaleString()}
         </span>
         
         {calorieExceeded ? (
-          <span className="text-[10px] font-bold text-red-500 font-sans mt-0.5 animate-pulse-slow">
+          <span className="text-[11px] font-extrabold text-[#FF5252] font-sans mt-0.5 drop-shadow-[0_0_6px_rgba(255,82,82,0.4)] animate-pulse">
             +{calorieDiff.toLocaleString()} kcal over
           </span>
         ) : (

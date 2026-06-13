@@ -15,6 +15,9 @@
   
   --animate-shimmer: shimmer 2s infinite linear;
   --animate-pulse-slow: pulseSlow 2.5s infinite ease-in-out;
+  --animate-fade-in: fadeIn 0.25s ease-out;
+  --animate-slide-up: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-bounce-subtle: bounceSubtle 2s infinite ease-in-out;
 
   @keyframes shimmer {
     0% { background-position: -200% 0; }
@@ -23,6 +26,18 @@
   @keyframes pulseSlow {
     0%, 100% { opacity: 0.2; }
     50% { opacity: 0.45; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes bounceSubtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
   }
 }
 
