@@ -3,7 +3,7 @@ export interface FoodEntry {
   name: string;
   calories: number;
   protein: number;
-  date: string; // "2026-01-15"
+  date: string; // "YYYY-MM-DD"
   createdAt: number; // Unix timestamp ms
 }
 
@@ -23,6 +23,6 @@ export interface DaySummary {
   totalCalories: number;
   totalProtein: number;
   entries: FoodEntry[];
-  calorieProgress: number; // 0-1
-  proteinProgress: number; // 0-1
+  calorieProgress: number; // 0 to 1+
+  proteinProgress: number; // 0 to 1+
 }

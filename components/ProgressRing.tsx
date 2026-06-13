@@ -8,6 +8,7 @@ interface ProgressRingProps {
   progress: number; // 0-1
   color: string;
   bgColor: string;
+  glowColor?: string;
 }
 
 function ProgressRing({
@@ -16,17 +17,34 @@ function ProgressRing({
   progress,
   color,
   bgColor,
+  glowColor,
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const [offset, setOffset] = useState(circumference);
 
   useEffect(() => {
-    setOffset(circumference - progress * circumference);
+    // Clamp progress between 0 and 1 for calculations to prevent negative stroke-dashoffset
+    const clampedProgress = Math.max(0, Math.min(progress, 1));
+    setOffset(circumference - clampedProgress * circumference);
   }, [progress, circumference]);
 
+  const uniqueId = `glow-${size}-${color.replace(/[^a-zA-Z0-9]/g, "")}`;
+
   return (
-    <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
+    <svg width={size} height={size} className="-rotate-90 filter drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]" aria-hidden="true">
+      <defs>
+        {glowColor && (
+          <filter id={uniqueId} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        )}
+      </defs>
+      {/* Background Track ring */}
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -35,6 +53,23 @@ function ProgressRing({
         stroke={bgColor}
         strokeWidth={strokeWidth}
       />
+      {/* Glow path */}
+      {glowColor && progress > 0 && (
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={glowColor}
+          strokeWidth={strokeWidth + 2}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          filter={`url(#${uniqueId})`}
+          className="opacity-40 transition-[stroke-dashoffset] duration-700 ease-out"
+        />
+      )}
+      {/* Main active foreground ring */}
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -67,40 +102,49 @@ export function DualProgressRing({
   proteinTarget: number;
 }) {
   const calorieDone = calorieProgress >= 1;
+  const proteinDone = proteinProgress >= 1;
 
   return (
-    <div className="relative mx-auto w-fit">
+    <div className="relative mx-auto w-fit select-none">
       {/* Calorie ring (outer) */}
       <ProgressRing
-        size={200}
-        strokeWidth={10}
+        size={210}
+        strokeWidth={12}
         progress={calorieProgress}
-        color={calorieDone ? "#22c55e" : "var(--color-accent)"}
-        bgColor="#e2e8f0"
+        color={calorieDone ? "#10B981" : "#10B981"}
+        glowColor="#10B981"
+        bgColor="rgba(255, 255, 255, 0.05)"
       />
       {/* Protein ring (inner) */}
       <div className="absolute inset-0 flex items-center justify-center">
         <ProgressRing
-          size={160}
-          strokeWidth={8}
+          size={168}
+          strokeWidth={10}
           progress={proteinProgress}
-          color="var(--color-protein)"
-          bgColor="#e2e8f0"
+          color={proteinDone ? "#06B6D4" : "#06B6D4"}
+          glowColor="#06B6D4"
+          bgColor="rgba(255, 255, 255, 0.05)"
         />
       </div>
-      {/* Center text */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
+      {/* Center text data panel */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span className="text-sm font-medium tracking-widest text-slate-400 uppercase font-sans">
+          Calories
+        </span>
+        <span className="text-3xl font-extrabold tracking-tight tabular-nums text-white font-sans mt-0.5">
           {calorieTotal.toLocaleString()}
         </span>
-        <span className="text-sm text-slate-500 dark:text-slate-400">
-          / {calorieTarget.toLocaleString()} kcal
+        <span className="text-xs text-slate-500 font-sans mt-0.5">
+          target: {calorieTarget.toLocaleString()} kcal
         </span>
-        <span className="mt-1 text-lg font-semibold tabular-nums text-purple-500 dark:text-purple-400">
+
+        <div className="mt-3 w-12 h-px bg-white/10" />
+
+        <span className="mt-2.5 text-lg font-bold tracking-tight tabular-nums text-[#06B6D4] font-sans">
           {proteinTotal}g
         </span>
-        <span className="text-xs text-slate-500 dark:text-slate-400">
-          / {proteinTarget}g protein
+        <span className="text-[10px] text-slate-500 font-sans uppercase tracking-wider">
+          protein / {proteinTarget}g
         </span>
       </div>
     </div>
@@ -109,8 +153,10 @@ export function DualProgressRing({
 
 export function ProgressSkeleton() {
   return (
-    <div className="relative mx-auto w-fit animate-pulse">
-      <div className="h-[200px] w-[200px] rounded-full bg-slate-200 dark:bg-slate-700" />
+    <div className="relative mx-auto w-fit animate-pulse-slow">
+      <div className="h-[210px] w-[210px] rounded-full border-12 border-slate-800/40 bg-slate-900/40 flex items-center justify-center">
+        <div className="h-[168px] w-[168px] rounded-full border-10 border-slate-800/60 bg-slate-900/60" />
+      </div>
     </div>
   );
 }

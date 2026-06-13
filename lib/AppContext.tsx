@@ -34,13 +34,25 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [foods, setFoods] = useState<FoodEntry[]>([]);
-  const [settings, setSettings] = useState<UserSettings>(() => loadSettings());
+  const [settings, setSettings] = useState<UserSettings>({
+    dailyCalorieTarget: 2000,
+    dailyProteinTarget: 120,
+  });
   const [hydrated, setHydrated] = useState(false);
 
+  // Sync state on mount and subscribe to localStorage events (for cross-tab synchronization)
   useEffect(() => {
-    setFoods(loadFoods());
-    setSettings(loadSettings());
+    const syncState = () => {
+      setFoods(loadFoods());
+      setSettings(loadSettings());
+    };
+    
+    // Initial load
+    syncState();
     setHydrated(true);
+
+    window.addEventListener("storage", syncState);
+    return () => window.removeEventListener("storage", syncState);
   }, []);
 
   const addFood = useCallback(
@@ -73,17 +85,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (date: string): DaySummary => {
       const entries = foods.filter((f) => f.date === date);
       const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0);
-      const totalProtein = entries.reduce((sum, e) => sum + e.protein, 0);
+      
+      // Floating point addition resolution
+      const rawProtein = entries.reduce((sum, e) => sum + e.protein, 0);
+      const totalProtein = Math.round(rawProtein * 10) / 10;
+
       return {
         date,
         entries,
         totalCalories,
         totalProtein,
         calorieProgress: settings.dailyCalorieTarget > 0
-          ? Math.min(totalCalories / settings.dailyCalorieTarget, 1)
+          ? totalCalories / settings.dailyCalorieTarget
           : 0,
         proteinProgress: settings.dailyProteinTarget > 0
-          ? Math.min(totalProtein / settings.dailyProteinTarget, 1)
+          ? totalProtein / settings.dailyProteinTarget
           : 0,
       };
     },
@@ -95,20 +111,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const seen = new Map<string, { calories: number; protein: number; count: number }>();
       for (let i = foods.length - 1; i >= 0; i--) {
         const f = foods[i];
-        const existing = seen.get(f.name);
+        const key = f.name.trim().toLowerCase();
+        const existing = seen.get(key);
         if (existing) {
           existing.count++;
           existing.calories = f.calories;
           existing.protein = f.protein;
         } else {
-          seen.set(f.name, { calories: f.calories, protein: f.protein, count: 1 });
+          seen.set(key, { calories: f.calories, protein: f.protein, count: 1 });
         }
       }
       return Array.from(seen.entries())
         .sort((a, b) => b[1].count - a[1].count)
         .slice(0, limit)
         .map(([name, data]) => ({
-          name,
+          name: name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
           calories: data.calories,
           protein: data.protein,
         }));
@@ -119,10 +136,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const getStreak = useCallback(() => {
     if (foods.length === 0) return 0;
     const datesWithFood = new Set(foods.map((f) => f.date));
+    
+    // Helper to get local date string YYYY-MM-DD
+    const getLocalDateString = (d: Date) => {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    };
+
     const today = new Date();
+    const todayStr = getLocalDateString(today);
+    
+    const yesterday = new Date(Date.now() - 86400000);
+    const yesterdayStr = getLocalDateString(yesterday);
+
+    // If neither today nor yesterday has logged foods, streak is broken
+    if (!datesWithFood.has(todayStr) && !datesWithFood.has(yesterdayStr)) {
+      return 0;
+    }
+
     let streak = 0;
-    const current = new Date(today);
-    while (datesWithFood.has(current.toISOString().slice(0, 10))) {
+    const current = new Date();
+    if (!datesWithFood.has(todayStr) && datesWithFood.has(yesterdayStr)) {
+      current.setDate(current.getDate() - 1);
+    }
+
+    while (datesWithFood.has(getLocalDateString(current))) {
       streak++;
       current.setDate(current.getDate() - 1);
     }

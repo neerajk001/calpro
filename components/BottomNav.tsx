@@ -10,38 +10,39 @@ const tabs = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M3 3v18h18" />
-        <path d="m19 9-5 5-4-4-3 3" />
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+        <line x1="16" x1="16" y2="2" y2="6" />
+        <line x1="8" x1="8" y2="2" y2="6" />
+        <line x1="3" x1="10" x2="21" y2="10" />
       </svg>
     ),
   },
   {
-    label: "Add",
+    label: "Add Food",
     href: "/add",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <circle cx="12" cy="12" r="10" />
-        <path d="M8 12h8" />
-        <path d="M12 8v8" />
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
       </svg>
     ),
   },
@@ -51,12 +52,12 @@ const tabs = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
@@ -71,22 +72,27 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/80 backdrop-blur-lg dark:border-slate-700 dark:bg-slate-900/80">
-      <div className="mx-auto flex max-w-lg items-center justify-around">
+    <nav className="fixed bottom-4 left-0 right-0 z-50 px-4">
+      <div className="mx-auto flex max-w-sm items-center justify-around rounded-2xl border border-white/10 bg-slate-950/80 p-2 shadow-2xl backdrop-blur-xl">
         {tabs.map((tab) => {
           const active = pathname === tab.href;
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-6 py-2 transition ${
+              className={`relative flex flex-col items-center gap-1 rounded-xl px-5 py-2.5 transition active:scale-90 ${
                 active
-                  ? "text-accent"
-                  : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                  ? "text-[#10B981]"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
+              {active && (
+                <span className="absolute inset-0 -z-10 rounded-xl bg-white/5 blur-xs" />
+              )}
               {tab.icon}
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <span className="text-[10px] font-semibold tracking-wider font-sans">
+                {tab.label}
+              </span>
             </Link>
           );
         })}
