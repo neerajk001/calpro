@@ -93,24 +93,24 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-4 left-0 right-0 z-50 px-4">
-      <div className="mx-auto flex max-w-sm items-center justify-around rounded-2xl border border-[#E7E5E4] bg-white p-2 shadow-lg shadow-stone-800/5">
+      <div className="mx-auto flex max-w-sm items-center justify-around border-[1.5px] border-[#1C1917] bg-white p-2.5 shadow-md shadow-stone-800/5">
         {tabs.map((tab) => {
           const active = pathname === tab.href;
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`relative flex flex-col items-center gap-1 rounded-xl px-4 py-2.5 transition active:scale-90 ${
+              className={`relative flex flex-col items-center gap-1.5 px-4 py-2 transition active:scale-90 ${
                 active
-                  ? "text-[#292524] font-bold"
-                  : "text-stone-400 hover:text-stone-600"
+                  ? "text-[#292524] font-extrabold"
+                  : "text-stone-400 hover:text-stone-650"
               }`}
             >
               {active && (
-                <span className="absolute inset-0 -z-10 rounded-xl bg-stone-100" />
+                <span className="absolute inset-0 -z-10 bg-stone-100" />
               )}
               {tab.icon}
-              <span className="text-[10px] font-semibold tracking-wider font-sans">
+              <span className="text-xs font-bold tracking-wider font-sans">
                 {tab.label}
               </span>
             </Link>

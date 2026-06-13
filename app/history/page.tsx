@@ -25,10 +25,10 @@ export default function HistoryPage() {
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-24 font-sans text-stone-900">
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-xl font-serif font-bold tracking-tight text-stone-950">
+        <h1 className="text-2xl font-serif font-bold tracking-tight text-stone-950">
           History Timeline
         </h1>
-        <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-widest">
+        <span className="text-xs font-bold text-[#78716C] uppercase tracking-widest">
           Last 14 Days
         </span>
       </div>
@@ -36,7 +36,7 @@ export default function HistoryPage() {
       {!hydrated ? (
         <div className="space-y-4 animate-pulse">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="h-28 rounded-2xl bg-white border border-stone-200" />
+            <div key={idx} className="h-28 bg-white border border-stone-200 rounded-none" />
           ))}
         </div>
       ) : (
@@ -58,19 +58,19 @@ export default function HistoryPage() {
               <div
                 key={dateStr}
                 onClick={() => handleDayTap(dateStr)}
-                className="group cursor-pointer rounded-2xl border border-stone-200 bg-white p-4 transition duration-205 hover:bg-stone-50/50 hover:border-stone-400 hover:shadow-xs active:scale-[0.99]"
+                className="group cursor-pointer border-[1.5px] border-stone-200 bg-white p-4 transition duration-205 hover:bg-stone-50/50 hover:border-stone-400 hover:shadow-xs active:scale-[0.99] rounded-none"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="text-sm font-serif font-bold text-stone-900 tracking-tight group-hover:text-[#D97706] transition">
+                    <h3 className="text-base font-serif font-bold text-stone-900 tracking-tight group-hover:text-[#D97706] transition">
                       {formattedDayName}, {formattedDateText}
                     </h3>
                     {dayTags.length > 0 ? (
-                      <div className="flex gap-1.5 mt-1">
+                      <div className="flex gap-1.5 mt-1.5">
                         {dayTags.map((tag) => (
                           <span
                             key={tag}
-                            className={`rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${
+                            className={`px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-none ${
                               tag === "junk"
                                 ? "bg-red-500/10 text-red-750 border border-red-500/20"
                                 : "bg-stone-100 text-[#78716C] border border-stone-200"
@@ -81,15 +81,15 @@ export default function HistoryPage() {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-[10px] text-stone-400 font-semibold tracking-wide">No items logged</span>
+                      <span className="text-xs text-stone-400 font-semibold tracking-wide">No items logged</span>
                     )}
                   </div>
                   
                   <div className="text-right">
-                    <p className={`text-sm font-extrabold ${calorieExceeded ? "text-red-600" : "text-stone-900"}`}>
+                    <p className={`text-base font-extrabold ${calorieExceeded ? "text-red-650" : "text-stone-900"}`}>
                       {summary.totalCalories.toLocaleString()} <span className="text-xs text-[#78716C] font-normal">/ {settings.dailyCalorieTarget.toLocaleString()} kcal</span>
                     </p>
-                    <p className="text-xs font-bold text-[#16A34A] mt-0.5">
+                    <p className="text-sm font-bold text-[#16A34A] mt-0.5">
                       {summary.totalProtein}g <span className="text-[10px] text-[#78716C] font-normal">/ {settings.dailyProteinTarget}g protein</span>
                     </p>
                   </div>
@@ -100,10 +100,10 @@ export default function HistoryPage() {
                   <div className="space-y-2 pt-1">
                     {/* Calorie Bar */}
                     <div>
-                      <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-2 w-full bg-stone-100 overflow-hidden rounded-none border border-stone-200/40">
                         <div
                           style={{ width: `${calPct}%` }}
-                          className={`h-full rounded-full transition-all duration-500 ${
+                          className={`h-full transition-all duration-500 rounded-none ${
                             calorieExceeded ? "bg-red-600" : "bg-[#D97706]"
                           }`}
                         />
@@ -112,10 +112,10 @@ export default function HistoryPage() {
 
                     {/* Protein Bar */}
                     <div>
-                      <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-1.5 w-full bg-stone-100 overflow-hidden rounded-none border border-stone-200/40">
                         <div
                           style={{ width: `${protPct}%` }}
-                          className="h-full rounded-full bg-[#16A34A] transition-all duration-500"
+                          className="h-full bg-[#16A34A] transition-all duration-500 rounded-none"
                         />
                       </div>
                     </div>

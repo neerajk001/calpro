@@ -11,20 +11,20 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-12 font-sans text-stone-900">
-      <h1 className="text-xl font-serif font-bold tracking-tight text-stone-950 mb-5">
+      <h1 className="text-2xl font-serif font-bold tracking-tight text-stone-950 mb-5">
         Settings
       </h1>
 
       {/* Active Streak Flag */}
       {streak > 0 && (
-        <div className="mb-5 rounded-2xl bg-white border border-stone-200 p-4 flex items-center justify-between shadow-xs">
+        <div className="mb-5 border border-stone-200 bg-white p-4 flex items-center justify-between shadow-xs rounded-none">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🔥</span>
             <div>
-              <p className="text-sm font-extrabold text-stone-900 font-sans">
+              <p className="text-base font-extrabold text-stone-900 font-sans">
                 {streak} Day Streak!
               </p>
-              <p className="text-[10px] text-[#78716C] font-sans">
+              <p className="text-xs text-[#78716C] font-sans">
                 Keep logging daily to lock your momentum.
               </p>
             </div>
@@ -35,20 +35,20 @@ export default function SettingsPage() {
 
       {/* Goal bounds overrides */}
       <section className="mb-6">
-        <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-[#78716C] font-sans">
+        <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-[#78716C] font-sans">
           Nutrition Goals
         </h2>
-        <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-xs">
+        <div className="space-y-4 border border-stone-200 bg-white p-4 shadow-xs rounded-none">
           
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="calorie-target"
-                className="text-xs font-bold text-stone-750 font-sans"
+                className="text-sm font-bold text-stone-750 font-sans"
               >
                 Daily Calories
               </label>
-              <span className="text-xs font-bold text-[#D97706] font-sans tabular-nums">
+              <span className="text-sm font-extrabold text-[#D97706] font-sans tabular-nums">
                 {settings.dailyCalorieTarget} kcal
               </span>
             </div>
@@ -62,24 +62,24 @@ export default function SettingsPage() {
               onChange={(e) => updateSettings({ dailyCalorieTarget: parseInt(e.target.value, 10) })}
               className="w-full accent-[#D97706] cursor-pointer"
             />
-            <div className="flex justify-between text-[8px] text-stone-400 font-sans font-semibold mt-0.5">
+            <div className="flex justify-between text-[10px] text-stone-400 font-sans font-bold mt-0.5">
               <span>1000 kcal</span>
               <span>2750 kcal</span>
               <span>4500 kcal</span>
             </div>
           </div>
 
-          <div className="h-px bg-stone-100 my-1" />
+          <div className="h-px bg-stone-150 my-1" />
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="protein-target"
-                className="text-xs font-bold text-stone-750 font-sans"
+                className="text-sm font-bold text-stone-750 font-sans"
               >
                 Daily Protein
               </label>
-              <span className="text-xs font-bold text-[#16A34A] font-sans tabular-nums">
+              <span className="text-sm font-extrabold text-[#16A34A] font-sans tabular-nums">
                 {settings.dailyProteinTarget}g
               </span>
             </div>
@@ -93,7 +93,7 @@ export default function SettingsPage() {
               onChange={(e) => updateSettings({ dailyProteinTarget: parseInt(e.target.value, 10) })}
               className="w-full accent-[#16A34A] cursor-pointer"
             />
-            <div className="flex justify-between text-[8px] text-stone-400 font-sans font-semibold mt-0.5">
+            <div className="flex justify-between text-[10px] text-stone-400 font-sans font-bold mt-0.5">
               <span>40g</span>
               <span>145g</span>
               <span>250g</span>
@@ -105,16 +105,16 @@ export default function SettingsPage() {
 
       {/* Data export controls */}
       <section className="mb-6">
-        <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-[#78716C] font-sans">
+        <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-[#78716C] font-sans">
           Storage & Management
         </h2>
-        <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xs">
+        <div className="overflow-hidden border border-stone-200 bg-white shadow-xs rounded-none">
           <button
             onClick={exportData}
-            className="flex w-full items-center justify-between px-4 py-3.5 text-xs font-bold text-stone-700 transition hover:bg-stone-50"
+            className="flex w-full items-center justify-between px-4 py-4 text-sm font-bold text-stone-750 transition hover:bg-stone-50 rounded-none"
           >
             Export Backup
-            <span className="rounded border border-stone-200 bg-stone-50 px-2 py-0.5 text-[9px] text-[#78716C] font-mono">.json</span>
+            <span className="border border-stone-200 bg-stone-50 px-2 py-0.5 text-xs text-[#78716C] font-mono rounded-none">.json</span>
           </button>
           
           <div className="h-px bg-stone-100" />
@@ -130,13 +130,13 @@ export default function SettingsPage() {
                     clearAllData();
                     window.location.reload();
                   }}
-                  className="rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-red-700 active:scale-95"
+                  className="bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-red-700 active:scale-95 rounded-none"
                 >
                   Clear Everything
                 </button>
                 <button
                   onClick={() => setShowClearConfirm(false)}
-                  className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs font-bold text-stone-500 transition hover:text-stone-700 active:scale-95"
+                  className="border border-stone-200 bg-white px-4 py-2.5 text-xs font-bold text-stone-550 transition hover:text-stone-700 active:scale-95 rounded-none"
                 >
                   Cancel
                 </button>
@@ -145,7 +145,7 @@ export default function SettingsPage() {
           ) : (
             <button
               onClick={() => setShowClearConfirm(true)}
-              className="flex w-full items-center justify-between px-4 py-3.5 text-xs font-bold text-red-600 transition hover:bg-red-50 active:text-red-750"
+              className="flex w-full items-center justify-between px-4 py-4 text-sm font-bold text-red-600 transition hover:bg-red-50 active:text-red-750 rounded-none"
             >
               Reset All Data
               <svg
