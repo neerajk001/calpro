@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-accent: #3b82f6;
+  --color-accent-dark: #2563eb;
+  --color-protein: #a855f7;
+  --color-surface: #f8fafc;
+  --color-surface-dark: #1e293b;
+  --color-border: #e2e8f0;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-slate-900 antialiased;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      @apply bg-surface-dark text-slate-100;
+    }
+  }
+}
+
+/* Hide scrollbar for quick-add chips */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
