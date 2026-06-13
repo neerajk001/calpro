@@ -33,7 +33,8 @@ export default function SettingsPage() {
   const summary = getDaySummary(today);
 
   const getDynamicTwitterShareUrl = () => {
-    let text = "My nutrition progress today! ⚡\n\n";
+    let text = "🎵 Calpro Wrapped: Today's Playlist 🎧\n";
+    text += "─────────────────────\n";
     if (showCalInShare) {
       text += `🔥 Calories: ${summary.totalCalories} / ${settings.dailyCalorieTarget} kcal (${Math.round(summary.calorieProgress * 100)}%)\n`;
     }
@@ -41,15 +42,16 @@ export default function SettingsPage() {
       text += `💪 Protein: ${summary.totalProtein} / ${settings.dailyProteinTarget}g (${Math.round(summary.proteinProgress * 100)}%)\n`;
     }
     if (showFoodsInShare && summary.entries.length > 0) {
-      text += `\nLogs:\n`;
-      summary.entries.forEach((e) => {
-        text += `- ${e.name} (${e.calories} kcal)\n`;
+      text += "─────────────────────\n";
+      summary.entries.forEach((e, idx) => {
+        text += `${String(idx + 1).padStart(2, "0")}. ${e.name} (${e.calories} kcal)\n`;
       });
     }
+    text += "─────────────────────\n";
     if (showHandleInShare && settings.twitterHandle) {
-      text += `\nLogged by @${settings.twitterHandle} via Calpro\n`;
+      text += `Logged by @${settings.twitterHandle} via Calpro\n`;
     } else {
-      text += `\nLogged via Calpro\n`;
+      text += `Logged via Calpro\n`;
     }
     text += `https://calpro.app`;
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
@@ -188,99 +190,135 @@ export default function SettingsPage() {
       {/* Vintage Share Card Preview Box */}
       <section className="mb-6">
         <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-[#78716C] font-sans">
-          Vintage Share Card
+          Spotify Share Card
         </h2>
         <div className="border border-stone-200 bg-white p-4 shadow-xs rounded-none">
           
-          {/* The Card */}
-          <div className="border border-stone-900/15 bg-white p-5 shadow-xs relative rounded-none select-none overflow-hidden mb-5">
-            {/* Accent line */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-stone-900/20" />
+          {/* The Spotify Card */}
+          <div className="bg-[#121212] border border-stone-850 p-5 shadow-xs relative rounded-none select-none overflow-hidden mb-5 text-white">
+            {/* Cover art grid highlight background element */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#1DB954]/5 blur-2xl pointer-events-none" />
             
             {/* Card Title Header */}
-            <div className="flex justify-between items-baseline mb-4 mt-1">
-              <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase font-mono">
-                DAILY NUTRITION RECORD
+            <div className="flex justify-between items-baseline mb-4">
+              <span className="text-[9px] font-bold tracking-widest text-[#1DB954] uppercase font-mono">
+                🎵 Calpro Wrapped
               </span>
-              <span className="text-xs font-mono font-bold text-stone-550 uppercase">
-                TODAY
+              <span className="text-[9px] font-mono font-bold text-stone-400 uppercase tracking-widest">
+                TODAY'S PLAYLIST
               </span>
             </div>
 
-            <h2 className="text-2xl font-serif font-extrabold tracking-tight text-stone-900 border-b border-stone-200 pb-2 mb-4">
+            <h2 className="text-xl font-sans font-extrabold tracking-tight text-white border-b border-stone-800 pb-2 mb-4">
               {fmtDate(today)}
             </h2>
 
-            {/* Grid stats */}
-            {(showCalInShare || showProtInShare) && (
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                {showCalInShare && (
-                  <div className="border border-stone-150 p-3 bg-stone-50/50 rounded-none">
-                    <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-1">
-                      Energy Eaten
-                    </p>
-                    <p className="text-xl font-serif font-extrabold text-[#D97706] tabular-nums">
-                      {summary.totalCalories}
-                      <span className="text-xs font-bold text-stone-400 font-sans ml-1">kcal</span>
-                    </p>
-                    <p className="text-[10px] text-stone-450 font-bold font-sans mt-0.5">
-                      Target: {settings.dailyCalorieTarget} ({Math.round(summary.calorieProgress * 100)}%)
-                    </p>
-                  </div>
-                )}
-                {showProtInShare && (
-                  <div className="border border-stone-150 p-3 bg-stone-50/50 rounded-none">
-                    <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-1">
-                      Protein Eaten
-                    </p>
-                    <p className="text-xl font-serif font-extrabold text-[#16A34A] tabular-nums">
-                      {summary.totalProtein}
-                      <span className="text-xs font-bold text-stone-400 font-sans ml-1">g</span>
-                    </p>
-                    <p className="text-[10px] text-stone-450 font-bold font-sans mt-0.5">
-                      Target: {settings.dailyProteinTarget}g ({Math.round(summary.proteinProgress * 100)}%)
-                    </p>
-                  </div>
-                )}
+            {/* Calories Spotify Seeker */}
+            {showCalInShare && (
+              <div className="mb-4">
+                <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">
+                  <span>Track 01: Calories</span>
+                  <span className="text-white tabular-nums">{summary.totalCalories} / {settings.dailyCalorieTarget} kcal</span>
+                </div>
+                <div className="w-full bg-stone-800 h-1 relative my-2">
+                  <div
+                    className="bg-[#F97316] h-full"
+                    style={{ width: `${Math.min(100, summary.calorieProgress * 100)}%` }}
+                  />
+                  <div
+                    className="absolute top-1/2 w-2.5 h-2.5 bg-white -translate-y-1/2 border border-stone-900"
+                    style={{ left: `calc(${Math.min(100, summary.calorieProgress * 100)}% - 5px)` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] font-mono text-stone-550 font-bold">
+                  <span>0:00</span>
+                  <span>{Math.round(summary.calorieProgress * 100)}% TARGET</span>
+                </div>
               </div>
             )}
 
-            {/* Logged food entries list */}
-            {showFoodsInShare && (
+            {/* Protein Spotify Seeker */}
+            {showProtInShare && (
               <div className="mb-4">
-                <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-2 border-b border-dashed border-stone-200 pb-1">
-                  Meal Manifest
+                <div className="flex justify-between items-center text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">
+                  <span>Track 02: Protein</span>
+                  <span className="text-white tabular-nums">{summary.totalProtein} / {settings.dailyProteinTarget}g</span>
+                </div>
+                <div className="w-full bg-stone-800 h-1 relative my-2">
+                  <div
+                    className="bg-[#1DB954] h-full"
+                    style={{ width: `${Math.min(100, summary.proteinProgress * 100)}%` }}
+                  />
+                  <div
+                    className="absolute top-1/2 w-2.5 h-2.5 bg-white -translate-y-1/2 border border-stone-900"
+                    style={{ left: `calc(${Math.min(100, summary.proteinProgress * 100)}% - 5px)` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] font-mono text-stone-550 font-bold">
+                  <span>0:00</span>
+                  <span>{Math.round(summary.proteinProgress * 100)}% TARGET</span>
+                </div>
+              </div>
+            )}
+
+            {/* Logged food entries list as Spotify Tracklist */}
+            {showFoodsInShare && (
+              <div className="mb-5">
+                <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2.5 border-b border-stone-800 pb-1">
+                  Playlist Manifest
                 </p>
                 {summary.entries.length > 0 ? (
-                  <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
-                    {summary.entries.map((entry) => (
-                      <div key={entry.id} className="flex justify-between items-center text-xs font-sans font-bold text-stone-750">
-                        <span className="truncate max-w-[200px]">{entry.name}</span>
-                        <span className="shrink-0 text-stone-400 font-normal tabular-nums ml-2">
+                  <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
+                    {summary.entries.map((entry, idx) => (
+                      <div key={entry.id} className="flex items-center text-xs font-sans text-stone-300">
+                        <span className="w-5 shrink-0 font-mono text-[10px] text-stone-500">
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
+                        <div className="flex-1 min-w-0 pr-2">
+                          <p className="truncate font-bold text-white text-xs">{entry.name}</p>
+                          <p className="text-[8px] font-bold text-[#1DB954] uppercase tracking-wide">
+                            {entry.tag || "snack"}
+                          </p>
+                        </div>
+                        <span className="shrink-0 font-mono text-stone-400 text-[10px] tabular-nums">
                           {entry.calories} kcal · {entry.protein}g
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs font-sans text-stone-450 italic">
-                    No items logged today.
+                  <p className="text-xs font-sans text-stone-500 italic">
+                    No tracks loaded today.
                   </p>
                 )}
               </div>
             )}
 
-            {/* Footer Signature line */}
-            {showHandleInShare && (
-              <div className="mt-4 pt-3 border-t border-stone-150 flex justify-between items-center">
-                <span className="text-[10px] font-serif italic text-stone-400">
-                  Generated via Calpro
-                </span>
-                <span className="text-xs font-mono font-bold text-[#6366F1] bg-[#6366F1]/5 px-2.5 py-1 border border-[#6366F1]/20">
-                  @{settings.twitterHandle || "username"}
-                </span>
+            {/* Spotify Player Control Footer */}
+            <div className="mt-4 pt-3 border-t border-stone-800 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                {/* Visual Play Icon */}
+                <div className="h-5 w-5 bg-[#1DB954] flex items-center justify-center text-[#121212] text-[8px] font-extrabold font-mono">
+                  ▶
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold text-white truncate max-w-[120px] leading-tight">
+                    {settings.twitterHandle ? `@${settings.twitterHandle}` : "Calpro Wrapped"}
+                  </p>
+                  <p className="text-[8px] text-stone-550 uppercase tracking-widest font-mono">
+                    NOW LOGGING
+                  </p>
+                </div>
               </div>
-            )}
+              <div className="flex items-center gap-3 text-stone-500 select-none">
+                {/* Shuffle / Prev / Next Icons */}
+                <span className="text-[10px] cursor-pointer hover:text-white transition">🔀</span>
+                <span className="text-[10px] cursor-pointer hover:text-white transition">⏮</span>
+                <span className="text-[12px] text-white cursor-pointer hover:scale-105 transition">⏸</span>
+                <span className="text-[10px] cursor-pointer hover:text-white transition">⏭</span>
+                <span className="text-[10px] cursor-pointer hover:text-white transition">🔁</span>
+              </div>
+            </div>
           </div>
 
           {/* Toggles */}

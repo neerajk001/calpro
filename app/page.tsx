@@ -99,11 +99,21 @@ export default function DashboardPage() {
   );
 
   const getTwitterShareUrl = () => {
-    let text = `Hit my nutritional targets early today with Calpro! ⚡\n\n🔥 Calories: ${summary.totalCalories} / ${settings.dailyCalorieTarget} kcal\n💪 Protein: ${summary.totalProtein} / ${settings.dailyProteinTarget}g\n\n`;
+    let text = "🎵 Calpro Wrapped: Today's Playlist 🎧\n";
+    text += "─────────────────────\n";
+    text += `🔥 Calories: ${summary.totalCalories} / ${settings.dailyCalorieTarget} kcal\n`;
+    text += `💪 Protein: ${summary.totalProtein} / ${settings.dailyProteinTarget}g\n`;
+    if (summary.entries.length > 0) {
+      text += "─────────────────────\n";
+      summary.entries.forEach((e, idx) => {
+        text += `${String(idx + 1).padStart(2, "0")}. ${e.name} (${e.calories} kcal)\n`;
+      });
+    }
+    text += "─────────────────────\n";
     if (settings.twitterHandle) {
       text += `Logged by @${settings.twitterHandle} via Calpro\n`;
     } else {
-      text += `Track your nutrition in 3 seconds. Zero sign-up. 👇\n`;
+      text += `Logged via Calpro\n`;
     }
     text += `https://calpro.app`;
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
