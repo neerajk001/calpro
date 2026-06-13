@@ -9,19 +9,22 @@ interface FoodEntryItemProps {
 }
 
 export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
-  // Spotify-themed color highlights
-  const borderColors = {
-    breakfast: "border-l-[4px] border-l-[#F97316]",
-    lunch: "border-l-[4px] border-l-[#1DB954]",
-    dinner: "border-l-[4px] border-l-[#3B82F6]",
-    snack: "border-l-[4px] border-l-[#A855F7]",
-    junk: "border-l-[4px] border-l-[#EF4444]",
+  // Spotify-themed color highlights for the indicator stripe
+  const indicatorColors = {
+    breakfast: "bg-[#F97316]",
+    lunch: "bg-[#1DB954]",
+    dinner: "bg-[#3B82F6]",
+    snack: "bg-[#A855F7]",
+    junk: "bg-[#EF4444]",
   };
 
   const tag = entry.tag || "snack";
 
   return (
-    <div className={`group flex items-center justify-between border border-white/5 bg-[#181818] pl-3.5 pr-4 py-3.5 shadow-sm rounded-lg transition hover:bg-[#282828] active:scale-[0.99] ${borderColors[tag]}`}>
+    <div className="group relative flex items-center justify-between border border-white/5 bg-[#181818] pl-5 pr-4 py-3.5 shadow-sm rounded-lg transition hover:bg-[#282828] active:scale-[0.99] overflow-hidden">
+      {/* Sleek vertical category indicator stripe on the left edge */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${indicatorColors[tag]}`} />
+
       <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-90 transition cursor-pointer select-none">
         <p className="truncate text-base font-extrabold tracking-tight text-white font-sans">
           {entry.name} <span className="text-zinc-500 text-xs font-normal font-sans ml-1 select-none group-hover:text-zinc-300">✎</span>
