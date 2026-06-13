@@ -10,10 +10,7 @@ interface FoodEntryItemProps {
 
 export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
   return (
-    <div className="group relative flex items-center justify-between border border-white/5 bg-[#181818] pl-5 pr-4 py-3.5 shadow-sm rounded-lg transition hover:bg-[#282828] active:scale-[0.99] overflow-hidden">
-      {/* Sleek vertical category indicator stripe on the left edge */}
-      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#3B82F6]" />
-
+    <div className="group relative flex items-center justify-between border border-white/5 bg-[#181818] px-4 py-3.5 shadow-sm rounded-lg transition hover:bg-[#282828] active:scale-[0.99]">
       <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-90 transition cursor-pointer select-none">
         <p className="truncate text-base font-extrabold tracking-tight text-white font-sans">
           {entry.name} <span className="text-zinc-500 text-xs font-normal font-sans ml-1 select-none group-hover:text-zinc-300">✎</span>
