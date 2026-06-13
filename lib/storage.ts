@@ -105,6 +105,36 @@ export function deleteFood(id: string): void {
   saveFoods(nextFoods);
 }
 
+export function updateFood(
+  id: string,
+  name: string,
+  calories: number,
+  protein: number,
+  date: string,
+  tag: FoodTag,
+): FoodEntry | null {
+  const foods = loadFoods();
+  const index = foods.findIndex((f) => f.id === id);
+  if (index === -1) return null;
+
+  const sanitizedName = name.trim() || "Logged Item";
+  const sanitizedCalories = Math.max(0, Math.round(calories));
+  const sanitizedProtein = Math.max(0, Math.round(protein * 10) / 10);
+
+  const updatedEntry: FoodEntry = {
+    ...foods[index],
+    name: sanitizedName,
+    calories: sanitizedCalories,
+    protein: sanitizedProtein,
+    date: date,
+    tag: tag,
+  };
+
+  foods[index] = updatedEntry;
+  saveFoods(foods);
+  return updatedEntry;
+}
+
 export function getFoodsByDate(date: string): FoodEntry[] {
   return loadFoods().filter((f) => f.date === date);
 }
@@ -148,6 +178,7 @@ export function loadSettings(): UserSettings {
   return {
     dailyCalorieTarget: Math.max(100, Math.round(parsed?.dailyCalorieTarget ?? DEFAULT_SETTINGS.dailyCalorieTarget)),
     dailyProteinTarget: Math.max(10, Math.round(parsed?.dailyProteinTarget ?? DEFAULT_SETTINGS.dailyProteinTarget)),
+    twitterHandle: parsed?.twitterHandle ?? "",
   };
 }
 

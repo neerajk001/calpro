@@ -93,7 +93,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-4 left-0 right-0 z-50 px-4">
-      <div className="mx-auto flex max-w-sm items-center justify-around border-[1.5px] border-[#1C1917] bg-white p-2.5 shadow-md shadow-stone-800/5">
+      <div className="mx-auto flex max-w-sm items-center justify-around border border-stone-900/15 bg-white/80 backdrop-blur-md p-2.5 shadow-md shadow-stone-800/5">
         {tabs.map((tab) => {
           const active = pathname === tab.href;
           return (

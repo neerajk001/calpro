@@ -96,7 +96,7 @@ function parseNaturalLanguage(text: string): { name: string; calories: number; p
 
 export default function AddFoodPage() {
   const router = useRouter();
-  const { addFood, getDistinctFoods, getDaySummary } = useApp();
+  const { addFood, updateFood, foods, hydrated, getDistinctFoods, getDaySummary } = useApp();
   const today = todayStr();
 
   // Inputs
@@ -109,6 +109,10 @@ export default function AddFoodPage() {
   const [isEditingCal, setIsEditingCal] = useState(false);
   const [isEditingProt, setIsEditingProt] = useState(false);
 
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editDate, setEditDate] = useState<string>("");
+  const [hasPrefilled, setHasPrefilled] = useState(false);
+
   const distinct = useMemo(() => getDistinctFoods(10), [getDistinctFoods]);
   const todayExists = getDaySummary(today).entries;
 
@@ -120,18 +124,25 @@ export default function AddFoodPage() {
     { value: "junk", label: "🍕 Junk" },
   ];
 
-  // Sync natural language parsing output
+  // Pre-populate if in edit mode
   useEffect(() => {
-    const parsed = parseNaturalLanguage(naturalText);
-    if (parsed) {
-      setName(parsed.name);
-      if (parsed.calories > 0) setCalories(parsed.calories);
-      if (parsed.protein > 0) setProtein(parsed.protein);
-      if (parsed.tag) setActiveTag(parsed.tag);
-    } else {
-      setName(naturalText);
+    if (typeof window !== "undefined" && hydrated && !hasPrefilled) {
+      const params = new URLSearchParams(window.location.search);
+      const edit = params.get("edit");
+      if (edit) {
+        const entry = foods.find((f) => f.id === edit);
+        if (entry) {
+          setEditId(edit);
+          setName(entry.name);
+          setCalories(entry.calories);
+          setProtein(entry.protein);
+          setActiveTag(entry.tag);
+          setEditDate(entry.date);
+        }
+      }
+      setHasPrefilled(true);
     }
-  }, [naturalText]);
+  }, [hydrated, foods, hasPrefilled]);
 
   const suggestions = useMemo(() => {
     const q = name.trim().toLowerCase();
@@ -147,8 +158,13 @@ export default function AddFoodPage() {
 
   function handleSubmit() {
     const finalName = name.trim() || "Logged Item";
-    addFood(finalName, calories, protein, today, activeTag);
-    router.push("/");
+    if (editId) {
+      updateFood(editId, finalName, calories, protein, editDate, activeTag);
+      router.push(editDate ? `/?date=${editDate}` : "/");
+    } else {
+      addFood(finalName, calories, protein, today, activeTag);
+      router.push("/");
+    }
   }
 
   function handleSuggestionTap(food: { name: string; calories: number; protein: number }) {
@@ -169,10 +185,10 @@ export default function AddFoodPage() {
     <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-12 font-sans text-stone-900">
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-2xl font-serif font-bold tracking-tight text-stone-950">
-          Log Nutrition
+          {editId ? "Edit Food Entry" : "Log Nutrition"}
         </h1>
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push(editDate ? `/?date=${editDate}` : "/")}
           className="border-[1.5px] border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition active:scale-95 shadow-xs rounded-none"
         >
           Cancel
@@ -225,7 +241,7 @@ export default function AddFoodPage() {
       )}
 
       {/* Primary Log Form */}
-      <div className="flex flex-col gap-4 border-[1.5px] border-[#1C1917] bg-white p-4 shadow-xs rounded-none">
+      <div className="flex flex-col gap-4 border border-stone-900/15 bg-white/80 backdrop-blur-md p-4 shadow-xs rounded-none">
         
         {/* Sliders selectors */}
         <div className="space-y-4">
@@ -347,7 +363,19 @@ export default function AddFoodPage() {
           <input
             type="text"
             value={naturalText}
-            onChange={(e) => setNaturalText(e.target.value)}
+            onChange={(e) => {
+              const text = e.target.value;
+              setNaturalText(text);
+              const parsed = parseNaturalLanguage(text);
+              if (parsed) {
+                setName(parsed.name);
+                if (parsed.calories > 0) setCalories(parsed.calories);
+                if (parsed.protein > 0) setProtein(parsed.protein);
+                if (parsed.tag) setActiveTag(parsed.tag);
+              } else {
+                setName(text);
+              }
+            }}
             placeholder="e.g. egg (auto-fills breakfast) or pizza 280 kcal"
             className="w-full border-[1.5px] border-stone-200 bg-[#FAF8F5] px-4 py-3.5 text-xs text-stone-900 placeholder-stone-450 outline-none transition focus:border-stone-400 font-sans rounded-none"
           />
@@ -363,7 +391,7 @@ export default function AddFoodPage() {
               : "bg-stone-100 text-stone-300 cursor-not-allowed"
           }`}
         >
-          Confirm Log Entry
+          {editId ? "Save Changes" : "Confirm Log Entry"}
         </button>
       </div>
     </div>

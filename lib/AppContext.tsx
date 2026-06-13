@@ -14,6 +14,7 @@ import {
   saveFoods,
   addFood as storageAddFood,
   deleteFood as storageDeleteFood,
+  updateFood as storageUpdateFood,
   loadSettings,
   saveSettings,
 } from "./storage";
@@ -24,6 +25,7 @@ interface AppContextValue {
   hydrated: boolean;
   addFood: (name: string, calories: number, protein: number, date: string, tag: FoodTag) => void;
   deleteFood: (id: string) => void;
+  updateFood: (id: string, name: string, calories: number, protein: number, date: string, tag: FoodTag) => void;
   undoDeleteFood: () => void;
   hasLastDeleted: boolean;
   updateSettings: (partial: Partial<UserSettings>) => void;
@@ -75,6 +77,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     storageDeleteFood(id);
     setFoods((prev) => prev.filter((f) => f.id !== id));
   }, []);
+
+  const updateFood = useCallback(
+    (id: string, name: string, calories: number, protein: number, date: string, tag: FoodTag) => {
+      const updated = storageUpdateFood(id, name, calories, protein, date, tag);
+      if (updated) {
+        setFoods((prev) => prev.map((f) => (f.id === id ? updated : f)));
+      }
+    },
+    [],
+  );
 
   const undoDeleteFood = useCallback(() => {
     if (!lastDeleted) return;
@@ -190,6 +202,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         hydrated,
         addFood,
         deleteFood,
+        updateFood,
         undoDeleteFood,
         hasLastDeleted: lastDeleted !== null,
         updateSettings,

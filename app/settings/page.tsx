@@ -103,6 +103,42 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      {/* X / Twitter Profile Settings */}
+      <section className="mb-6">
+        <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-[#78716C] font-sans">
+          Social Profile
+        </h2>
+        <div className="border border-stone-200 bg-white p-4 shadow-xs rounded-none">
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="twitter-handle"
+              className="text-sm font-bold text-stone-750 font-sans"
+            >
+              X (Twitter) Handle
+            </label>
+            <div className="relative flex items-center">
+              <span className="absolute left-3.5 text-sm font-extrabold text-stone-400 font-sans">
+                @
+              </span>
+              <input
+                id="twitter-handle"
+                type="text"
+                value={settings.twitterHandle || ""}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[@\s]/g, "");
+                  updateSettings({ twitterHandle: val });
+                }}
+                placeholder="username"
+                className="w-full border-[1.5px] border-stone-200 bg-[#FAF8F5] pl-8 pr-4 py-3 text-xs text-stone-900 placeholder-stone-400 outline-none transition focus:border-stone-400 font-sans rounded-none font-bold"
+              />
+            </div>
+            <p className="text-[11px] text-[#78716C] font-sans">
+              Used when generating your daily vintage share card.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Data export controls */}
       <section className="mb-6">
         <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-[#78716C] font-sans">

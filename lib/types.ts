@@ -13,6 +13,7 @@ export interface FoodEntry {
 export interface UserSettings {
   dailyCalorieTarget: number;
   dailyProteinTarget: number;
+  twitterHandle?: string;
 }
 
 export interface AppState {

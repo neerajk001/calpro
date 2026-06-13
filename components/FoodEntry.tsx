@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { FoodEntry } from "@/lib/types";
 
 interface FoodEntryItemProps {
@@ -20,15 +21,15 @@ export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
   const tag = entry.tag || "snack";
 
   return (
-    <div className={`group flex items-center justify-between border-[1.5px] border-[#1C1917] bg-white pl-3.5 pr-4 py-3.5 shadow-xs transition hover:bg-stone-50/50 active:scale-[0.99] ${borderColors[tag]}`}>
-      <div className="min-w-0 flex-1">
+    <div className={`group flex items-center justify-between border border-stone-900/15 bg-white/80 backdrop-blur-md pl-3.5 pr-4 py-3.5 shadow-xs transition hover:bg-stone-50/50 active:scale-[0.99] ${borderColors[tag]}`}>
+      <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-85 transition cursor-pointer select-none">
         <p className="truncate text-base font-extrabold tracking-tight text-stone-900 font-sans">
-          {entry.name}
+          {entry.name} <span className="text-stone-400 text-xs font-normal font-sans ml-1 select-none">✎</span>
         </p>
         <p className="mt-0.5 text-sm font-bold text-stone-600 font-sans">
           {entry.calories} kcal <span className="mx-1.5 text-stone-400">·</span> {entry.protein}g protein
         </p>
-      </div>
+      </Link>
       <button
         onClick={onDelete}
         className="ml-3 shrink-0 rounded p-2 text-stone-400 transition hover:bg-red-500/10 hover:text-red-650 active:scale-90"
