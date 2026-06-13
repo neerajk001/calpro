@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F4F1EA",
+  themeColor: "#121212",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -57,9 +57,9 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className="h-full bg-[#F4F1EA] text-[#1C1917] antialiased">
+      <body className="h-full bg-black text-white antialiased">
         <AppProvider>
-          <div className="mx-auto flex min-h-full max-w-md flex-col bg-[#F4F1EA] shadow-xl shadow-stone-800/10">
+          <div className="mx-auto flex min-h-full max-w-md flex-col bg-[#121212] shadow-2xl shadow-black/80">
             <main className="flex-1 pb-24">{children}</main>
             <BottomNav />
           </div>
