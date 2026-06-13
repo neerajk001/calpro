@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #F4F1EA;
-  --color-surface: #FAF8F5;
-  --color-card-bg: #FFFFFF;
+  --color-canvas: #121212;
+  --color-surface: #181818;
+  --color-card-bg: #282828;
   
-  --color-accent-calorie: #D97706;
-  --color-accent-protein: #16A34A;
-  --color-accent-action: #292524;
+  --color-accent-calorie: #F97316;
+  --color-accent-protein: #1DB954;
+  --color-accent-action: #1DB954;
   
-  --color-success-mint: #16A34A;
-  --color-warning-amber: #D97706;
-  --color-error-coral: #DC2626;
+  --color-success-mint: #1DB954;
+  --color-warning-amber: #F59E0B;
+  --color-error-coral: #EF4444;
   
   --animate-shimmer: shimmer 2s infinite linear;
   --animate-pulse-slow: pulseSlow 2.5s infinite ease-in-out;
@@ -28,64 +28,60 @@
 
 @layer base {
   body {
-    background-color: #F4F1EA !important;
-    color: #1C1917 !important;
+    background-color: #121212 !important;
+    color: #ffffff !important;
     font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    font-size: 16px; /* Increased base font size */
-  }
-
-  /* Force sharp corners everywhere */
-  * {
-    border-radius: 0px !important;
+    font-size: 16px;
   }
 }
 
-/* Vintage Apple Minimalist paper layouts with minimal blur and stroke */
+/* Spotify Translucent Dark layouts with minimal blur and stroke */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(28, 25, 23, 0.15) !important;
-  box-shadow: 0 4px 12px rgba(28, 25, 23, 0.04);
+  background: rgba(24, 24, 24, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .glass-panel-accent {
-  background: rgba(41, 37, 36, 0.03) !important;
-  border: 1px solid rgba(28, 25, 23, 0.15) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .glass-button {
-  background: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(28, 25, 23, 0.15) !important;
-  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.03);
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
+  color: #ffffff !important;
 }
 
 .glass-button:hover {
-  background: rgba(250, 248, 245, 0.9) !important;
-  border-color: rgba(28, 25, 23, 0.3) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .glass-input {
-  background: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(28, 25, 23, 0.15) !important;
-  color: #1C1917 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: rgba(28, 25, 23, 0.3) !important;
-  box-shadow: 0 0 0 3px rgba(41, 37, 36, 0.05);
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.15);
 }
 
 .font-serif {
-  font-family: Georgia, Cambria, "Times New Roman", Times, serif !important;
+  font-family: 'Outfit', 'Inter', -apple-system, sans-serif !important;
 }
 
 /* Custom Scrollbars Hide */

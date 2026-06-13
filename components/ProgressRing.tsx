@@ -104,9 +104,9 @@ export function DualProgressRing({
   const calorieTargetMet = calorieTotal >= calorieTarget;
   const proteinTargetMet = proteinTotal >= proteinTarget;
 
-  // Vintage Apple colors: Calorie = Amber/Terracotta (#D97706), Protein = Olive/Forest (#16A34A)
-  const calorieRingColor = calorieExceeded ? "#DC2626" : "#D97706";
-  const calorieRingGlow = calorieExceeded ? "#DC2626" : "#D97706";
+  // Spotify Colors: Calorie = Neon Orange (#F97316), Protein = Spotify Green (#1DB954)
+  const calorieRingColor = calorieExceeded ? "#EF4444" : "#F97316";
+  const calorieRingGlow = calorieExceeded ? "#EF4444" : "#F97316";
 
   const calorieDiff = calorieTotal - calorieTarget;
   const proteinDiff = proteinTotal - proteinTarget;
@@ -120,7 +120,7 @@ export function DualProgressRing({
         progress={calorieProgress}
         color={calorieRingColor}
         glowColor={calorieRingGlow}
-        bgColor="rgba(28, 25, 23, 0.05)"
+        bgColor="rgba(255, 255, 255, 0.06)"
       />
       {/* Protein ring (inner) */}
       <div className="absolute inset-0 flex items-center justify-center">
@@ -128,42 +128,42 @@ export function DualProgressRing({
           size={168}
           strokeWidth={10}
           progress={proteinProgress}
-          color="#16A34A"
-          glowColor="#16A34A"
-          bgColor="rgba(28, 25, 23, 0.05)"
+          color="#1DB954"
+          glowColor="#1DB954"
+          bgColor="rgba(255, 255, 255, 0.06)"
         />
       </div>
       {/* Center text data panel */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-[10px] font-bold tracking-widest text-[#78716C] uppercase font-sans">
+        <span className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase font-sans">
           Calories
         </span>
-        <span className={`text-3xl font-extrabold tracking-tight tabular-nums font-sans mt-0.5 ${calorieExceeded ? "text-red-600" : "text-[#1C1917]"}`}>
+        <span className={`text-3xl font-extrabold tracking-tight tabular-nums font-sans mt-0.5 ${calorieExceeded ? "text-red-500" : "text-white"}`}>
           {calorieTotal.toLocaleString()}
         </span>
         
         {calorieExceeded ? (
-          <span className="text-[10px] font-bold text-red-600 font-sans mt-0.5 animate-pulse-slow">
+          <span className="text-[10px] font-bold text-red-500 font-sans mt-0.5 animate-pulse-slow">
             +{calorieDiff.toLocaleString()} kcal over
           </span>
         ) : (
-          <span className="text-[10px] text-[#78716C] font-sans mt-0.5 font-medium">
-            {calorieTargetMet ? "Goal met! 🎉" : `${(calorieTarget - calorieTotal).toLocaleString()} kcal left`}
+          <span className="text-[10px] text-zinc-400 font-sans mt-0.5 font-medium">
+            {calorieTargetMet ? "Goal met! 🎉" : `${(calorieTarget - calorieTotal).toLocaleString()} left`}
           </span>
         )}
 
-        <div className="mt-2.5 w-12 h-px bg-stone-200" />
+        <div className="mt-2.5 w-12 h-px bg-zinc-800" />
 
-        <span className={`mt-2 text-lg font-bold tracking-tight tabular-nums font-sans ${proteinTargetMet ? "text-emerald-700" : "text-[#16A34A]"}`}>
+        <span className={`mt-2 text-lg font-bold tracking-tight tabular-nums font-sans ${proteinTargetMet ? "text-[#1DB954]" : "text-white"}`}>
           {proteinTotal}g
         </span>
         
         {proteinTargetMet ? (
-          <span className="text-[9px] font-bold text-emerald-700 font-sans uppercase tracking-wider">
+          <span className="text-[9px] font-bold text-[#1DB954] font-sans uppercase tracking-wider">
             +{proteinDiff.toFixed(1)}g protein over
           </span>
         ) : (
-          <span className="text-[9px] text-[#78716C] font-sans uppercase tracking-wider font-medium">
+          <span className="text-[9px] text-zinc-400 font-sans uppercase tracking-wider font-medium">
             {(proteinTarget - proteinTotal).toFixed(1)}g left
           </span>
         )}
@@ -175,8 +175,8 @@ export function DualProgressRing({
 export function ProgressSkeleton() {
   return (
     <div className="relative mx-auto w-fit animate-pulse-slow">
-      <div className="h-[210px] w-[210px] rounded-full border-12 border-stone-200/40 bg-stone-300/10 flex items-center justify-center">
-        <div className="h-[168px] w-[168px] rounded-full border-10 border-stone-200/60 bg-stone-300/20" />
+      <div className="h-[210px] w-[210px] rounded-full border-12 border-zinc-800/40 bg-zinc-900/10 flex items-center justify-center">
+        <div className="h-[168px] w-[168px] rounded-full border-10 border-zinc-800/60 bg-zinc-900/20" />
       </div>
     </div>
   );

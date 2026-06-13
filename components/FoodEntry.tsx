@@ -9,30 +9,30 @@ interface FoodEntryItemProps {
 }
 
 export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
-  // Vintage Apple color highlights
+  // Spotify-themed color highlights
   const borderColors = {
-    breakfast: "border-l-[4px] border-l-[#D97706]",
-    lunch: "border-l-[4px] border-l-[#16A34A]",
-    dinner: "border-l-[4px] border-l-[#292524]",
-    snack: "border-l-[4px] border-l-[#7C3AED]",
-    junk: "border-l-[4px] border-l-[#DC2626]",
+    breakfast: "border-l-[4px] border-l-[#F97316]",
+    lunch: "border-l-[4px] border-l-[#1DB954]",
+    dinner: "border-l-[4px] border-l-[#3B82F6]",
+    snack: "border-l-[4px] border-l-[#A855F7]",
+    junk: "border-l-[4px] border-l-[#EF4444]",
   };
 
   const tag = entry.tag || "snack";
 
   return (
-    <div className={`group flex items-center justify-between border border-stone-900/15 bg-white/80 backdrop-blur-md pl-3.5 pr-4 py-3.5 shadow-xs transition hover:bg-stone-50/50 active:scale-[0.99] ${borderColors[tag]}`}>
-      <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-85 transition cursor-pointer select-none">
-        <p className="truncate text-base font-extrabold tracking-tight text-stone-900 font-sans">
-          {entry.name} <span className="text-stone-400 text-xs font-normal font-sans ml-1 select-none">✎</span>
+    <div className={`group flex items-center justify-between border border-white/5 bg-[#181818] pl-3.5 pr-4 py-3.5 shadow-sm rounded-lg transition hover:bg-[#282828] active:scale-[0.99] ${borderColors[tag]}`}>
+      <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-90 transition cursor-pointer select-none">
+        <p className="truncate text-base font-extrabold tracking-tight text-white font-sans">
+          {entry.name} <span className="text-zinc-500 text-xs font-normal font-sans ml-1 select-none group-hover:text-zinc-300">✎</span>
         </p>
-        <p className="mt-0.5 text-sm font-bold text-stone-600 font-sans">
-          {entry.calories} kcal <span className="mx-1.5 text-stone-400">·</span> {entry.protein}g protein
+        <p className="mt-0.5 text-sm font-semibold text-zinc-400 font-sans">
+          {entry.calories} kcal <span className="mx-1.5 text-zinc-650">·</span> {entry.protein}g protein
         </p>
       </Link>
       <button
         onClick={onDelete}
-        className="ml-3 shrink-0 rounded p-2 text-stone-400 transition hover:bg-red-500/10 hover:text-red-650 active:scale-90"
+        className="ml-3 shrink-0 rounded-full p-2 text-zinc-400 transition hover:bg-red-500/10 hover:text-red-400 active:scale-90"
         aria-label={`Delete ${entry.name}`}
       >
         <svg

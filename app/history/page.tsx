@@ -23,12 +23,12 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-24 font-sans text-stone-900">
+    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-24 font-sans text-white">
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-serif font-bold tracking-tight text-stone-950">
+        <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
           History Timeline
         </h1>
-        <span className="text-xs font-bold text-[#78716C] uppercase tracking-widest">
+        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
           Last 14 Days
         </span>
       </div>
@@ -36,7 +36,7 @@ export default function HistoryPage() {
       {!hydrated ? (
         <div className="space-y-4 animate-pulse">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="h-28 bg-white border border-stone-200 rounded-none" />
+            <div key={idx} className="h-28 bg-[#181818] border border-white/5 rounded-lg" />
           ))}
         </div>
       ) : (
@@ -58,22 +58,22 @@ export default function HistoryPage() {
               <div
                 key={dateStr}
                 onClick={() => handleDayTap(dateStr)}
-                className="group cursor-pointer border-[1.5px] border-stone-200 bg-white p-4 transition duration-205 hover:bg-stone-50/50 hover:border-stone-400 hover:shadow-xs active:scale-[0.99] rounded-none"
+                className="group cursor-pointer border border-white/5 bg-[#181818] p-4 transition duration-205 hover:bg-[#282828] hover:border-white/10 hover:shadow-md active:scale-[0.99] rounded-lg"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="text-base font-serif font-bold text-stone-900 tracking-tight group-hover:text-[#D97706] transition">
+                    <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#1DB954] transition font-sans">
                       {formattedDayName}, {formattedDateText}
                     </h3>
                     {dayTags.length > 0 ? (
-                      <div className="flex gap-1.5 mt-1.5">
+                      <div className="flex gap-1.5 mt-1.5 flex-wrap">
                         {dayTags.map((tag) => (
                           <span
                             key={tag}
-                            className={`px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-none ${
+                            className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full ${
                               tag === "junk"
-                                ? "bg-red-500/10 text-red-750 border border-red-500/20"
-                                : "bg-stone-100 text-[#78716C] border border-stone-200"
+                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                                : "bg-zinc-800 text-zinc-400 border border-white/5"
                             }`}
                           >
                             {tag}
@@ -81,16 +81,16 @@ export default function HistoryPage() {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-xs text-stone-400 font-semibold tracking-wide">No items logged</span>
+                      <span className="text-xs text-zinc-550 font-semibold tracking-wide">No items logged</span>
                     )}
                   </div>
                   
                   <div className="text-right">
-                    <p className={`text-base font-extrabold ${calorieExceeded ? "text-red-650" : "text-stone-900"}`}>
-                      {summary.totalCalories.toLocaleString()} <span className="text-xs text-[#78716C] font-normal">/ {settings.dailyCalorieTarget.toLocaleString()} kcal</span>
+                    <p className={`text-base font-extrabold ${calorieExceeded ? "text-red-400" : "text-white"}`}>
+                      {summary.totalCalories.toLocaleString()} <span className="text-xs text-zinc-400 font-normal">/ {settings.dailyCalorieTarget.toLocaleString()} kcal</span>
                     </p>
-                    <p className="text-sm font-bold text-[#16A34A] mt-0.5">
-                      {summary.totalProtein}g <span className="text-[10px] text-[#78716C] font-normal">/ {settings.dailyProteinTarget}g protein</span>
+                    <p className="text-sm font-bold text-[#1DB954] mt-0.5">
+                      {summary.totalProtein}g <span className="text-[10px] text-zinc-400 font-normal">/ {settings.dailyProteinTarget}g protein</span>
                     </p>
                   </div>
                 </div>
@@ -100,11 +100,11 @@ export default function HistoryPage() {
                   <div className="space-y-2 pt-1">
                     {/* Calorie Bar */}
                     <div>
-                      <div className="h-2 w-full bg-stone-100 overflow-hidden rounded-none border border-stone-200/40">
+                      <div className="h-2 w-full bg-[#282828] overflow-hidden rounded-full border border-white/5">
                         <div
                           style={{ width: `${calPct}%` }}
-                          className={`h-full transition-all duration-500 rounded-none ${
-                            calorieExceeded ? "bg-red-600" : "bg-[#D97706]"
+                          className={`h-full transition-all duration-500 rounded-full ${
+                            calorieExceeded ? "bg-red-500" : "bg-[#F97316]"
                           }`}
                         />
                       </div>
@@ -112,10 +112,10 @@ export default function HistoryPage() {
 
                     {/* Protein Bar */}
                     <div>
-                      <div className="h-1.5 w-full bg-stone-100 overflow-hidden rounded-none border border-stone-200/40">
+                      <div className="h-1.5 w-full bg-[#282828] overflow-hidden rounded-full border border-white/5">
                         <div
                           style={{ width: `${protPct}%` }}
-                          className="h-full bg-[#16A34A] transition-all duration-500 rounded-none"
+                          className="h-full bg-[#1DB954] transition-all duration-500 rounded-full"
                         />
                       </div>
                     </div>
