@@ -32,13 +32,13 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "CalPro",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0F172A",
+  themeColor: "#F4F1EA",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -57,9 +57,9 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className="h-full bg-[#0F172A] text-white antialiased">
+      <body className="h-full bg-[#F4F1EA] text-[#1C1917] antialiased">
         <AppProvider>
-          <div className="mx-auto flex min-h-full max-w-md flex-col bg-[#0F172A] shadow-2xl shadow-black/50">
+          <div className="mx-auto flex min-h-full max-w-md flex-col bg-[#F4F1EA] shadow-xl shadow-stone-800/10">
             <main className="flex-1 pb-24">{children}</main>
             <BottomNav />
           </div>

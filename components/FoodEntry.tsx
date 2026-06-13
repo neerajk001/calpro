@@ -8,30 +8,30 @@ interface FoodEntryItemProps {
 }
 
 export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
-  // Border accents corresponding to tags
+  // Vintage Apple color highlights
   const borderColors = {
-    breakfast: "border-l-[3.5px] border-l-[#F97316]",
-    lunch: "border-l-[3.5px] border-l-[#22C55E]",
-    dinner: "border-l-[3.5px] border-l-[#6366F1]",
-    snack: "border-l-[3.5px] border-l-[#A855F7]",
-    junk: "border-l-[3.5px] border-l-[#F59E0B]",
+    breakfast: "border-l-[3.5px] border-l-[#D97706]",
+    lunch: "border-l-[3.5px] border-l-[#16A34A]",
+    dinner: "border-l-[3.5px] border-l-[#292524]",
+    snack: "border-l-[3.5px] border-l-[#7C3AED]",
+    junk: "border-l-[3.5px] border-l-[#DC2626]",
   };
 
   const tag = entry.tag || "snack";
 
   return (
-    <div className={`group flex items-center justify-between rounded-xl border border-white/5 bg-slate-900/40 pl-3.5 pr-4 py-3 shadow-md backdrop-blur-md transition hover:bg-slate-900/60 active:scale-[0.99] ${borderColors[tag]}`}>
+    <div className={`group flex items-center justify-between rounded-xl border border-stone-200/60 bg-white pl-3.5 pr-4 py-3 shadow-xs transition hover:bg-stone-50/50 active:scale-[0.99] ${borderColors[tag]}`}>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold tracking-tight text-white font-sans">
+        <p className="truncate text-sm font-bold tracking-tight text-stone-900 font-sans">
           {entry.name}
         </p>
-        <p className="mt-0.5 text-xs text-[#94A3B8] font-sans">
-          {entry.calories} kcal <span className="mx-1.5 text-slate-700">·</span> {entry.protein}g protein
+        <p className="mt-0.5 text-xs text-stone-500 font-sans">
+          {entry.calories} kcal <span className="mx-1.5 text-stone-300">·</span> {entry.protein}g protein
         </p>
       </div>
       <button
         onClick={onDelete}
-        className="ml-3 shrink-0 rounded-lg p-2 text-slate-500 transition hover:bg-red-500/10 hover:text-red-400 active:scale-90"
+        className="ml-3 shrink-0 rounded-lg p-2 text-stone-400 transition hover:bg-red-500/10 hover:text-red-600 active:scale-90"
         aria-label={`Delete ${entry.name}`}
       >
         <svg

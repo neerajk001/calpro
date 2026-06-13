@@ -128,9 +128,9 @@ export default function DashboardPage() {
     <div className="relative min-h-full px-4 pb-28 pt-6 select-none font-sans">
       {/* Onboarding Dialog Overlay */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
-          <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#6366F1]/15 text-[#6366F1] mb-4">
+        <div className="fixed inset-0 z-55 flex items-center justify-center bg-stone-900/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-3xl border border-stone-200 bg-white p-6 shadow-xl text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 text-stone-800 mb-4 border border-stone-200">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="28"
@@ -147,27 +147,27 @@ export default function DashboardPage() {
               </svg>
             </div>
             
-            <h2 className="text-2xl font-extrabold tracking-tight text-white font-sans">
+            <h2 className="text-2xl font-serif font-extrabold tracking-tight text-stone-900">
               CalPro
             </h2>
-            <p className="mt-1 text-sm font-semibold tracking-wider text-[#6366F1] uppercase font-sans">
+            <p className="mt-1 text-xs font-bold tracking-widest text-stone-500 uppercase font-sans">
               Track in 3 Seconds
             </p>
             
-            <p className="mt-4 text-sm leading-relaxed text-slate-300 font-sans">
+            <p className="mt-4 text-xs leading-relaxed text-stone-600 font-sans">
               No registration fields. No tracking advertisements. Your nutritional data resides strictly on your local browser device memory.
             </p>
 
             <div className="mt-6 flex items-center justify-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-[#6366F1] animate-ping" />
-              <span className="text-xs font-semibold text-[#6366F1] tracking-wide font-sans">
+              <div className="h-1.5 w-1.5 rounded-full bg-stone-800 animate-ping" />
+              <span className="text-[10px] font-bold text-stone-500 tracking-wide font-sans">
                 Discoverable from Twitter/X
               </span>
             </div>
 
             <button
               onClick={handleStartTracking}
-              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-[#6366F1] to-[#4F46E5] py-3.5 text-sm font-bold text-white shadow-xl shadow-[#6366F1]/25 transition active:scale-95 hover:brightness-110 font-sans"
+              className="mt-6 w-full rounded-xl bg-[#292524] py-3.5 text-xs font-bold text-white shadow-md hover:bg-[#1C1917] transition active:scale-95 font-sans"
             >
               Start Tracking Now
             </button>
@@ -179,7 +179,7 @@ export default function DashboardPage() {
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={() => setSelectedDate((d) => offsetDate(d, -1))}
-          className="rounded-xl border border-white/5 bg-slate-900/30 p-2.5 text-slate-400 hover:bg-slate-900/60 hover:text-white transition active:scale-90"
+          className="rounded-xl border border-stone-200 bg-white p-2.5 text-stone-500 hover:bg-stone-50 hover:text-stone-900 transition active:scale-90 shadow-xs"
           aria-label="Previous day"
         >
           <svg
@@ -198,11 +198,11 @@ export default function DashboardPage() {
         </button>
 
         <div className="text-center">
-          <h1 className="text-base font-extrabold tracking-tight text-white font-sans">
+          <h1 className="text-lg font-serif font-bold tracking-tight text-stone-950">
             {isToday(selectedDate) ? "Today" : fmtDate(selectedDate)}
           </h1>
           {isToday(selectedDate) && (
-            <p className="text-[10px] text-slate-500 font-sans font-medium">
+            <p className="text-[10px] text-stone-500 font-sans font-medium">
               {fmtDate(selectedDate)}
             </p>
           )}
@@ -213,10 +213,10 @@ export default function DashboardPage() {
             canGoForward && setSelectedDate((d) => offsetDate(d, 1))
           }
           disabled={!canGoForward}
-          className={`rounded-xl border border-white/5 p-2.5 transition active:scale-90 ${
+          className={`rounded-xl border p-2.5 transition active:scale-90 shadow-xs ${
             canGoForward
-              ? "bg-slate-900/30 text-slate-400 hover:bg-slate-900/60 hover:text-white"
-              : "bg-slate-900/10 text-slate-700 cursor-not-allowed"
+              ? "bg-white border-stone-200 text-stone-500 hover:bg-stone-50 hover:text-stone-900"
+              : "bg-stone-100 border-stone-100 text-stone-300 cursor-not-allowed"
           }`}
           aria-label="Next day"
         >
@@ -254,16 +254,16 @@ export default function DashboardPage() {
 
       {/* Custom Empty states and Suggestion logger */}
       <div className="mb-6">
-        <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
+        <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#78716C] font-sans">
           Logged Items
         </h2>
 
         {summary.entries.length === 0 ? (
-          <div className="rounded-2xl border border-white/5 bg-slate-900/40 px-6 py-8 text-center backdrop-blur-xs">
-            <p className="text-sm font-medium text-slate-400 font-sans">
+          <div className="rounded-2xl border border-stone-200 bg-white px-6 py-8 text-center shadow-xs">
+            <p className="text-sm font-bold text-stone-700 font-sans">
               No entries logged for this date.
             </p>
-            <p className="mt-1 text-xs text-slate-500 font-sans">
+            <p className="mt-1 text-xs text-stone-500 font-sans">
               Quick log breakfast recommendations:
             </p>
             
@@ -272,12 +272,12 @@ export default function DashboardPage() {
                 <button
                   key={food.name}
                   onClick={() => handleQuickAdd(food.name, food.calories, food.protein, food.tag)}
-                  className="flex items-center justify-between rounded-xl border border-white/5 bg-slate-900/40 px-4 py-2.5 text-left transition hover:bg-[#F97316]/10 hover:border-[#F97316]/20 group active:scale-95"
+                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-left transition hover:bg-stone-50 hover:border-stone-400 group active:scale-95 shadow-xs"
                 >
-                  <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition font-sans">
+                  <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 transition font-sans">
                     + {food.name}
                   </span>
-                  <span className="text-[10px] text-slate-500 group-hover:text-slate-300 transition font-sans">
+                  <span className="text-[10px] text-stone-500 group-hover:text-stone-700 transition font-sans">
                     {food.calories} kcal · {food.protein}g P
                   </span>
                 </button>
@@ -293,10 +293,10 @@ export default function DashboardPage() {
               return (
                 <div key={tag} className="flex flex-col gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-widest">
                       {tagLabelMapping[tag]}
                     </span>
-                    <div className="h-px flex-1 bg-white/5" />
+                    <div className="h-px flex-1 bg-stone-200" />
                   </div>
                   
                   <div className="flex flex-col gap-2">
@@ -318,7 +318,7 @@ export default function DashboardPage() {
                 href={getTwitterShareUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl border border-sky-500/20 bg-sky-950/20 py-3 text-xs font-bold text-sky-400 transition hover:bg-sky-500/10 hover:text-sky-300 active:scale-95 font-sans"
+                className="flex items-center justify-center gap-2 rounded-xl border border-stone-250 bg-stone-100 py-3 text-xs font-bold text-stone-700 transition hover:bg-stone-200 hover:text-stone-900 active:scale-95 font-sans"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -345,7 +345,7 @@ export default function DashboardPage() {
       {/* Recurrent items fast loader */}
       {distinct.length > 0 && (
         <div className="mb-6">
-          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
+          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#78716C] font-sans">
             Quick Log Frequent
           </h2>
           <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
@@ -353,7 +353,7 @@ export default function DashboardPage() {
               <button
                 key={food.name}
                 onClick={() => handleQuickAdd(food.name, food.calories, food.protein, "snack")}
-                className="shrink-0 rounded-full border border-white/5 bg-slate-900/40 px-4 py-2 text-xs font-semibold text-slate-300 transition active:scale-90 hover:bg-[#6366F1]/10 hover:border-[#6366F1]/20 hover:text-white font-sans"
+                className="shrink-0 rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-semibold text-stone-700 transition active:scale-90 hover:bg-stone-100 hover:border-stone-400 hover:text-stone-900 font-sans shadow-xs"
               >
                 + {food.name}
               </button>
@@ -365,14 +365,14 @@ export default function DashboardPage() {
       {/* Undo Toast notification popup */}
       {showUndo && (
         <div className="fixed bottom-24 left-1/2 z-50 w-full max-w-xs -translate-x-1/2 px-4 transition-all duration-300 ease-out">
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/95 p-3.5 shadow-2xl backdrop-blur-xl">
-            <span className="text-xs text-slate-300 font-medium font-sans">Item deleted.</span>
+          <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-3.5 shadow-lg shadow-stone-800/5">
+            <span className="text-xs text-stone-600 font-medium font-sans">Item deleted.</span>
             <button
               onClick={() => {
                 undoDeleteFood();
                 setShowUndo(false);
               }}
-              className="text-xs font-bold text-[#6366F1] hover:underline px-2 py-0.5 active:scale-95 transition font-sans"
+              className="text-xs font-bold text-[#292524] hover:underline px-2 py-0.5 active:scale-95 transition font-sans"
             >
               Undo
             </button>
@@ -385,7 +385,7 @@ export default function DashboardPage() {
         <div className="fixed bottom-24 right-4 z-40">
           <Link
             href="/add"
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white shadow-xl shadow-[#6366F1]/30 transition hover:brightness-110 active:scale-90"
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-[#292524] text-white shadow-lg shadow-stone-800/10 hover:bg-[#1C1917] transition active:scale-90"
             aria-label="Add food log item"
           >
             <svg

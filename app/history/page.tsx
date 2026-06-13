@@ -23,12 +23,12 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-24 font-sans">
+    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-24 font-sans text-stone-900">
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-xl font-extrabold tracking-tight text-white font-sans">
+        <h1 className="text-xl font-serif font-bold tracking-tight text-stone-950">
           History Timeline
         </h1>
-        <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest">
+        <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-widest">
           Last 14 Days
         </span>
       </div>
@@ -36,7 +36,7 @@ export default function HistoryPage() {
       {!hydrated ? (
         <div className="space-y-4 animate-pulse">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="h-28 rounded-2xl bg-slate-900/40 border border-white/5" />
+            <div key={idx} className="h-28 rounded-2xl bg-white border border-stone-200" />
           ))}
         </div>
       ) : (
@@ -52,18 +52,17 @@ export default function HistoryPage() {
             const formattedDayName = dObj.toLocaleDateString("en-US", { weekday: "short" });
             const formattedDateText = dObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-            // Unique tags list to display categories logged on this day
             const dayTags = Array.from(new Set(summary.entries.map((e) => e.tag)));
 
             return (
               <div
                 key={dateStr}
                 onClick={() => handleDayTap(dateStr)}
-                className="group cursor-pointer rounded-2xl border border-white/5 bg-slate-900/40 p-4 transition duration-200 hover:bg-slate-900/60 hover:border-white/10 hover:shadow-lg active:scale-[0.99]"
+                className="group cursor-pointer rounded-2xl border border-stone-200 bg-white p-4 transition duration-205 hover:bg-stone-50/50 hover:border-stone-400 hover:shadow-xs active:scale-[0.99]"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="text-sm font-bold text-white tracking-tight group-hover:text-[#F97316] transition">
+                    <h3 className="text-sm font-serif font-bold text-stone-900 tracking-tight group-hover:text-[#D97706] transition">
                       {formattedDayName}, {formattedDateText}
                     </h3>
                     {dayTags.length > 0 ? (
@@ -73,8 +72,8 @@ export default function HistoryPage() {
                             key={tag}
                             className={`rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${
                               tag === "junk"
-                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                                : "bg-white/5 text-[#94A3B8]"
+                                ? "bg-red-500/10 text-red-750 border border-red-500/20"
+                                : "bg-stone-100 text-[#78716C] border border-stone-200"
                             }`}
                           >
                             {tag}
@@ -82,16 +81,16 @@ export default function HistoryPage() {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-[10px] text-slate-600 font-semibold tracking-wide">No items logged</span>
+                      <span className="text-[10px] text-stone-400 font-semibold tracking-wide">No items logged</span>
                     )}
                   </div>
                   
                   <div className="text-right">
-                    <p className={`text-sm font-extrabold ${calorieExceeded ? "text-red-400" : "text-white"}`}>
-                      {summary.totalCalories.toLocaleString()} <span className="text-xs text-[#94A3B8] font-normal">/ {settings.dailyCalorieTarget.toLocaleString()} kcal</span>
+                    <p className={`text-sm font-extrabold ${calorieExceeded ? "text-red-600" : "text-stone-900"}`}>
+                      {summary.totalCalories.toLocaleString()} <span className="text-xs text-[#78716C] font-normal">/ {settings.dailyCalorieTarget.toLocaleString()} kcal</span>
                     </p>
-                    <p className="text-xs font-bold text-[#22C55E] mt-0.5">
-                      {summary.totalProtein}g <span className="text-[10px] text-[#94A3B8] font-normal">/ {settings.dailyProteinTarget}g protein</span>
+                    <p className="text-xs font-bold text-[#16A34A] mt-0.5">
+                      {summary.totalProtein}g <span className="text-[10px] text-[#78716C] font-normal">/ {settings.dailyProteinTarget}g protein</span>
                     </p>
                   </div>
                 </div>
@@ -101,11 +100,11 @@ export default function HistoryPage() {
                   <div className="space-y-2 pt-1">
                     {/* Calorie Bar */}
                     <div>
-                      <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
                         <div
                           style={{ width: `${calPct}%` }}
                           className={`h-full rounded-full transition-all duration-500 ${
-                            calorieExceeded ? "bg-red-500" : "bg-[#F97316]"
+                            calorieExceeded ? "bg-red-600" : "bg-[#D97706]"
                           }`}
                         />
                       </div>
@@ -113,10 +112,10 @@ export default function HistoryPage() {
 
                     {/* Protein Bar */}
                     <div>
-                      <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                      <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
                         <div
                           style={{ width: `${protPct}%` }}
-                          className="h-full rounded-full bg-[#22C55E] transition-all duration-500"
+                          className="h-full rounded-full bg-[#16A34A] transition-all duration-500"
                         />
                       </div>
                     </div>
