@@ -9,21 +9,10 @@ interface FoodEntryItemProps {
 }
 
 export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
-  // Spotify-themed color highlights for the indicator stripe
-  const indicatorColors = {
-    breakfast: "bg-[#F97316]",
-    lunch: "bg-[#1DB954]",
-    dinner: "bg-[#3B82F6]",
-    snack: "bg-[#A855F7]",
-    junk: "bg-[#EF4444]",
-  };
-
-  const tag = entry.tag || "snack";
-
   return (
     <div className="group relative flex items-center justify-between border border-white/5 bg-[#181818] pl-5 pr-4 py-3.5 shadow-sm rounded-lg transition hover:bg-[#282828] active:scale-[0.99] overflow-hidden">
       {/* Sleek vertical category indicator stripe on the left edge */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${indicatorColors[tag]}`} />
+      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#3B82F6]" />
 
       <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-90 transition cursor-pointer select-none">
         <p className="truncate text-base font-extrabold tracking-tight text-white font-sans">
