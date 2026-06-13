@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useApp } from "@/lib/AppContext";
 import { DualProgressRing, ProgressSkeleton } from "@/components/ProgressRing";
 import { FoodEntryItem } from "@/components/FoodEntry";
+import type { FoodTag, FoodEntry } from "@/lib/types";
 
 function todayStr(): string {
   const d = new Date();
@@ -33,11 +34,15 @@ function isToday(dateStr: string): boolean {
 export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showUndo, setShowUndo] = useState(false);
+
   const {
     hydrated,
     settings,
     getDaySummary,
     deleteFood,
+    undoDeleteFood,
+    hasLastDeleted,
     getDistinctFoods,
     addFood,
   } = useApp();
@@ -47,7 +52,18 @@ export default function DashboardPage() {
   const today = todayStr();
   const canGoForward = selectedDate < today;
 
-  // Hydration state check to dismiss/display Onboarding overlay
+  // Sync date selection from query parameters (retrospective view navigation)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const date = params.get("date");
+      if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        setSelectedDate(date);
+      }
+    }
+  }, []);
+
+  // Hydrate onboarding overlay state
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isDismissed = localStorage.getItem("calpro_onboarded_v1");
@@ -57,14 +73,25 @@ export default function DashboardPage() {
     }
   }, []);
 
+  // Show undo toast when a log is deleted
+  useEffect(() => {
+    if (hasLastDeleted) {
+      setShowUndo(true);
+      const timer = setTimeout(() => {
+        setShowUndo(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [hasLastDeleted]);
+
   const handleStartTracking = () => {
     localStorage.setItem("calpro_onboarded_v1", "true");
     setShowOnboarding(false);
   };
 
   const handleQuickAdd = useCallback(
-    (name: string, calories: number, protein: number) => {
-      addFood(name, calories, protein, selectedDate);
+    (name: string, calories: number, protein: number, tag: FoodTag = "snack") => {
+      addFood(name, calories, protein, selectedDate, tag);
     },
     [addFood, selectedDate],
   );
@@ -74,18 +101,34 @@ export default function DashboardPage() {
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
   };
 
-  // Instant quick-start recommendations for new users
   const starterFoods = [
-    { name: "2 Scrambled Eggs", calories: 140, protein: 12 },
-    { name: "Whey Protein Shake", calories: 130, protein: 25 },
-    { name: "Greek Yogurt Cup", calories: 120, protein: 15 },
+    { name: "2 Scrambled Eggs", calories: 140, protein: 12, tag: "breakfast" as FoodTag },
+    { name: "Whey Protein Shake", calories: 130, protein: 25, tag: "snack" as FoodTag },
+    { name: "Greek Yogurt Cup", calories: 120, protein: 15, tag: "snack" as FoodTag },
   ];
 
+  // Group logged items by categories
+  const tagsOrder: FoodTag[] = ["breakfast", "lunch", "dinner", "snack", "junk"];
+  const groupedEntries = summary.entries.reduce((acc, entry) => {
+    const t = entry.tag || "snack";
+    if (!acc[t]) acc[t] = [];
+    acc[t].push(entry);
+    return acc;
+  }, {} as Record<FoodTag, FoodEntry[]>);
+
+  const tagLabelMapping = {
+    breakfast: "🍳 Breakfast",
+    lunch: "🥗 Lunch",
+    dinner: "🍽️ Dinner",
+    snack: "🍏 Snack",
+    junk: "🍕 Junk Food",
+  };
+
   return (
-    <div className="relative min-h-full px-4 pb-28 pt-6 select-none">
+    <div className="relative min-h-full px-4 pb-28 pt-6 select-none font-sans">
       {/* Onboarding Dialog Overlay */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
+        <div className="fixed inset-0 z-55 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
           <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#10B981]/15 text-[#10B981] mb-4">
               <svg
@@ -228,7 +271,7 @@ export default function DashboardPage() {
               {starterFoods.map((food) => (
                 <button
                   key={food.name}
-                  onClick={() => handleQuickAdd(food.name, food.calories, food.protein)}
+                  onClick={() => handleQuickAdd(food.name, food.calories, food.protein, food.tag)}
                   className="flex items-center justify-between rounded-xl border border-white/5 bg-slate-900/40 px-4 py-2.5 text-left transition hover:bg-[#10B981]/10 hover:border-[#10B981]/20 group active:scale-95"
                 >
                   <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition font-sans">
@@ -242,14 +285,32 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
-            {summary.entries.map((entry) => (
-              <FoodEntryItem
-                key={entry.id}
-                entry={entry}
-                onDelete={() => deleteFood(entry.id)}
-              />
-            ))}
+          <div className="space-y-4">
+            {/* Iterative grouping rendering */}
+            {tagsOrder.map((tag) => {
+              const entries = groupedEntries[tag];
+              if (!entries || entries.length === 0) return null;
+              return (
+                <div key={tag} className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                      {tagLabelMapping[tag]}
+                    </span>
+                    <div className="h-px flex-1 bg-white/5" />
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    {entries.map((entry) => (
+                      <FoodEntryItem
+                        key={entry.id}
+                        entry={entry}
+                        onDelete={() => deleteFood(entry.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
 
             {/* Social Share Trigger */}
             <div className="mt-6">
@@ -291,12 +352,30 @@ export default function DashboardPage() {
             {distinct.map((food) => (
               <button
                 key={food.name}
-                onClick={() => handleQuickAdd(food.name, food.calories, food.protein)}
+                onClick={() => handleQuickAdd(food.name, food.calories, food.protein, "snack")}
                 className="shrink-0 rounded-full border border-white/5 bg-slate-900/40 px-4 py-2 text-xs font-semibold text-slate-300 transition active:scale-90 hover:bg-[#10B981]/10 hover:border-[#10B981]/20 hover:text-white font-sans"
               >
                 + {food.name}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Undo Toast notification popup */}
+      {showUndo && (
+        <div className="fixed bottom-24 left-1/2 z-50 w-full max-w-xs -translate-x-1/2 px-4 transition-all duration-300 ease-out">
+          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/95 p-3.5 shadow-2xl backdrop-blur-xl">
+            <span className="text-xs text-slate-300 font-medium font-sans">Item deleted.</span>
+            <button
+              onClick={() => {
+                undoDeleteFood();
+                setShowUndo(false);
+              }}
+              className="text-xs font-bold text-[#10B981] hover:underline px-2 py-0.5 active:scale-95 transition font-sans"
+            >
+              Undo
+            </button>
           </div>
         </div>
       )}

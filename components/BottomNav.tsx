@@ -47,6 +47,26 @@ const tabs = [
     ),
   },
   {
+    label: "History",
+    href: "/history",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 8v4l3 3" />
+        <circle cx="12" cy="12" r="10" />
+      </svg>
+    ),
+  },
+  {
     label: "Settings",
     href: "/settings",
     icon: (
@@ -80,7 +100,7 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`relative flex flex-col items-center gap-1 rounded-xl px-5 py-2.5 transition active:scale-90 ${
+              className={`relative flex flex-col items-center gap-1 rounded-xl px-4 py-2.5 transition active:scale-90 ${
                 active
                   ? "text-[#10B981]"
                   : "text-slate-400 hover:text-slate-200"

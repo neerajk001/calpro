@@ -8,9 +8,10 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import type { FoodEntry, UserSettings, DaySummary } from "./types";
+import type { FoodEntry, UserSettings, DaySummary, FoodTag } from "./types";
 import {
   loadFoods,
+  saveFoods,
   addFood as storageAddFood,
   deleteFood as storageDeleteFood,
   loadSettings,
@@ -21,8 +22,10 @@ interface AppContextValue {
   foods: FoodEntry[];
   settings: UserSettings;
   hydrated: boolean;
-  addFood: (name: string, calories: number, protein: number, date: string) => void;
+  addFood: (name: string, calories: number, protein: number, date: string, tag: FoodTag) => void;
   deleteFood: (id: string) => void;
+  undoDeleteFood: () => void;
+  hasLastDeleted: boolean;
   updateSettings: (partial: Partial<UserSettings>) => void;
   getDayFoods: (date: string) => FoodEntry[];
   getDaySummary: (date: string) => DaySummary;
@@ -39,15 +42,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dailyProteinTarget: 120,
   });
   const [hydrated, setHydrated] = useState(false);
+  const [lastDeleted, setLastDeleted] = useState<FoodEntry | null>(null);
 
-  // Sync state on mount and subscribe to localStorage events (for cross-tab synchronization)
+  // Sync state on mount and subscribe to localStorage events
   useEffect(() => {
     const syncState = () => {
       setFoods(loadFoods());
       setSettings(loadSettings());
     };
     
-    // Initial load
     syncState();
     setHydrated(true);
 
@@ -56,17 +59,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addFood = useCallback(
-    (name: string, calories: number, protein: number, date: string) => {
-      const entry = storageAddFood(name, calories, protein, date);
+    (name: string, calories: number, protein: number, date: string, tag: FoodTag) => {
+      const entry = storageAddFood(name, calories, protein, date, tag);
       setFoods((prev) => [...prev, entry]);
     },
     [],
   );
 
   const deleteFood = useCallback((id: string) => {
+    const target = loadFoods().find((f) => f.id === id);
+    if (target) {
+      setLastDeleted(target);
+    }
+    
     storageDeleteFood(id);
     setFoods((prev) => prev.filter((f) => f.id !== id));
   }, []);
+
+  const undoDeleteFood = useCallback(() => {
+    if (!lastDeleted) return;
+    
+    const dbFoods = loadFoods();
+    dbFoods.push(lastDeleted);
+    saveFoods(dbFoods);
+    
+    setFoods((prev) => [...prev, lastDeleted]);
+    setLastDeleted(null);
+  }, [lastDeleted]);
 
   const updateSettings = useCallback((partial: Partial<UserSettings>) => {
     setSettings((prev) => {
@@ -86,7 +105,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const entries = foods.filter((f) => f.date === date);
       const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0);
       
-      // Floating point addition resolution
       const rawProtein = entries.reduce((sum, e) => sum + e.protein, 0);
       const totalProtein = Math.round(rawProtein * 10) / 10;
 
@@ -137,7 +155,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (foods.length === 0) return 0;
     const datesWithFood = new Set(foods.map((f) => f.date));
     
-    // Helper to get local date string YYYY-MM-DD
     const getLocalDateString = (d: Date) => {
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     };
@@ -148,7 +165,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const yesterday = new Date(Date.now() - 86400000);
     const yesterdayStr = getLocalDateString(yesterday);
 
-    // If neither today nor yesterday has logged foods, streak is broken
     if (!datesWithFood.has(todayStr) && !datesWithFood.has(yesterdayStr)) {
       return 0;
     }
@@ -174,6 +190,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         hydrated,
         addFood,
         deleteFood,
+        undoDeleteFood,
+        hasLastDeleted: lastDeleted !== null,
         updateSettings,
         getDayFoods,
         getDaySummary,

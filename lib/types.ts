@@ -1,3 +1,5 @@
+export type FoodTag = "breakfast" | "lunch" | "dinner" | "snack" | "junk";
+
 export interface FoodEntry {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface FoodEntry {
   protein: number;
   date: string; // "YYYY-MM-DD"
   createdAt: number; // Unix timestamp ms
+  tag: FoodTag;
 }
 
 export interface UserSettings {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 interface ProgressRingProps {
   size: number;
   strokeWidth: number;
-  progress: number; // 0-1
+  progress: number; // 0-1+
   color: string;
   bgColor: string;
   glowColor?: string;
@@ -101,8 +101,16 @@ export function DualProgressRing({
   proteinTotal: number;
   proteinTarget: number;
 }) {
-  const calorieDone = calorieProgress >= 1;
-  const proteinDone = proteinProgress >= 1;
+  const calorieExceeded = calorieTotal > calorieTarget;
+  const calorieTargetMet = calorieTotal >= calorieTarget;
+  const proteinTargetMet = proteinTotal >= proteinTarget;
+
+  // Visual overflow indicators
+  const calorieRingColor = calorieExceeded ? "#EF4444" : "#10B981";
+  const calorieRingGlow = calorieExceeded ? "#EF4444" : "#10B981";
+
+  const calorieDiff = calorieTotal - calorieTarget;
+  const proteinDiff = proteinTotal - proteinTarget;
 
   return (
     <div className="relative mx-auto w-fit select-none">
@@ -111,8 +119,8 @@ export function DualProgressRing({
         size={210}
         strokeWidth={12}
         progress={calorieProgress}
-        color={calorieDone ? "#10B981" : "#10B981"}
-        glowColor="#10B981"
+        color={calorieRingColor}
+        glowColor={calorieRingGlow}
         bgColor="rgba(255, 255, 255, 0.05)"
       />
       {/* Protein ring (inner) */}
@@ -121,31 +129,45 @@ export function DualProgressRing({
           size={168}
           strokeWidth={10}
           progress={proteinProgress}
-          color={proteinDone ? "#06B6D4" : "#06B6D4"}
+          color="#06B6D4"
           glowColor="#06B6D4"
           bgColor="rgba(255, 255, 255, 0.05)"
         />
       </div>
       {/* Center text data panel */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-sm font-medium tracking-widest text-slate-400 uppercase font-sans">
+        <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-sans">
           Calories
         </span>
-        <span className="text-3xl font-extrabold tracking-tight tabular-nums text-white font-sans mt-0.5">
+        <span className={`text-3xl font-extrabold tracking-tight tabular-nums font-sans mt-0.5 ${calorieExceeded ? "text-red-400" : "text-white"}`}>
           {calorieTotal.toLocaleString()}
         </span>
-        <span className="text-xs text-slate-500 font-sans mt-0.5">
-          target: {calorieTarget.toLocaleString()} kcal
-        </span>
+        
+        {calorieExceeded ? (
+          <span className="text-[10px] font-bold text-red-500 font-sans mt-0.5 animate-pulse-slow">
+            +{calorieDiff.toLocaleString()} kcal over
+          </span>
+        ) : (
+          <span className="text-[10px] text-slate-500 font-sans mt-0.5">
+            {calorieTargetMet ? "Goal met! 🎉" : `${(calorieTarget - calorieTotal).toLocaleString()} kcal left`}
+          </span>
+        )}
 
-        <div className="mt-3 w-12 h-px bg-white/10" />
+        <div className="mt-2.5 w-12 h-px bg-white/10" />
 
-        <span className="mt-2.5 text-lg font-bold tracking-tight tabular-nums text-[#06B6D4] font-sans">
+        <span className={`mt-2 text-lg font-bold tracking-tight tabular-nums font-sans ${proteinTargetMet ? "text-emerald-400" : "text-[#06B6D4]"}`}>
           {proteinTotal}g
         </span>
-        <span className="text-[10px] text-slate-500 font-sans uppercase tracking-wider">
-          protein / {proteinTarget}g
-        </span>
+        
+        {proteinTargetMet ? (
+          <span className="text-[9px] font-bold text-emerald-400 font-sans uppercase tracking-wider">
+            +{proteinDiff.toFixed(1)}g protein over
+          </span>
+        ) : (
+          <span className="text-[9px] text-slate-500 font-sans uppercase tracking-wider">
+            {(proteinTarget - proteinTotal).toFixed(1)}g left
+          </span>
+        )}
       </div>
     </div>
   );

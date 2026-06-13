@@ -1,4 +1,4 @@
-import type { FoodEntry, UserSettings, AppState } from "./types";
+import type { FoodEntry, UserSettings, AppState, FoodTag } from "./types";
 
 const FOODS_KEY = "calpro:foods";
 const SETTINGS_KEY = "calpro:settings";
@@ -15,9 +15,6 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 }
 
-/**
- * Safely parse JSON with error boundary recovery.
- */
 function safeParse<T>(raw: string | null, fallback: T): T {
   if (!raw) return fallback;
   try {
@@ -34,8 +31,7 @@ export function loadFoods(): FoodEntry[] {
   const raw = localStorage.getItem(FOODS_KEY);
   const foods = safeParse<any[]>(raw, []);
   
-  // Validate schema structure & sanitize invalid/broken records
-  return foods.filter((f): f is FoodEntry => {
+  return foods.filter((f): f is any => {
     return (
       f &&
       typeof f.id === "string" &&
@@ -44,11 +40,27 @@ export function loadFoods(): FoodEntry[] {
       typeof f.protein === "number" &&
       typeof f.date === "string"
     );
-  }).map(f => ({
-    ...f,
-    calories: Math.max(0, Math.round(f.calories)),
-    protein: Math.max(0, Math.round(f.protein * 10) / 10),
-  }));
+  }).map(f => {
+    // Schema migration mapping: allocate tags if missing based on logs creation hour
+    let tag = f.tag;
+    if (!tag) {
+      const hour = new Date(f.createdAt || Date.now()).getHours();
+      if (hour >= 5 && hour < 11) tag = "breakfast";
+      else if (hour >= 11 && hour < 16) tag = "lunch";
+      else if (hour >= 16 && hour < 21) tag = "dinner";
+      else tag = "snack";
+    }
+
+    return {
+      id: f.id,
+      name: f.name,
+      calories: Math.max(0, Math.round(f.calories)),
+      protein: Math.max(0, Math.round(f.protein * 10) / 10),
+      date: f.date,
+      createdAt: f.createdAt ?? Date.now(),
+      tag: tag as FoodTag,
+    };
+  });
 }
 
 export function saveFoods(foods: FoodEntry[]): void {
@@ -65,8 +77,8 @@ export function addFood(
   calories: number,
   protein: number,
   date: string,
+  tag: FoodTag,
 ): FoodEntry {
-  // Input sanitation & defaults
   const sanitizedName = name.trim() || "Logged Item";
   const sanitizedCalories = Math.max(0, Math.round(calories));
   const sanitizedProtein = Math.max(0, Math.round(protein * 10) / 10);
@@ -78,6 +90,7 @@ export function addFood(
     protein: sanitizedProtein,
     date: date,
     createdAt: Date.now(),
+    tag: tag,
   };
 
   const foods = loadFoods();
@@ -104,14 +117,12 @@ export function getDistinctFoods(limit = 50): { name: string; calories: number; 
   const foods = loadFoods();
   const seen = new Map<string, { calories: number; protein: number; count: number }>();
 
-  // Count usage frequency to surface quick add items
   for (let i = foods.length - 1; i >= 0; i--) {
     const f = foods[i];
     const key = f.name.trim().toLowerCase();
     const existing = seen.get(key);
     if (existing) {
       existing.count++;
-      // Cache latest parsed metrics for this food item
       existing.calories = f.calories;
       existing.protein = f.protein;
     } else {
