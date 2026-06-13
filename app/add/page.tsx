@@ -10,13 +10,6 @@ function todayStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/**
- * Smart default tag selection rules based on current local hour:
- * 5:00 AM – 11:00 AM: Breakfast
- * 11:00 AM – 4:00 PM: Lunch
- * 4:00 PM – 9:00 PM: Dinner
- * Otherwise: Snack
- */
 function getDefaultTag(): FoodTag {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 11) return "breakfast";
@@ -54,7 +47,7 @@ function parseNaturalLanguage(text: string): { name: string; calories: number; p
   let tag: FoodTag | undefined;
   const lower = name.toLowerCase();
 
-  // Smart Keyword Mapping with tag indicators
+  // Smart Keyword Mapping
   if (calories === null && protein === null) {
     if (lower.includes("egg") || lower.includes("oatmeal") || lower.includes("pancake") || lower.includes("toast")) {
       calories = 70;
@@ -163,7 +156,6 @@ export default function AddFoodPage() {
     setName(food.name);
     setCalories(food.calories);
     setProtein(food.protein);
-    // suggestions inherit time default tag unless manually switched
   }
 
   function handleReLog(food: { name: string; calories: number; protein: number; tag: FoodTag }) {
@@ -174,7 +166,7 @@ export default function AddFoodPage() {
   const canSubmit = name.trim().length > 0;
 
   return (
-    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-12">
+    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-12 font-sans">
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-extrabold tracking-tight text-white font-sans">
           Log Nutrition
@@ -190,7 +182,7 @@ export default function AddFoodPage() {
       {/* Recents shortcuts */}
       {recentlyLogged.length > 0 && (
         <div className="mb-5">
-          <h2 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans">
+          <h2 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
             Logged Today
           </h2>
           <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
@@ -198,7 +190,7 @@ export default function AddFoodPage() {
               <button
                 key={food.id}
                 onClick={() => handleReLog(food as any)}
-                className="shrink-0 rounded-full border border-white/5 bg-slate-900/40 px-3.5 py-2 text-xs font-semibold text-[#10B981] transition active:scale-90 hover:bg-[#10B981]/15"
+                className="shrink-0 rounded-full border border-white/5 bg-slate-900/40 px-3.5 py-2 text-xs font-semibold text-[#F97316] transition active:scale-90 hover:bg-[#F97316]/15"
               >
                 + {food.name}
               </button>
@@ -210,7 +202,7 @@ export default function AddFoodPage() {
       {/* Suggestions List */}
       {suggestions.length > 0 && (
         <div className="mb-5 rounded-2xl border border-white/5 bg-slate-900/30 p-3.5 backdrop-blur-md">
-          <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans">
+          <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
             Suggestions
           </h2>
           <div className="flex flex-col gap-1">
@@ -235,7 +227,7 @@ export default function AddFoodPage() {
       {/* Primary Log Form */}
       <div className="flex flex-col gap-4 rounded-2xl border border-white/5 bg-slate-900/40 p-4 shadow-xl backdrop-blur-md">
         
-        {/* Sliders selectors with manual inputs overrides */}
+        {/* Sliders selectors */}
         <div className="space-y-4">
           <div>
             <div className="flex justify-between items-center text-xs font-bold font-sans text-slate-300 mb-1">
@@ -248,12 +240,12 @@ export default function AddFoodPage() {
                   onBlur={() => setIsEditingCal(false)}
                   onKeyDown={(e) => e.key === "Enter" && setIsEditingCal(false)}
                   autoFocus
-                  className="w-20 rounded border border-white/15 bg-slate-950 px-2 py-0.5 text-right text-xs font-bold text-[#10B981] outline-none"
+                  className="w-20 rounded border border-white/15 bg-slate-950 px-2 py-0.5 text-right text-xs font-bold text-[#F97316] outline-none"
                 />
               ) : (
                 <span
                   onClick={() => setIsEditingCal(true)}
-                  className="text-[#10B981] cursor-pointer hover:underline bg-white/5 px-2 py-0.5 rounded"
+                  className="text-[#F97316] cursor-pointer hover:underline bg-white/5 px-2 py-0.5 rounded"
                   title="Tap to type exact value"
                 >
                   {calories} kcal ✎
@@ -267,7 +259,7 @@ export default function AddFoodPage() {
               step="5"
               value={calories > 1200 ? 1200 : calories}
               onChange={(e) => setCalories(parseInt(e.target.value, 10))}
-              className="w-full accent-[#10B981] cursor-pointer"
+              className="w-full accent-[#F97316] cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-slate-600 font-sans font-semibold mt-0.5">
               <span>0 kcal</span>
@@ -288,12 +280,12 @@ export default function AddFoodPage() {
                   onKeyDown={(e) => e.key === "Enter" && setIsEditingProt(false)}
                   autoFocus
                   step="0.1"
-                  className="w-20 rounded border border-white/15 bg-slate-950 px-2 py-0.5 text-right text-xs font-bold text-[#06B6D4] outline-none"
+                  className="w-20 rounded border border-white/15 bg-slate-950 px-2 py-0.5 text-right text-xs font-bold text-[#22C55E] outline-none"
                 />
               ) : (
                 <span
                   onClick={() => setIsEditingProt(true)}
-                  className="text-[#06B6D4] cursor-pointer hover:underline bg-white/5 px-2 py-0.5 rounded"
+                  className="text-[#22C55E] cursor-pointer hover:underline bg-white/5 px-2 py-0.5 rounded"
                   title="Tap to type exact value"
                 >
                   {protein}g ✎
@@ -307,7 +299,7 @@ export default function AddFoodPage() {
               step="1"
               value={protein > 100 ? 100 : protein}
               onChange={(e) => setProtein(parseInt(e.target.value, 10))}
-              className="w-full accent-[#06B6D4] cursor-pointer"
+              className="w-full accent-[#22C55E] cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-slate-600 font-sans font-semibold mt-0.5">
               <span>0g</span>
@@ -321,7 +313,7 @@ export default function AddFoodPage() {
 
         {/* Meal Tag Selector */}
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans mb-2">
+          <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans mb-2">
             Select Category Tag
           </label>
           <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
@@ -334,7 +326,7 @@ export default function AddFoodPage() {
                   onClick={() => setActiveTag(item.value)}
                   className={`shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition duration-150 active:scale-95 border ${
                     active
-                      ? "bg-[#10B981]/15 border-[#10B981]/30 text-white"
+                      ? "bg-[#6366F1]/15 border-[#6366F1]/30 text-white"
                       : "bg-slate-950/40 border-white/5 text-slate-400 hover:text-slate-200"
                   }`}
                 >
@@ -349,7 +341,7 @@ export default function AddFoodPage() {
 
         {/* Input box */}
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans mb-1.5">
+          <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans mb-1.5">
             Describe meal or override name
           </label>
           <input
@@ -357,7 +349,7 @@ export default function AddFoodPage() {
             value={naturalText}
             onChange={(e) => setNaturalText(e.target.value)}
             placeholder="e.g. egg (auto-fills breakfast) or pizza 280 kcal"
-            className="w-full rounded-xl border border-white/5 bg-slate-950/60 px-4 py-3.5 text-xs text-white placeholder-slate-500 outline-none transition focus:border-[#10B981]/40 focus:ring-2 focus:ring-[#10B981]/10 font-sans"
+            className="w-full rounded-xl border border-white/5 bg-slate-950/60 px-4 py-3.5 text-xs text-white placeholder-slate-500 outline-none transition focus:border-[#6366F1]/40 focus:ring-2 focus:ring-[#6366F1]/10 font-sans"
           />
         </div>
 
@@ -367,7 +359,7 @@ export default function AddFoodPage() {
           disabled={!canSubmit}
           className={`w-full rounded-xl py-4 text-xs font-bold transition duration-200 active:scale-95 ${
             canSubmit
-              ? "bg-gradient-to-r from-[#10B981] to-[#06B6D4] text-white shadow-lg shadow-[#10B981]/25 hover:brightness-110"
+              ? "bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white shadow-lg shadow-[#6366F1]/25 hover:brightness-110"
               : "bg-slate-800 text-slate-500 cursor-not-allowed"
           }`}
         >

@@ -28,7 +28,7 @@ export default function HistoryPage() {
         <h1 className="text-xl font-extrabold tracking-tight text-white font-sans">
           History Timeline
         </h1>
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+        <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest">
           Last 14 Days
         </span>
       </div>
@@ -63,7 +63,7 @@ export default function HistoryPage() {
               >
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="text-sm font-bold text-white tracking-tight group-hover:text-[#10B981] transition">
+                    <h3 className="text-sm font-bold text-white tracking-tight group-hover:text-[#F97316] transition">
                       {formattedDayName}, {formattedDateText}
                     </h3>
                     {dayTags.length > 0 ? (
@@ -74,7 +74,7 @@ export default function HistoryPage() {
                             className={`rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${
                               tag === "junk"
                                 ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                                : "bg-white/5 text-slate-400"
+                                : "bg-white/5 text-[#94A3B8]"
                             }`}
                           >
                             {tag}
@@ -88,10 +88,10 @@ export default function HistoryPage() {
                   
                   <div className="text-right">
                     <p className={`text-sm font-extrabold ${calorieExceeded ? "text-red-400" : "text-white"}`}>
-                      {summary.totalCalories.toLocaleString()} <span className="text-xs text-slate-500 font-normal">/ {settings.dailyCalorieTarget.toLocaleString()} kcal</span>
+                      {summary.totalCalories.toLocaleString()} <span className="text-xs text-[#94A3B8] font-normal">/ {settings.dailyCalorieTarget.toLocaleString()} kcal</span>
                     </p>
-                    <p className="text-xs font-bold text-[#06B6D4] mt-0.5">
-                      {summary.totalProtein}g <span className="text-[10px] text-slate-500 font-normal">/ {settings.dailyProteinTarget}g protein</span>
+                    <p className="text-xs font-bold text-[#22C55E] mt-0.5">
+                      {summary.totalProtein}g <span className="text-[10px] text-[#94A3B8] font-normal">/ {settings.dailyProteinTarget}g protein</span>
                     </p>
                   </div>
                 </div>
@@ -105,7 +105,7 @@ export default function HistoryPage() {
                         <div
                           style={{ width: `${calPct}%` }}
                           className={`h-full rounded-full transition-all duration-500 ${
-                            calorieExceeded ? "bg-red-500" : "bg-[#10B981]"
+                            calorieExceeded ? "bg-red-500" : "bg-[#F97316]"
                           }`}
                         />
                       </div>
@@ -116,7 +116,7 @@ export default function HistoryPage() {
                       <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
                         <div
                           style={{ width: `${protPct}%` }}
-                          className="h-full rounded-full bg-[#06B6D4] transition-all duration-500"
+                          className="h-full rounded-full bg-[#22C55E] transition-all duration-500"
                         />
                       </div>
                     </div>

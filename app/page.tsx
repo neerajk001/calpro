@@ -52,7 +52,7 @@ export default function DashboardPage() {
   const today = todayStr();
   const canGoForward = selectedDate < today;
 
-  // Sync date selection from query parameters (retrospective view navigation)
+  // Sync date selection from query parameters
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -130,7 +130,7 @@ export default function DashboardPage() {
       {showOnboarding && (
         <div className="fixed inset-0 z-55 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
           <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#10B981]/15 text-[#10B981] mb-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#6366F1]/15 text-[#6366F1] mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="28"
@@ -150,7 +150,7 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-extrabold tracking-tight text-white font-sans">
               CalPro
             </h2>
-            <p className="mt-1 text-sm font-semibold tracking-wider text-[#10B981] uppercase font-sans">
+            <p className="mt-1 text-sm font-semibold tracking-wider text-[#6366F1] uppercase font-sans">
               Track in 3 Seconds
             </p>
             
@@ -159,15 +159,15 @@ export default function DashboardPage() {
             </p>
 
             <div className="mt-6 flex items-center justify-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-[#10B981] animate-ping" />
-              <span className="text-xs font-semibold text-[#10B981] tracking-wide font-sans">
+              <div className="h-2 w-2 rounded-full bg-[#6366F1] animate-ping" />
+              <span className="text-xs font-semibold text-[#6366F1] tracking-wide font-sans">
                 Discoverable from Twitter/X
               </span>
             </div>
 
             <button
               onClick={handleStartTracking}
-              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-[#10B981] to-[#06B6D4] py-3.5 text-sm font-bold text-white shadow-xl shadow-[#10B981]/25 transition active:scale-95 hover:brightness-110 font-sans"
+              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-[#6366F1] to-[#4F46E5] py-3.5 text-sm font-bold text-white shadow-xl shadow-[#6366F1]/25 transition active:scale-95 hover:brightness-110 font-sans"
             >
               Start Tracking Now
             </button>
@@ -254,12 +254,12 @@ export default function DashboardPage() {
 
       {/* Custom Empty states and Suggestion logger */}
       <div className="mb-6">
-        <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans">
+        <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
           Logged Items
         </h2>
 
         {summary.entries.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-white/5 bg-slate-900/10 px-6 py-8 text-center backdrop-blur-xs">
+          <div className="rounded-2xl border border-white/5 bg-slate-900/40 px-6 py-8 text-center backdrop-blur-xs">
             <p className="text-sm font-medium text-slate-400 font-sans">
               No entries logged for this date.
             </p>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                 <button
                   key={food.name}
                   onClick={() => handleQuickAdd(food.name, food.calories, food.protein, food.tag)}
-                  className="flex items-center justify-between rounded-xl border border-white/5 bg-slate-900/40 px-4 py-2.5 text-left transition hover:bg-[#10B981]/10 hover:border-[#10B981]/20 group active:scale-95"
+                  className="flex items-center justify-between rounded-xl border border-white/5 bg-slate-900/40 px-4 py-2.5 text-left transition hover:bg-[#F97316]/10 hover:border-[#F97316]/20 group active:scale-95"
                 >
                   <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition font-sans">
                     + {food.name}
@@ -293,7 +293,7 @@ export default function DashboardPage() {
               return (
                 <div key={tag} className="flex flex-col gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest">
                       {tagLabelMapping[tag]}
                     </span>
                     <div className="h-px flex-1 bg-white/5" />
@@ -345,7 +345,7 @@ export default function DashboardPage() {
       {/* Recurrent items fast loader */}
       {distinct.length > 0 && (
         <div className="mb-6">
-          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans">
+          <h2 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
             Quick Log Frequent
           </h2>
           <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
@@ -353,7 +353,7 @@ export default function DashboardPage() {
               <button
                 key={food.name}
                 onClick={() => handleQuickAdd(food.name, food.calories, food.protein, "snack")}
-                className="shrink-0 rounded-full border border-white/5 bg-slate-900/40 px-4 py-2 text-xs font-semibold text-slate-300 transition active:scale-90 hover:bg-[#10B981]/10 hover:border-[#10B981]/20 hover:text-white font-sans"
+                className="shrink-0 rounded-full border border-white/5 bg-slate-900/40 px-4 py-2 text-xs font-semibold text-slate-300 transition active:scale-90 hover:bg-[#6366F1]/10 hover:border-[#6366F1]/20 hover:text-white font-sans"
               >
                 + {food.name}
               </button>
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                 undoDeleteFood();
                 setShowUndo(false);
               }}
-              className="text-xs font-bold text-[#10B981] hover:underline px-2 py-0.5 active:scale-95 transition font-sans"
+              className="text-xs font-bold text-[#6366F1] hover:underline px-2 py-0.5 active:scale-95 transition font-sans"
             >
               Undo
             </button>
@@ -385,7 +385,7 @@ export default function DashboardPage() {
         <div className="fixed bottom-24 right-4 z-40">
           <Link
             href="/add"
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#10B981] to-[#06B6D4] text-white shadow-xl shadow-[#10B981]/30 transition hover:brightness-110 active:scale-90"
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white shadow-xl shadow-[#6366F1]/30 transition hover:brightness-110 active:scale-90"
             aria-label="Add food log item"
           >
             <svg

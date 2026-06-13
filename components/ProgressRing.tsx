@@ -24,7 +24,6 @@ function ProgressRing({
   const [offset, setOffset] = useState(circumference);
 
   useEffect(() => {
-    // Clamp progress between 0 and 1 for calculations to prevent negative stroke-dashoffset
     const clampedProgress = Math.max(0, Math.min(progress, 1));
     setOffset(circumference - clampedProgress * circumference);
   }, [progress, circumference]);
@@ -32,11 +31,11 @@ function ProgressRing({
   const uniqueId = `glow-${size}-${color.replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
-    <svg width={size} height={size} className="-rotate-90 filter drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]" aria-hidden="true">
+    <svg width={size} height={size} className="-rotate-90 filter drop-shadow-[0_0_8px_rgba(0,0,0,0.4)]" aria-hidden="true">
       <defs>
         {glowColor && (
           <filter id={uniqueId} x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feGaussianBlur stdDeviation="5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -61,12 +60,12 @@ function ProgressRing({
           r={radius}
           fill="none"
           stroke={glowColor}
-          strokeWidth={strokeWidth + 2}
+          strokeWidth={strokeWidth + 1}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
           filter={`url(#${uniqueId})`}
-          className="opacity-40 transition-[stroke-dashoffset] duration-700 ease-out"
+          className="opacity-30 transition-[stroke-dashoffset] duration-700 ease-out"
         />
       )}
       {/* Main active foreground ring */}
@@ -105,9 +104,9 @@ export function DualProgressRing({
   const calorieTargetMet = calorieTotal >= calorieTarget;
   const proteinTargetMet = proteinTotal >= proteinTarget;
 
-  // Visual overflow indicators
-  const calorieRingColor = calorieExceeded ? "#EF4444" : "#10B981";
-  const calorieRingGlow = calorieExceeded ? "#EF4444" : "#10B981";
+  // New visual colors: Calorie = Orange (#F97316), Protein = Green (#22C55E)
+  const calorieRingColor = calorieExceeded ? "#EF4444" : "#F97316";
+  const calorieRingGlow = calorieExceeded ? "#EF4444" : "#F97316";
 
   const calorieDiff = calorieTotal - calorieTarget;
   const proteinDiff = proteinTotal - proteinTarget;
@@ -121,7 +120,7 @@ export function DualProgressRing({
         progress={calorieProgress}
         color={calorieRingColor}
         glowColor={calorieRingGlow}
-        bgColor="rgba(255, 255, 255, 0.05)"
+        bgColor="rgba(255, 255, 255, 0.04)"
       />
       {/* Protein ring (inner) */}
       <div className="absolute inset-0 flex items-center justify-center">
@@ -129,14 +128,14 @@ export function DualProgressRing({
           size={168}
           strokeWidth={10}
           progress={proteinProgress}
-          color="#06B6D4"
-          glowColor="#06B6D4"
-          bgColor="rgba(255, 255, 255, 0.05)"
+          color="#22C55E"
+          glowColor="#22C55E"
+          bgColor="rgba(255, 255, 255, 0.04)"
         />
       </div>
       {/* Center text data panel */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-sans">
+        <span className="text-[10px] font-bold tracking-widest text-[#94A3B8] uppercase font-sans">
           Calories
         </span>
         <span className={`text-3xl font-extrabold tracking-tight tabular-nums font-sans mt-0.5 ${calorieExceeded ? "text-red-400" : "text-white"}`}>
@@ -148,14 +147,14 @@ export function DualProgressRing({
             +{calorieDiff.toLocaleString()} kcal over
           </span>
         ) : (
-          <span className="text-[10px] text-slate-500 font-sans mt-0.5">
+          <span className="text-[10px] text-[#94A3B8] font-sans mt-0.5">
             {calorieTargetMet ? "Goal met! 🎉" : `${(calorieTarget - calorieTotal).toLocaleString()} kcal left`}
           </span>
         )}
 
         <div className="mt-2.5 w-12 h-px bg-white/10" />
 
-        <span className={`mt-2 text-lg font-bold tracking-tight tabular-nums font-sans ${proteinTargetMet ? "text-emerald-400" : "text-[#06B6D4]"}`}>
+        <span className={`mt-2 text-lg font-bold tracking-tight tabular-nums font-sans ${proteinTargetMet ? "text-emerald-400" : "text-[#22C55E]"}`}>
           {proteinTotal}g
         </span>
         
@@ -164,7 +163,7 @@ export function DualProgressRing({
             +{proteinDiff.toFixed(1)}g protein over
           </span>
         ) : (
-          <span className="text-[9px] text-slate-500 font-sans uppercase tracking-wider">
+          <span className="text-[9px] text-[#94A3B8] font-sans uppercase tracking-wider">
             {(proteinTarget - proteinTotal).toFixed(1)}g left
           </span>
         )}

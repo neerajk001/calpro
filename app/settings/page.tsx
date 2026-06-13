@@ -10,32 +10,32 @@ export default function SettingsPage() {
   const streak = getStreak();
 
   return (
-    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-12">
+    <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-12 font-sans">
       <h1 className="text-xl font-extrabold tracking-tight text-white font-sans mb-5">
         Settings
       </h1>
 
       {/* Active Streak Flag */}
       {streak > 0 && (
-        <div className="mb-5 rounded-2xl bg-gradient-to-r from-[#10B981]/15 to-[#06B6D4]/15 border border-[#10B981]/25 p-4 flex items-center justify-between">
+        <div className="mb-5 rounded-2xl bg-gradient-to-r from-[#6366F1]/15 to-[#4F46E5]/15 border border-[#6366F1]/25 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🔥</span>
             <div>
               <p className="text-sm font-extrabold text-white font-sans">
                 {streak} Day Streak!
               </p>
-              <p className="text-[10px] text-slate-400 font-sans">
+              <p className="text-[10px] text-[#94A3B8] font-sans">
                 Keep logging daily to lock your momentum.
               </p>
             </div>
           </div>
-          <span className="text-xs font-bold text-[#10B981] font-sans">ACTIVE</span>
+          <span className="text-xs font-bold text-[#6366F1] font-sans">ACTIVE</span>
         </div>
       )}
 
       {/* Goal bounds overrides */}
       <section className="mb-6">
-        <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans">
+        <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
           Nutrition Goals
         </h2>
         <div className="space-y-4 rounded-2xl border border-white/5 bg-slate-900/40 p-4 backdrop-blur-md">
@@ -48,7 +48,7 @@ export default function SettingsPage() {
               >
                 Daily Calories
               </label>
-              <span className="text-xs font-bold text-[#10B981] font-sans tabular-nums">
+              <span className="text-xs font-bold text-[#F97316] font-sans tabular-nums">
                 {settings.dailyCalorieTarget} kcal
               </span>
             </div>
@@ -60,7 +60,7 @@ export default function SettingsPage() {
               step="50"
               value={settings.dailyCalorieTarget}
               onChange={(e) => updateSettings({ dailyCalorieTarget: parseInt(e.target.value, 10) })}
-              className="w-full accent-[#10B981] cursor-pointer"
+              className="w-full accent-[#F97316] cursor-pointer"
             />
             <div className="flex justify-between text-[8px] text-slate-600 font-sans font-semibold mt-0.5">
               <span>1000 kcal</span>
@@ -79,7 +79,7 @@ export default function SettingsPage() {
               >
                 Daily Protein
               </label>
-              <span className="text-xs font-bold text-[#06B6D4] font-sans tabular-nums">
+              <span className="text-xs font-bold text-[#22C55E] font-sans tabular-nums">
                 {settings.dailyProteinTarget}g
               </span>
             </div>
@@ -91,7 +91,7 @@ export default function SettingsPage() {
               step="5"
               value={settings.dailyProteinTarget}
               onChange={(e) => updateSettings({ dailyProteinTarget: parseInt(e.target.value, 10) })}
-              className="w-full accent-[#06B6D4] cursor-pointer"
+              className="w-full accent-[#22C55E] cursor-pointer"
             />
             <div className="flex justify-between text-[8px] text-slate-600 font-sans font-semibold mt-0.5">
               <span>40g</span>
@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
       {/* Data export controls */}
       <section className="mb-6">
-        <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 font-sans">
+        <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8] font-sans">
           Storage & Management
         </h2>
         <div className="overflow-hidden rounded-2xl border border-white/5 bg-slate-900/40 backdrop-blur-md">
@@ -114,7 +114,7 @@ export default function SettingsPage() {
             className="flex w-full items-center justify-between px-4 py-3.5 text-xs font-bold text-slate-300 transition hover:bg-white/5"
           >
             Export Backup
-            <span className="rounded bg-white/5 px-2 py-0.5 text-[9px] text-slate-400 font-mono">.json</span>
+            <span className="rounded bg-white/5 px-2 py-0.5 text-[9px] text-[#94A3B8] font-mono">.json</span>
           </button>
           
           <div className="h-px bg-white/5" />

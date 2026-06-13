@@ -8,14 +8,25 @@ interface FoodEntryItemProps {
 }
 
 export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
+  // Border accents corresponding to tags
+  const borderColors = {
+    breakfast: "border-l-[3.5px] border-l-[#F97316]",
+    lunch: "border-l-[3.5px] border-l-[#22C55E]",
+    dinner: "border-l-[3.5px] border-l-[#6366F1]",
+    snack: "border-l-[3.5px] border-l-[#A855F7]",
+    junk: "border-l-[3.5px] border-l-[#F59E0B]",
+  };
+
+  const tag = entry.tag || "snack";
+
   return (
-    <div className="group flex items-center justify-between rounded-xl border border-white/5 bg-slate-900/40 px-4 py-3 shadow-md backdrop-blur-md transition hover:bg-slate-900/60 active:scale-[0.99]">
+    <div className={`group flex items-center justify-between rounded-xl border border-white/5 bg-slate-900/40 pl-3.5 pr-4 py-3 shadow-md backdrop-blur-md transition hover:bg-slate-900/60 active:scale-[0.99] ${borderColors[tag]}`}>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold tracking-tight text-white font-sans">
           {entry.name}
         </p>
-        <p className="mt-0.5 text-xs text-slate-400 font-sans">
-          {entry.calories} kcal <span className="mx-1.5 text-slate-600">·</span> {entry.protein}g protein
+        <p className="mt-0.5 text-xs text-[#94A3B8] font-sans">
+          {entry.calories} kcal <span className="mx-1.5 text-slate-700">·</span> {entry.protein}g protein
         </p>
       </div>
       <button

@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #050814;
-  --color-card-bg: rgba(15, 23, 42, 0.7);
-  --color-accent-calorie: #10B981;
-  --color-accent-protein: #06B6D4;
-  --color-error-coral: #EF4444;
+  --color-canvas: #0F172A;
+  --color-surface: #111827;
+  --color-card-bg: #1E293B;
+  
+  --color-accent-calorie: #F97316;
+  --color-accent-protein: #22C55E;
+  --color-accent-action: #6366F1;
+  
   --color-success-mint: #10B981;
+  --color-warning-amber: #F59E0B;
+  --color-error-coral: #EF4444;
   
   --animate-shimmer: shimmer 2s infinite linear;
-  --animate-orbit: orbit 1.5s infinite linear;
   --animate-pulse-slow: pulseSlow 2.5s infinite ease-in-out;
 
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
-  }
-  @keyframes orbit {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
   }
   @keyframes pulseSlow {
     0%, 100% { opacity: 0.2; }
@@ -28,7 +28,7 @@
 
 @layer base {
   body {
-    background-color: var(--color-canvas) !important;
+    background-color: #0F172A !important;
     color: #FFFFFF !important;
     font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
@@ -36,43 +36,43 @@
   }
 }
 
-/* Glassmorphism helpers */
+/* Energetic Fitbit/Apple Dashboard layouts styles */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(30, 41, 59, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .glass-panel-accent {
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(99, 102, 241, 0.08);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 .glass-button {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(4px);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .glass-input {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: var(--color-accent-calorie);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  border-color: var(--color-accent-action);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 /* Custom Scrollbars Hide */
