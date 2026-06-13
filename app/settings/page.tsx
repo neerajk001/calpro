@@ -4,10 +4,56 @@ import { useState } from "react";
 import { useApp } from "@/lib/AppContext";
 import { exportData, clearAllData } from "@/lib/storage";
 
+function todayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function fmtDate(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export default function SettingsPage() {
-  const { settings, updateSettings, getStreak } = useApp();
+  const { settings, updateSettings, getStreak, getDaySummary } = useApp();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const streak = getStreak();
+
+  // Vintage share card customizer states
+  const [showCalInShare, setShowCalInShare] = useState(true);
+  const [showProtInShare, setShowProtInShare] = useState(true);
+  const [showFoodsInShare, setShowFoodsInShare] = useState(true);
+  const [showHandleInShare, setShowHandleInShare] = useState(true);
+
+  const today = todayStr();
+  const summary = getDaySummary(today);
+
+  const getDynamicTwitterShareUrl = () => {
+    let text = "My nutrition progress today! ⚡\n\n";
+    if (showCalInShare) {
+      text += `🔥 Calories: ${summary.totalCalories} / ${settings.dailyCalorieTarget} kcal (${Math.round(summary.calorieProgress * 100)}%)\n`;
+    }
+    if (showProtInShare) {
+      text += `💪 Protein: ${summary.totalProtein} / ${settings.dailyProteinTarget}g (${Math.round(summary.proteinProgress * 100)}%)\n`;
+    }
+    if (showFoodsInShare && summary.entries.length > 0) {
+      text += `\nLogs:\n`;
+      summary.entries.forEach((e) => {
+        text += `- ${e.name} (${e.calories} kcal)\n`;
+      });
+    }
+    if (showHandleInShare && settings.twitterHandle) {
+      text += `\nLogged by @${settings.twitterHandle} via Calpro\n`;
+    } else {
+      text += `\nLogged via Calpro\n`;
+    }
+    text += `https://calpro.app`;
+    return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  };
 
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 pt-6 select-none pb-12 font-sans text-stone-900">
@@ -136,6 +182,163 @@ export default function SettingsPage() {
               Used when generating your daily vintage share card.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Vintage Share Card Preview Box */}
+      <section className="mb-6">
+        <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-[#78716C] font-sans">
+          Vintage Share Card
+        </h2>
+        <div className="border border-stone-200 bg-white p-4 shadow-xs rounded-none">
+          
+          {/* The Card */}
+          <div className="border border-stone-900/15 bg-white p-5 shadow-xs relative rounded-none select-none overflow-hidden mb-5">
+            {/* Accent line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-stone-900/20" />
+            
+            {/* Card Title Header */}
+            <div className="flex justify-between items-baseline mb-4 mt-1">
+              <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase font-mono">
+                DAILY NUTRITION RECORD
+              </span>
+              <span className="text-xs font-mono font-bold text-stone-550 uppercase">
+                TODAY
+              </span>
+            </div>
+
+            <h2 className="text-2xl font-serif font-extrabold tracking-tight text-stone-900 border-b border-stone-200 pb-2 mb-4">
+              {fmtDate(today)}
+            </h2>
+
+            {/* Grid stats */}
+            {(showCalInShare || showProtInShare) && (
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {showCalInShare && (
+                  <div className="border border-stone-150 p-3 bg-stone-50/50 rounded-none">
+                    <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-1">
+                      Energy Eaten
+                    </p>
+                    <p className="text-xl font-serif font-extrabold text-[#D97706] tabular-nums">
+                      {summary.totalCalories}
+                      <span className="text-xs font-bold text-stone-400 font-sans ml-1">kcal</span>
+                    </p>
+                    <p className="text-[10px] text-stone-450 font-bold font-sans mt-0.5">
+                      Target: {settings.dailyCalorieTarget} ({Math.round(summary.calorieProgress * 100)}%)
+                    </p>
+                  </div>
+                )}
+                {showProtInShare && (
+                  <div className="border border-stone-150 p-3 bg-stone-50/50 rounded-none">
+                    <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-1">
+                      Protein Eaten
+                    </p>
+                    <p className="text-xl font-serif font-extrabold text-[#16A34A] tabular-nums">
+                      {summary.totalProtein}
+                      <span className="text-xs font-bold text-stone-400 font-sans ml-1">g</span>
+                    </p>
+                    <p className="text-[10px] text-stone-450 font-bold font-sans mt-0.5">
+                      Target: {settings.dailyProteinTarget}g ({Math.round(summary.proteinProgress * 100)}%)
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Logged food entries list */}
+            {showFoodsInShare && (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-2 border-b border-dashed border-stone-200 pb-1">
+                  Meal Manifest
+                </p>
+                {summary.entries.length > 0 ? (
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                    {summary.entries.map((entry) => (
+                      <div key={entry.id} className="flex justify-between items-center text-xs font-sans font-bold text-stone-750">
+                        <span className="truncate max-w-[200px]">{entry.name}</span>
+                        <span className="shrink-0 text-stone-400 font-normal tabular-nums ml-2">
+                          {entry.calories} kcal · {entry.protein}g
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs font-sans text-stone-450 italic">
+                    No items logged today.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Footer Signature line */}
+            {showHandleInShare && (
+              <div className="mt-4 pt-3 border-t border-stone-150 flex justify-between items-center">
+                <span className="text-[10px] font-serif italic text-stone-400">
+                  Generated via Calpro
+                </span>
+                <span className="text-xs font-mono font-bold text-[#6366F1] bg-[#6366F1]/5 px-2.5 py-1 border border-[#6366F1]/20">
+                  @{settings.twitterHandle || "username"}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Toggles */}
+          <div className="mb-5 grid grid-cols-2 gap-3.5 bg-[#FAF8F5] p-3.5 border border-stone-200 shadow-2xs">
+            <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showCalInShare}
+                onChange={(e) => setShowCalInShare(e.target.checked)}
+                className="h-4 w-4 accent-[#292524] cursor-pointer"
+              />
+              Show Calories
+            </label>
+            <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showProtInShare}
+                onChange={(e) => setShowProtInShare(e.target.checked)}
+                className="h-4 w-4 accent-[#292524] cursor-pointer"
+              />
+              Show Protein
+            </label>
+            <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showFoodsInShare}
+                onChange={(e) => setShowFoodsInShare(e.target.checked)}
+                className="h-4 w-4 accent-[#292524] cursor-pointer"
+              />
+              Show Meal List
+            </label>
+            <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showHandleInShare}
+                onChange={(e) => setShowHandleInShare(e.target.checked)}
+                className="h-4 w-4 accent-[#292524] cursor-pointer"
+              />
+              Show Handle
+            </label>
+          </div>
+
+          {/* CTA Button */}
+          <a
+            href={getDynamicTwitterShareUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2.5 border border-transparent bg-[#292524] text-white py-3.5 text-sm font-extrabold transition hover:bg-[#1C1917] active:scale-95 shadow-xs rounded-none w-full"
+          >
+            <svg
+              className="h-4.5 w-4.5 fill-current"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            Post to X
+          </a>
         </div>
       </section>
 

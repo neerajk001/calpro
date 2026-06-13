@@ -36,11 +36,7 @@ export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showUndo, setShowUndo] = useState(false);
 
-  // Vintage share card customizer states
-  const [showCalInShare, setShowCalInShare] = useState(true);
-  const [showProtInShare, setShowProtInShare] = useState(true);
-  const [showFoodsInShare, setShowFoodsInShare] = useState(true);
-  const [showHandleInShare, setShowHandleInShare] = useState(true);
+
 
   const {
     hydrated,
@@ -102,24 +98,12 @@ export default function DashboardPage() {
     [addFood, selectedDate],
   );
 
-  const getDynamicTwitterShareUrl = () => {
-    let text = "My nutrition progress today! ⚡\n\n";
-    if (showCalInShare) {
-      text += `🔥 Calories: ${summary.totalCalories} / ${settings.dailyCalorieTarget} kcal (${Math.round(summary.calorieProgress * 100)}%)\n`;
-    }
-    if (showProtInShare) {
-      text += `💪 Protein: ${summary.totalProtein} / ${settings.dailyProteinTarget}g (${Math.round(summary.proteinProgress * 100)}%)\n`;
-    }
-    if (showFoodsInShare && summary.entries.length > 0) {
-      text += `\nLogs:\n`;
-      summary.entries.forEach((e) => {
-        text += `- ${e.name} (${e.calories} kcal)\n`;
-      });
-    }
-    if (showHandleInShare && settings.twitterHandle) {
-      text += `\nLogged by @${settings.twitterHandle} via Calpro\n`;
+  const getTwitterShareUrl = () => {
+    let text = `Hit my nutritional targets early today with Calpro! ⚡\n\n🔥 Calories: ${summary.totalCalories} / ${settings.dailyCalorieTarget} kcal\n💪 Protein: ${summary.totalProtein} / ${settings.dailyProteinTarget}g\n\n`;
+    if (settings.twitterHandle) {
+      text += `Logged by @${settings.twitterHandle} via Calpro\n`;
     } else {
-      text += `\nLogged via Calpro\n`;
+      text += `Track your nutrition in 3 seconds. Zero sign-up. 👇\n`;
     }
     text += `https://calpro.app`;
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
@@ -153,8 +137,8 @@ export default function DashboardPage() {
       {/* Onboarding Dialog Overlay */}
       {showOnboarding && (
         <div className="fixed inset-0 z-55 flex items-center justify-center bg-stone-900/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-sm border-[1.5px] border-[#1C1917] bg-white p-6 shadow-xl text-center rounded-none">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center bg-stone-100 text-stone-850 mb-4 border-[1.5px] border-[#1C1917] rounded-none">
+          <div className="w-full max-w-sm border border-stone-900/15 bg-white/90 backdrop-blur-md p-6 shadow-xl text-center rounded-none">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center bg-stone-100 text-stone-850 mb-4 border border-stone-900/15 rounded-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="28"
@@ -203,7 +187,7 @@ export default function DashboardPage() {
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={() => setSelectedDate((d) => offsetDate(d, -1))}
-          className="border-[1.5px] border-[#1C1917] bg-white p-2.5 text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition active:scale-90 shadow-xs rounded-none"
+          className="border border-stone-900/15 bg-white/80 backdrop-blur-md p-2.5 text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition active:scale-90 shadow-xs rounded-none"
           aria-label="Previous day"
         >
           <svg
@@ -237,10 +221,10 @@ export default function DashboardPage() {
             canGoForward && setSelectedDate((d) => offsetDate(d, 1))
           }
           disabled={!canGoForward}
-          className={`border-[1.5px] p-2.5 transition active:scale-90 shadow-xs rounded-none ${
+          className={`border transition active:scale-90 shadow-xs rounded-none p-2.5 ${
             canGoForward
-              ? "bg-white border-[#1C1917] text-stone-700 hover:bg-stone-50 hover:text-stone-950"
-              : "bg-stone-200 border-stone-200 text-stone-400 cursor-not-allowed"
+              ? "bg-white/80 backdrop-blur-md border-stone-900/15 text-stone-700 hover:bg-stone-50 hover:text-stone-950"
+              : "bg-stone-200/50 border-stone-200/50 text-stone-400 cursor-not-allowed"
           }`}
           aria-label="Next day"
         >
@@ -283,7 +267,7 @@ export default function DashboardPage() {
         </h2>
 
         {summary.entries.length === 0 ? (
-          <div className="border-[1.5px] border-[#1C1917] bg-white px-6 py-8 text-center shadow-xs rounded-none">
+          <div className="border border-stone-900/15 bg-white/80 backdrop-blur-md px-6 py-8 text-center shadow-xs rounded-none">
             <p className="text-base font-extrabold text-stone-800 font-sans">
               No entries logged for this date.
             </p>
@@ -296,7 +280,7 @@ export default function DashboardPage() {
                 <button
                   key={food.name}
                   onClick={() => handleQuickAdd(food.name, food.calories, food.protein, food.tag)}
-                  className="flex items-center justify-between border-[1.5px] border-[#1C1917] bg-white px-4 py-3 text-left transition hover:bg-stone-50 group active:scale-95 shadow-xs rounded-none"
+                  className="flex items-center justify-between border border-stone-900/15 bg-white/80 backdrop-blur-md px-4 py-3 text-left transition hover:bg-stone-50 group active:scale-95 shadow-xs rounded-none"
                 >
                   <span className="text-sm font-bold text-stone-850 group-hover:text-stone-950 transition font-sans">
                     + {food.name}
@@ -336,154 +320,34 @@ export default function DashboardPage() {
               );
             })}
 
-            {/* Vintage Share Card Preview Box */}
-            <div className="mt-8 border-[1.5px] border-[#1C1917] bg-[#FDFBF7] p-5 shadow-xs rounded-none">
-              <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-[#78716C] font-sans">
-                Vintage Share Card Preview
-              </h3>
-
-              {/* The Card */}
-              <div className="border-[1.5px] border-[#1C1917] bg-white p-5 shadow-xs relative rounded-none select-none overflow-hidden mb-5">
-                {/* Accent line */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#1C1917]" />
-                
-                {/* Card Title Header */}
-                <div className="flex justify-between items-baseline mb-4 mt-1">
-                  <span className="text-[10px] font-bold tracking-widest text-stone-400 uppercase font-mono">
-                    DAILY NUTRITION RECORD
-                  </span>
-                  <span className="text-xs font-mono font-bold text-stone-550 uppercase">
-                    {isToday(selectedDate) ? "TODAY" : selectedDate}
-                  </span>
-                </div>
-
-                <h2 className="text-2xl font-serif font-extrabold tracking-tight text-stone-900 border-b border-stone-200 pb-2 mb-4">
-                  {fmtDate(selectedDate)}
-                </h2>
-
-                {/* Grid stats */}
-                {(showCalInShare || showProtInShare) && (
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {showCalInShare && (
-                      <div className="border border-stone-150 p-3 bg-stone-50/50 rounded-none">
-                        <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-1">
-                          Energy Eaten
-                        </p>
-                        <p className="text-xl font-serif font-extrabold text-[#D97706] tabular-nums">
-                          {summary.totalCalories}
-                          <span className="text-xs font-bold text-stone-400 font-sans ml-1">kcal</span>
-                        </p>
-                        <p className="text-[10px] text-stone-450 font-bold font-sans mt-0.5">
-                          Target: {settings.dailyCalorieTarget} ({Math.round(summary.calorieProgress * 100)}%)
-                        </p>
-                      </div>
-                    )}
-                    {showProtInShare && (
-                      <div className="border border-stone-150 p-3 bg-stone-50/50 rounded-none">
-                        <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-1">
-                          Protein Eaten
-                        </p>
-                        <p className="text-xl font-serif font-extrabold text-[#16A34A] tabular-nums">
-                          {summary.totalProtein}
-                          <span className="text-xs font-bold text-stone-400 font-sans ml-1">g</span>
-                        </p>
-                        <p className="text-[10px] text-stone-450 font-bold font-sans mt-0.5">
-                          Target: {settings.dailyProteinTarget}g ({Math.round(summary.proteinProgress * 100)}%)
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Logged food entries list */}
-                {showFoodsInShare && summary.entries.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider font-sans mb-2 border-b border-dashed border-stone-200 pb-1">
-                      Meal Manifest
-                    </p>
-                    <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
-                      {summary.entries.map((entry) => (
-                        <div key={entry.id} className="flex justify-between items-center text-xs font-sans font-bold text-stone-750">
-                          <span className="truncate max-w-[200px]">{entry.name}</span>
-                          <span className="shrink-0 text-stone-400 font-normal tabular-nums ml-2">
-                            {entry.calories} kcal · {entry.protein}g
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Footer Signature line */}
-                {showHandleInShare && (
-                  <div className="mt-4 pt-3 border-t border-stone-150 flex justify-between items-center">
-                    <span className="text-[10px] font-serif italic text-stone-400">
-                      Generated via Calpro
-                    </span>
-                    <span className="text-xs font-mono font-bold text-[#6366F1] bg-[#6366F1]/5 px-2.5 py-1 border border-[#6366F1]/20">
-                      @{settings.twitterHandle || "username"}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Toggles */}
-              <div className="mb-5 grid grid-cols-2 gap-3.5 bg-white p-3.5 border border-stone-200 shadow-2xs">
-                <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={showCalInShare}
-                    onChange={(e) => setShowCalInShare(e.target.checked)}
-                    className="h-4 w-4 accent-[#292524] cursor-pointer"
-                  />
-                  Show Calories
-                </label>
-                <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={showProtInShare}
-                    onChange={(e) => setShowProtInShare(e.target.checked)}
-                    className="h-4 w-4 accent-[#292524] cursor-pointer"
-                  />
-                  Show Protein
-                </label>
-                <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={showFoodsInShare}
-                    onChange={(e) => setShowFoodsInShare(e.target.checked)}
-                    className="h-4 w-4 accent-[#292524] cursor-pointer"
-                  />
-                  Show Meal List
-                </label>
-                <label className="flex items-center gap-2.5 text-xs font-bold text-stone-750 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={showHandleInShare}
-                    onChange={(e) => setShowHandleInShare(e.target.checked)}
-                    className="h-4 w-4 accent-[#292524] cursor-pointer"
-                  />
-                  Show Handle
-                </label>
-              </div>
-
-              {/* CTA Button */}
-              <a
-                href={getDynamicTwitterShareUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 border-[1.5px] border-[#1C1917] bg-[#292524] text-white py-3.5 text-sm font-extrabold transition hover:bg-[#1C1917] active:scale-95 shadow-xs rounded-none"
-              >
-                <svg
-                  className="h-4.5 w-4.5 fill-current"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
+            {/* Social Share Trigger */}
+            {summary.entries.length > 0 && (
+              <div className="mt-6">
+                <a
+                  href={getTwitterShareUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 border border-stone-900/15 bg-white/80 backdrop-blur-md py-3 text-xs font-bold text-stone-700 transition hover:bg-stone-50 hover:text-stone-900 active:scale-95 font-sans rounded-none"
                 >
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-                Post to X
-              </a>
-            </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                    <polyline points="16 6 12 2 8 6" />
+                    <line x1="12" x2="12" y1="2" y2="15" />
+                  </svg>
+                  Share Daily Progress on X
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -499,7 +363,7 @@ export default function DashboardPage() {
               <button
                 key={food.name}
                 onClick={() => handleQuickAdd(food.name, food.calories, food.protein, "snack")}
-                className="shrink-0 border-[1.5px] border-[#1C1917] bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition active:scale-90 hover:bg-stone-50 hover:text-stone-950 font-sans shadow-xs rounded-none"
+                className="shrink-0 border border-stone-900/15 bg-white/80 backdrop-blur-md px-4 py-2.5 text-sm font-bold text-stone-700 transition active:scale-90 hover:bg-stone-50 hover:text-stone-950 font-sans shadow-xs rounded-none"
               >
                 + {food.name}
               </button>
@@ -511,7 +375,7 @@ export default function DashboardPage() {
       {/* Undo Toast notification popup */}
       {showUndo && (
         <div className="fixed bottom-24 left-1/2 z-50 w-full max-w-xs -translate-x-1/2 px-4 transition-all duration-300 ease-out">
-          <div className="flex items-center justify-between border-[1.5px] border-[#1C1917] bg-white p-3.5 shadow-lg shadow-stone-850/5 rounded-none">
+          <div className="flex items-center justify-between border border-stone-900/15 bg-white/90 backdrop-blur-md p-3.5 shadow-lg shadow-stone-850/5 rounded-none">
             <span className="text-xs text-stone-600 font-medium font-sans">Item deleted.</span>
             <button
               onClick={() => {
