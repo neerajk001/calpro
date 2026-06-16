@@ -531,6 +531,7 @@ async function queryExternalSearch(q: string): Promise<any[]> {
             defaultQty: 100,
             quantityMode: "grams",
             emoji: "🍽️",
+            barcode: null,
           };
         });
       }
@@ -563,12 +564,57 @@ async function queryExternalSearch(q: string): Promise<any[]> {
             defaultQty: 100,
             quantityMode: "grams",
             emoji: "🍽️",
+            barcode: null,
           };
         });
       }
     } catch (err) {
       console.error("Nutritionix search failed:", err);
     }
+  }
+
+  // Fallback: Open Food Facts Text Search (does not require any API keys!)
+  try {
+    console.log(`🌐 Querying Open Food Facts Text Search for "${q}"...`);
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=15`;
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "CalPro-Nutrition-App - NodeJs - Version 1.0.0",
+      },
+    });
+    if (response.ok) {
+      const data: any = await response.json();
+      const products = data.products || [];
+      const results = [];
+      for (const product of products) {
+        const name = product.product_name || product.product_name_en;
+        if (!name) continue;
+        const nutriments = product.nutriments || {};
+        const calories = Math.round(
+          nutriments["energy-kcal_100g"] ||
+            (nutriments["energy_100g"] ? nutriments["energy_100g"] / 4.184 : 0)
+        );
+        const protein = Math.round((nutriments["proteins_100g"] || 0) * 10) / 10;
+        const carbs = Math.round((nutriments["carbohydrates_100g"] || 0) * 10) / 10;
+        const fat = Math.round((nutriments["fat_100g"] || 0) * 10) / 10;
+
+        results.push({
+          name: name.substring(0, 100),
+          category: "Custom",
+          caloriesPer100g: calories,
+          proteinPer100g: protein,
+          carbsPer100g: carbs,
+          fatPer100g: fat,
+          defaultQty: 100,
+          quantityMode: "grams",
+          emoji: "📦",
+          barcode: product.code || null,
+        });
+      }
+      return results;
+    }
+  } catch (err) {
+    console.error("Open Food Facts text search failed:", err);
   }
 
   return [];
@@ -642,6 +688,61 @@ app.get("/api/foods/search", async (req, res) => {
       if (!seenNames.has(item.name.toLowerCase())) {
         merged.push(item);
         seenNames.add(item.name.toLowerCase());
+      }
+    }
+
+    // D. Fallback to external APIs if local matches are sparse (< 5 results)
+    if (merged.length < 5) {
+      try {
+        const externalMatches = await queryExternalSearch(q);
+        for (const item of externalMatches) {
+          if (!seenNames.has(item.name.toLowerCase())) {
+            // Find or cache in global Food DB so it has a valid ID
+            let dbFood = await prisma.food.findFirst({
+              where: {
+                OR: [
+                  item.barcode ? { barcode: item.barcode } : undefined,
+                  { name: { equals: item.name, mode: "insensitive" } },
+                ].filter(Boolean) as any,
+              },
+            });
+
+            if (!dbFood) {
+              dbFood = await prisma.food.create({
+                data: {
+                  name: item.name,
+                  category: item.category,
+                  caloriesPer100g: item.caloriesPer100g,
+                  proteinPer100g: item.proteinPer100g,
+                  carbsPer100g: item.carbsPer100g,
+                  fatPer100g: item.fatPer100g,
+                  defaultQty: item.defaultQty,
+                  quantityMode: item.quantityMode,
+                  emoji: item.emoji,
+                  barcode: item.barcode || null,
+                },
+              });
+            }
+
+            merged.push({
+              id: dbFood.id,
+              name: dbFood.name,
+              category: dbFood.category,
+              caloriesPer100g: dbFood.caloriesPer100g,
+              proteinPer100g: dbFood.proteinPer100g,
+              carbsPer100g: dbFood.carbsPer100g,
+              fatPer100g: dbFood.fatPer100g,
+              defaultQty: dbFood.defaultQty,
+              quantityMode: dbFood.quantityMode,
+              isCustom: false,
+              emoji: dbFood.emoji ?? undefined,
+              barcode: dbFood.barcode ?? undefined,
+            });
+            seenNames.add(dbFood.name.toLowerCase());
+          }
+        }
+      } catch (err) {
+        console.error("External search lookup or cache failed:", err);
       }
     }
 
