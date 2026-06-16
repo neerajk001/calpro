@@ -54,7 +54,7 @@ export function MealBuilder({ items, onRemoveItem, onClearAll, onLogMeal, trackC
 
   if (items.length === 0) {
     return (
-      <div className="card p-6 text-center">
+      <div className="card p-4 md:p-6 text-center">
         <div className="text-3xl mb-2">🍽️</div>
         <p className="text-sm font-semibold text-[#6B6B6B]">Meal Builder is empty</p>
         <p className="text-xs text-[#6B6B6B] mt-1">Search foods above and tap &quot;Add to Meal Builder&quot;</p>
@@ -65,7 +65,7 @@ export function MealBuilder({ items, onRemoveItem, onClearAll, onLogMeal, trackC
   return (
     <div className="card overflow-hidden">
       {/* Header with totals */}
-      <div className="bg-[#F3F4F6] p-4 border-b border-black/5">
+      <div className="bg-[#F3F4F6] p-3 md:p-4 border-b border-black/5">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="text-sm font-extrabold text-[#111827]">Meal Builder</h3>
@@ -113,10 +113,9 @@ export function MealBuilder({ items, onRemoveItem, onClearAll, onLogMeal, trackC
         </div>
       </div>
 
-      {/* Items List */}
       <div className="max-h-56 overflow-y-auto hide-scrollbar">
         {items.map((item, idx) => (
-          <div key={`${item.dbItemId}-${idx}`} className="flex items-center justify-between px-4 py-3 border-b border-black/5 last:border-0 hover:bg-[#EFF6FF]/40 transition">
+          <div key={`${item.dbItemId}-${idx}`} className="flex items-center justify-between px-3 py-2.5 md:px-4 md:py-3 border-b border-black/5 last:border-0 hover:bg-[#EFF6FF]/40 transition">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <span className="text-base shrink-0">{item.emoji || "🍽️"}</span>
               <div className="min-w-0">
@@ -139,7 +138,7 @@ export function MealBuilder({ items, onRemoveItem, onClearAll, onLogMeal, trackC
 
       {/* Save Template Dialog */}
       {isSaving && (
-        <div className="p-4 bg-[#F3F4F6] border-t border-black/5 space-y-3 animate-fade-in">
+        <div className="p-3 md:p-4 bg-[#F3F4F6] border-t border-black/5 space-y-3 animate-fade-in">
           <p className="text-xs font-bold uppercase tracking-wider text-[#2563EB] flex items-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
@@ -166,7 +165,7 @@ export function MealBuilder({ items, onRemoveItem, onClearAll, onLogMeal, trackC
       )}
 
       {/* Log Options */}
-      <div className="p-4 space-y-3 border-t border-black/5">
+      <div className="p-3.5 md:p-4 space-y-3 border-t border-black/5">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-2">Meal Tag</p>
           <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">

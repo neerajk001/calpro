@@ -250,7 +250,7 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
 
       {/* Selected Food — Quantity Picker */}
       {selectedFood && macros && (
-        <div className="card p-5 space-y-3 animate-fade-in border border-[#EFF6FF] bg-[#F8FAFC]">
+        <div className="card p-4 md:p-5 space-y-3 animate-fade-in border border-[#EFF6FF] bg-[#F8FAFC]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="text-xl">{selectedFood.emoji || "🍽️"}</span>
@@ -323,24 +323,24 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
 
           {/* Live Macro Preview */}
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-3">
+            <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-2.5 md:p-3">
               <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-wider mb-0.5">Calories</p>
               <p className="text-xl font-bold text-[#2563EB]">{macros.calories}</p>
               <p className="text-[10px] text-[#6B7280] font-semibold">kcal</p>
             </div>
-            <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-3">
+            <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-2.5 md:p-3">
               <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-wider mb-0.5">Protein</p>
               <p className="text-xl font-bold text-[#10B981]">{macros.protein}g</p>
               <p className="text-[10px] text-[#6B7280] font-semibold">grams</p>
             </div>
             {trackCarbsFat && (
               <>
-                <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-3">
+                <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-2.5 md:p-3">
                   <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-wider mb-0.5">Carbs</p>
                   <p className="text-xl font-bold text-[#F59E0B]">{macros.carbs}g</p>
                   <p className="text-[10px] text-[#6B7280] font-semibold">grams</p>
                 </div>
-                <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-3">
+                <div className="bg-[#FFFFFF] border border-black/5 rounded-xl p-2.5 md:p-3">
                   <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-wider mb-0.5">Fat</p>
                   <p className="text-xl font-bold text-[#EF4444]">{macros.fat}g</p>
                   <p className="text-[10px] text-[#6B7280] font-semibold">grams</p>

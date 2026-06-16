@@ -95,7 +95,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col md:pl-64 min-h-screen">
-        <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-8 md:px-10 pb-28 md:pb-8">
+        <main className="flex-1 w-full max-w-5xl mx-auto px-3.5 py-5 md:px-10 md:py-8 pb-28 md:pb-8">
           {children}
         </main>
       </div>

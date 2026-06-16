@@ -43,7 +43,7 @@ export default function SettingsPage() {
       </div>
 
       {streak > 0 && (
-        <div className="mb-6 card p-4 flex items-center justify-between">
+        <div className="mb-4 md:mb-6 card p-3.5 md:p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🔥</span>
             <div>
@@ -59,7 +59,7 @@ export default function SettingsPage() {
         <div className="lg:col-span-6 space-y-6">
           <section>
             <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Nutrition & Health Goals</h2>
-            <div className="space-y-5 card p-5">
+            <div className="space-y-5 card p-4 md:p-5">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <label htmlFor="calorie-target-range" className="text-sm font-semibold text-[#111827]">Daily Calories</label>
@@ -91,7 +91,7 @@ export default function SettingsPage() {
 
           <section>
             <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Tracking Preferences</h2>
-            <div className="card p-5 space-y-4">
+            <div className="card p-4 md:p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1 pr-4">
                   <p className="text-sm font-semibold text-[#111827]">Track Carbs &amp; Fat</p>
@@ -117,12 +117,12 @@ export default function SettingsPage() {
           <section>
             <h2 className="mb-2.5 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Storage & Management</h2>
             <div className="overflow-hidden card">
-              <button onClick={exportJSON} className="flex w-full items-center justify-between px-5 py-4 text-sm font-semibold text-[#111827] transition hover:bg-[#EFF6FF] hover:text-[#2563EB] rounded-none cursor-pointer">
+              <button onClick={exportJSON} className="flex w-full items-center justify-between px-4 py-3.5 md:px-5 md:py-4 text-sm font-semibold text-[#111827] transition hover:bg-[#EFF6FF] hover:text-[#2563EB] rounded-none cursor-pointer">
                 Export Backup
                 <span className="bg-[#E5E7EB] px-2 py-0.5 text-xs text-[#4B5563] font-mono rounded-md">.json</span>
               </button>
               <div className="h-px bg-black/5" />
-              <button onClick={exportCSV} className="flex w-full items-center justify-between px-5 py-4 text-sm font-semibold text-[#111827] transition hover:bg-[#EFF6FF] hover:text-[#2563EB] rounded-none cursor-pointer">
+              <button onClick={exportCSV} className="flex w-full items-center justify-between px-4 py-3.5 md:px-5 md:py-4 text-sm font-semibold text-[#111827] transition hover:bg-[#EFF6FF] hover:text-[#2563EB] rounded-none cursor-pointer">
                 Export Spreadsheet
                 <span className="bg-[#E5E7EB] px-2 py-0.5 text-xs text-[#4B5563] font-mono rounded-md">.csv</span>
               </button>
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
               ) : (
-                <button onClick={() => setShowClearConfirm(true)} className="flex w-full items-center justify-between px-5 py-4 text-sm font-semibold text-[#EF4444] transition hover:bg-red-50 rounded-none cursor-pointer">
+                <button onClick={() => setShowClearConfirm(true)} className="flex w-full items-center justify-between px-4 py-3.5 md:px-5 md:py-4 text-sm font-semibold text-[#EF4444] transition hover:bg-red-50 rounded-none cursor-pointer">
                   Reset All Data
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                 </button>

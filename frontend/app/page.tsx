@@ -252,7 +252,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Date selector */}
-      <div className="flex items-center justify-between card p-4 mb-6">
+      <div className="flex items-center justify-between card p-3 md:p-4 mb-4 md:mb-6">
         <button
           onClick={() => setSelectedDate((d) => offsetDate(d, -1))}
           className="bg-[#E5E7EB] p-2.5 text-[#4B5563] hover:bg-[#EFF6FF] hover:text-[#2563EB] transition active:scale-90 rounded-full cursor-pointer"
@@ -288,12 +288,12 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-start">
         {/* Left Column */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
 
           {/* Calorie Hero Card */}
-          <div className="card p-6">
+          <div className="card p-4 md:p-6">
             {hydrated ? (
               <DualProgressRing
                 calorieProgress={summary.calorieProgress}
@@ -316,26 +316,26 @@ export default function DashboardPage() {
           </div>
 
           {/* Macro Cards */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="card p-4 text-center">
-              <p className="text-[11px] text-[#6B7280] font-bold uppercase tracking-wider mb-1">Protein</p>
-              <p className="text-xl font-bold text-[#111827] tabular-nums">{summary.totalProtein}g</p>
-              <p className="text-[11px] text-[#6B7280] mt-0.5">/ {settings.dailyProteinTarget}g</p>
+          <div className="grid grid-cols-3 gap-2 md:gap-3">
+            <div className="card p-2.5 md:p-4 text-center">
+              <p className="text-[10px] md:text-[11px] text-[#6B7280] font-bold uppercase tracking-wider mb-1">Protein</p>
+              <p className="text-base md:text-xl font-bold text-[#111827] tabular-nums">{summary.totalProtein}g</p>
+              <p className="text-[10px] md:text-[11px] text-[#6B7280] mt-0.5">/ {settings.dailyProteinTarget}g</p>
             </div>
-            <div className="card p-4 text-center">
-              <p className="text-[11px] text-[#6B7280] font-bold uppercase tracking-wider mb-1">Carbs</p>
-              <p className="text-xl font-bold text-[#111827] tabular-nums">{summary.totalCarbs}g</p>
-              <p className="text-[11px] text-[#6B7280] mt-0.5">&nbsp;</p>
+            <div className="card p-2.5 md:p-4 text-center">
+              <p className="text-[10px] md:text-[11px] text-[#6B7280] font-bold uppercase tracking-wider mb-1">Carbs</p>
+              <p className="text-base md:text-xl font-bold text-[#111827] tabular-nums">{summary.totalCarbs}g</p>
+              <p className="text-[10px] md:text-[11px] text-[#6B7280] mt-0.5">&nbsp;</p>
             </div>
-            <div className="card p-4 text-center">
-              <p className="text-[11px] text-[#6B7280] font-bold uppercase tracking-wider mb-1">Fat</p>
-              <p className="text-xl font-bold text-[#111827] tabular-nums">{summary.totalFat}g</p>
-              <p className="text-[11px] text-[#6B7280] mt-0.5">&nbsp;</p>
+            <div className="card p-2.5 md:p-4 text-center">
+              <p className="text-[10px] md:text-[11px] text-[#6B7280] font-bold uppercase tracking-wider mb-1">Fat</p>
+              <p className="text-base md:text-xl font-bold text-[#111827] tabular-nums">{summary.totalFat}g</p>
+              <p className="text-[10px] md:text-[11px] text-[#6B7280] mt-0.5">&nbsp;</p>
             </div>
           </div>
 
           {/* Water Tracker */}
-          <div className="card p-5">
+          <div className="card p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2.5">
                 <span className="text-xl">💧</span>
@@ -399,7 +399,7 @@ export default function DashboardPage() {
             <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#6B7280]">Today&apos;s Meals</h2>
 
             {summary.entries.length === 0 ? (
-              <div className="card p-6 text-center">
+              <div className="card p-4 md:p-6 text-center">
                 <p className="text-base font-semibold text-[#111827]">No entries logged for this date.</p>
                 <p className="mt-2 text-xs font-bold text-[#6B7280] uppercase tracking-wider">Quick log recommendations:</p>
                 <div className="mt-4 flex flex-col gap-2">

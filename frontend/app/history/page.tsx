@@ -52,7 +52,7 @@ export default function HistoryPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
           {hydrated && (
-            <div className="card p-5">
+            <div className="card p-4 md:p-5">
               <div className="flex justify-between items-center mb-5">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Calorie Trends</h3>
                 <div className="flex bg-[#E5E7EB] p-0.5 rounded-full border border-black/5">
@@ -104,7 +104,7 @@ export default function HistoryPage() {
                 const dayTags = Array.from(new Set(summary.entries.map((e) => e.tag)));
 
                 return (
-                  <div key={dateStr} onClick={() => handleDayTap(dateStr)} className="group cursor-pointer card p-4.5 transition hover:bg-white hover:border-blue-600/10 hover:shadow-md active:scale-[0.995] rounded-2xl bg-white">
+                  <div key={dateStr} onClick={() => handleDayTap(dateStr)} className="group cursor-pointer card p-3.5 md:p-4.5 transition hover:bg-white hover:border-blue-600/10 hover:shadow-md active:scale-[0.995] rounded-2xl bg-white">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="text-sm md:text-base font-bold text-[#111827] tracking-tight group-hover:text-[#2563EB] transition">{formattedDayName}, {formattedDateText}</h3>

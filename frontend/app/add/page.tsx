@@ -227,11 +227,11 @@ export default function AddFoodPage() {
               </div>
             )}
 
-            <div className="card p-5">
+            <div className="card p-4 md:p-5">
               <FoodDBSearch customFoods={customFoods} onAddToMeal={handleAddToMeal} trackCarbsFat={settings.trackCarbsFat} initialFoodId={initialFoodId} scannedFood={scannedFood} onScanClick={() => setShowScanner(true)} />
             </div>
 
-            <div className="card p-4 space-y-3">
+            <div className="card p-3 md:p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <button onClick={() => { setShowCustomFoods(!showCustomFoods); setShowAddCustomForm(false); }} className="flex items-center gap-2 text-xs font-bold text-[#4B5563] hover:text-[#111827] transition cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showCustomFoods ? "rotate-90" : ""}`}><path d="m9 18 6-6-6-6"/></svg>
@@ -303,7 +303,7 @@ export default function AddFoodPage() {
               </div>
             )}
             {suggestions.length > 0 && !editId && (
-              <div className="card p-4">
+              <div className="card p-3 md:p-4">
                 <h2 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-[#6B7280]">Suggestions</h2>
                 <div className="flex flex-col gap-1">
                   {suggestions.map((food) => (
@@ -319,7 +319,7 @@ export default function AddFoodPage() {
 
           <div className="lg:col-span-7">
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] lg:block hidden">Nutrition Value Inputs</h2>
-            <div className="flex flex-col gap-4 card p-5 bg-white">
+            <div className="flex flex-col gap-4 card p-4 md:p-5 bg-white">
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between items-center text-xs font-bold text-[#6B7280] uppercase tracking-wide mb-1">
