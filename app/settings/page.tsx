@@ -326,6 +326,42 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      {/* Tracking Preferences */}
+      <section className="mb-6">
+        <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-zinc-400 font-sans">
+          Tracking Preferences
+        </h2>
+        <div className="border border-white/5 bg-[#181818] p-4 shadow-md rounded-lg space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 pr-4">
+              <p className="text-sm font-bold text-white font-sans">Track Carbs &amp; Fat</p>
+              <p className="text-xs text-zinc-500 mt-0.5 font-sans leading-relaxed">
+                Show carbs and fat when logging from the Food DB. Stored alongside calories and protein.
+              </p>
+            </div>
+            <button
+              onClick={() => updateSettings({ trackCarbsFat: !settings.trackCarbsFat })}
+              className={`relative shrink-0 w-12 h-6 rounded-full transition-colors duration-200 cursor-pointer border ${
+                settings.trackCarbsFat
+                  ? "bg-[#1DB954] border-[#1DB954]"
+                  : "bg-zinc-700 border-zinc-600"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                  settings.trackCarbsFat ? "translate-x-6" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+          {settings.trackCarbsFat && (
+            <div className="bg-[#1DB954]/5 border border-[#1DB954]/20 rounded-lg p-3 text-xs text-zinc-400 font-sans">
+              ✓ Carbs and fat will be shown in the Food DB search and Meal Builder.
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* X / Twitter Profile Settings */}
       <section className="mb-6">
         <h2 className="mb-2.5 text-xs font-bold uppercase tracking-widest text-zinc-400 font-sans">

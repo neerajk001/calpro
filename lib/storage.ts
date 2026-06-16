@@ -6,6 +6,7 @@ const SETTINGS_KEY = "calpro:settings";
 export const DEFAULT_SETTINGS: UserSettings = {
   dailyCalorieTarget: 2000,
   dailyProteinTarget: 120,
+  trackCarbsFat: false,
 };
 
 function generateId(): string {
@@ -56,6 +57,8 @@ export function loadFoods(): FoodEntry[] {
       name: f.name,
       calories: Math.max(0, Math.round(f.calories)),
       protein: Math.max(0, Math.round(f.protein * 10) / 10),
+      carbs: typeof f.carbs === "number" ? Math.max(0, Math.round(f.carbs * 10) / 10) : undefined,
+      fat: typeof f.fat === "number" ? Math.max(0, Math.round(f.fat * 10) / 10) : undefined,
       date: f.date,
       createdAt: f.createdAt ?? Date.now(),
       tag: tag as FoodTag,
@@ -78,6 +81,8 @@ export function addFood(
   protein: number,
   date: string,
   tag: FoodTag,
+  carbs?: number,
+  fat?: number,
 ): FoodEntry {
   const sanitizedName = name.trim() || "Logged Item";
   const sanitizedCalories = Math.max(0, Math.round(calories));
@@ -88,6 +93,8 @@ export function addFood(
     name: sanitizedName,
     calories: sanitizedCalories,
     protein: sanitizedProtein,
+    carbs: carbs !== undefined ? Math.max(0, Math.round(carbs * 10) / 10) : undefined,
+    fat: fat !== undefined ? Math.max(0, Math.round(fat * 10) / 10) : undefined,
     date: date,
     createdAt: Date.now(),
     tag: tag,
@@ -112,6 +119,8 @@ export function updateFood(
   protein: number,
   date: string,
   tag: FoodTag,
+  carbs?: number,
+  fat?: number,
 ): FoodEntry | null {
   const foods = loadFoods();
   const index = foods.findIndex((f) => f.id === id);
@@ -126,6 +135,8 @@ export function updateFood(
     name: sanitizedName,
     calories: sanitizedCalories,
     protein: sanitizedProtein,
+    carbs: carbs !== undefined ? Math.max(0, Math.round(carbs * 10) / 10) : foods[index].carbs,
+    fat: fat !== undefined ? Math.max(0, Math.round(fat * 10) / 10) : foods[index].fat,
     date: date,
     tag: tag,
   };
@@ -178,6 +189,7 @@ export function loadSettings(): UserSettings {
   return {
     dailyCalorieTarget: Math.max(100, Math.round(parsed?.dailyCalorieTarget ?? DEFAULT_SETTINGS.dailyCalorieTarget)),
     dailyProteinTarget: Math.max(10, Math.round(parsed?.dailyProteinTarget ?? DEFAULT_SETTINGS.dailyProteinTarget)),
+    trackCarbsFat: parsed?.trackCarbsFat ?? false,
     twitterHandle: parsed?.twitterHandle ?? "",
   };
 }

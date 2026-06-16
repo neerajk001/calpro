@@ -23,9 +23,9 @@ interface AppContextValue {
   foods: FoodEntry[];
   settings: UserSettings;
   hydrated: boolean;
-  addFood: (name: string, calories: number, protein: number, date: string, tag: FoodTag) => void;
+  addFood: (name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => void;
   deleteFood: (id: string) => void;
-  updateFood: (id: string, name: string, calories: number, protein: number, date: string, tag: FoodTag) => void;
+  updateFood: (id: string, name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => void;
   undoDeleteFood: () => void;
   hasLastDeleted: boolean;
   updateSettings: (partial: Partial<UserSettings>) => void;
@@ -42,6 +42,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<UserSettings>({
     dailyCalorieTarget: 2000,
     dailyProteinTarget: 120,
+    trackCarbsFat: false,
   });
   const [hydrated, setHydrated] = useState(false);
   const [lastDeleted, setLastDeleted] = useState<FoodEntry | null>(null);
@@ -61,8 +62,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addFood = useCallback(
-    (name: string, calories: number, protein: number, date: string, tag: FoodTag) => {
-      const entry = storageAddFood(name, calories, protein, date, tag);
+    (name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => {
+      const entry = storageAddFood(name, calories, protein, date, tag, carbs, fat);
       setFoods((prev) => [...prev, entry]);
     },
     [],
@@ -79,8 +80,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateFood = useCallback(
-    (id: string, name: string, calories: number, protein: number, date: string, tag: FoodTag) => {
-      const updated = storageUpdateFood(id, name, calories, protein, date, tag);
+    (id: string, name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => {
+      const updated = storageUpdateFood(id, name, calories, protein, date, tag, carbs, fat);
       if (updated) {
         setFoods((prev) => prev.map((f) => (f.id === id ? updated : f)));
       }
@@ -116,15 +117,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (date: string): DaySummary => {
       const entries = foods.filter((f) => f.date === date);
       const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0);
-      
       const rawProtein = entries.reduce((sum, e) => sum + e.protein, 0);
       const totalProtein = Math.round(rawProtein * 10) / 10;
+      const totalCarbs = Math.round(entries.reduce((sum, e) => sum + (e.carbs ?? 0), 0) * 10) / 10;
+      const totalFat = Math.round(entries.reduce((sum, e) => sum + (e.fat ?? 0), 0) * 10) / 10;
 
       return {
         date,
         entries,
         totalCalories,
         totalProtein,
+        totalCarbs,
+        totalFat,
         calorieProgress: settings.dailyCalorieTarget > 0
           ? totalCalories / settings.dailyCalorieTarget
           : 0,
