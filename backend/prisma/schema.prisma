@@ -1,0 +1,141 @@
+// CalPro — Prisma schema for separate Express backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FoodTag {
+  breakfast
+  lunch
+  dinner
+  snack
+  junk
+}
+
+enum QuantityMode {
+  grams
+  piece
+  ml
+  serving
+}
+
+model User {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  supabaseId    String?        @unique
+  email         String?        @unique
+  name          String?
+  image         String?
+  anonymousId   String?        @unique
+  settings      Settings?
+  foodLogs      FoodLog[]
+  customFoods   CustomFood[]
+  mealTemplates MealTemplate[]
+  waterLogs     WaterLog[]
+}
+
+model Settings {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyCalorieTarget Int     @default(2000)
+  dailyProteinTarget Int     @default(120)
+  trackCarbsFat      Boolean @default(false)
+  twitterHandle      String?
+  dailyWaterTarget   Int     @default(2500) // ml
+}
+
+model FoodLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  calories  Int
+  protein   Float
+  carbs     Float?
+  fat       Float?
+  date      String   // "YYYY-MM-DD" — KEEP AS STRING (streak/summary rely on local-date equality)
+  createdAt DateTime @default(now())
+  tag       FoodTag
+
+  @@index([userId, date])
+}
+
+model CustomFood {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  category        String
+  caloriesPer100g Float
+  proteinPer100g  Float
+  carbsPer100g    Float
+  fatPer100g      Float
+  defaultQty      Float
+  quantityMode    QuantityMode
+  gramsPerPiece   Float?
+  mlPerServing    Float?
+  emoji           String?
+  barcode         String? // for barcode-cached items
+
+  @@index([userId])
+}
+
+model Food {
+  id              String       @id @default(cuid())
+  name            String
+  category        String
+  caloriesPer100g Float
+  proteinPer100g  Float
+  carbsPer100g    Float
+  fatPer100g      Float
+  defaultQty      Float
+  quantityMode    QuantityMode
+  gramsPerPiece   Float?
+  mlPerServing    Float?
+  emoji           String?
+  barcode         String?      @unique
+
+  createdAt       DateTime     @default(now())
+
+  @@index([name])
+}
+
+model MealTemplate {                  // Roadmap 3.3 "My Meals"
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  tag       FoodTag
+  items     MealTemplateItem[]
+  createdAt DateTime           @default(now())
+}
+
+model MealTemplateItem {
+  id           String       @id @default(cuid())
+  templateId   String
+  template     MealTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  name         String
+  quantity     Float
+  quantityMode QuantityMode
+  displayQty   Float
+  calories     Int
+  protein      Float
+  carbs        Float
+  fat          Float
+  emoji        String?
+}
+
+model WaterLog {                       // Roadmap 3.8
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date   String // "YYYY-MM-DD"
+  amount Int    // ml
+
+  @@index([userId, date])
+}
