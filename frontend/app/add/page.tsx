@@ -176,9 +176,8 @@ export default function AddFoodPage() {
 
   return (
     <div className="relative min-h-full select-none text-[#1A1A1A]">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6">
         <h1 className="text-xl md:text-2xl font-bold tracking-tight">{editId ? "Edit Entry" : "Log Nutrition"}</h1>
-        <button onClick={() => router.push(editDate ? `/?date=${editDate}` : "/")} className="btn-secondary px-4 py-2.5 text-xs font-semibold rounded-xl cursor-pointer">Cancel</button>
       </div>
 
       {!editId && (
