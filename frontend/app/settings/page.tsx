@@ -149,15 +149,6 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {mounted && (
-            <section className="card p-4 md:p-5 mt-6 bg-yellow-50 border border-yellow-200">
-              <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-yellow-800">Debug Auth Storage</h2>
-              <div className="space-y-2 text-xs font-mono break-all text-black">
-                <p><strong>document.cookie:</strong> {document.cookie || "Empty"}</p>
-                <p><strong>localStorage keys:</strong> {JSON.stringify(Object.keys(localStorage))}</p>
-              </div>
-            </section>
-          )}
         </div>
       </div>
     </div>
