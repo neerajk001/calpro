@@ -510,114 +510,143 @@ async function queryExternalSearch(q: string): Promise<any[]> {
   const nutritionixId = process.env.NUTRITIONIX_APP_ID;
   const nutritionixKey = process.env.NUTRITIONIX_API_KEY;
 
+  const tasks: Promise<any[]>[] = [];
+
+  // Edamam Search
   if (edamamId && edamamKey) {
-    try {
-      console.log(`🔍 Querying Edamam Food DB API for "${q}"...`);
-      const url = `https://api.edamam.com/api/food-database/v2/parser?app_id=${edamamId}&app_key=${edamamKey}&ingr=${encodeURIComponent(q)}`;
-      const response = await fetch(url);
-      if (response.ok) {
-        const data: any = await response.json();
-        const hints = data.hints || [];
-        return hints.slice(0, 10).map((hint: any) => {
-          const food = hint.food;
-          const nutrients = food.nutrients || {};
-          return {
-            name: food.label,
-            category: "Custom",
-            caloriesPer100g: Math.round(nutrients.ENERC_KCAL || 0),
-            proteinPer100g: Math.round((nutrients.PROCNT || 0) * 10) / 10,
-            carbsPer100g: Math.round((nutrients.CHOCDF || 0) * 10) / 10,
-            fatPer100g: Math.round((nutrients.FAT || 0) * 10) / 10,
-            defaultQty: 100,
-            quantityMode: "grams",
-            emoji: "🍽️",
-            barcode: null,
-          };
-        });
+    tasks.push((async () => {
+      try {
+        console.log(`🔍 Querying Edamam Food DB API for "${q}"...`);
+        const url = `https://api.edamam.com/api/food-database/v2/parser?app_id=${edamamId}&app_key=${edamamKey}&ingr=${encodeURIComponent(q)}`;
+        const response = await fetch(url);
+        if (response.ok) {
+          const data: any = await response.json();
+          const hints = data.hints || [];
+          return hints.slice(0, 10).map((hint: any) => {
+            const food = hint.food;
+            const nutrients = food.nutrients || {};
+            return {
+              name: food.label,
+              category: "Custom",
+              caloriesPer100g: Math.round(nutrients.ENERC_KCAL || 0),
+              proteinPer100g: Math.round((nutrients.PROCNT || 0) * 10) / 10,
+              carbsPer100g: Math.round((nutrients.CHOCDF || 0) * 10) / 10,
+              fatPer100g: Math.round((nutrients.FAT || 0) * 10) / 10,
+              defaultQty: 100,
+              quantityMode: "grams",
+              emoji: "🍽️",
+              barcode: null,
+            };
+          });
+        }
+      } catch (err) {
+        console.error("Edamam search failed:", err);
       }
-    } catch (err) {
-      console.error("Edamam search failed:", err);
-    }
+      return [];
+    })());
   }
 
+  // Nutritionix Search
   if (nutritionixId && nutritionixKey) {
+    tasks.push((async () => {
+      try {
+        console.log(`🔍 Querying Nutritionix API for "${q}"...`);
+        const url = `https://trackapi.nutritionix.com/v2/search/instant?query=${encodeURIComponent(q)}`;
+        const response = await fetch(url, {
+          headers: {
+            "x-app-id": nutritionixId,
+            "x-app-key": nutritionixKey,
+          }
+        });
+        if (response.ok) {
+          const data: any = await response.json();
+          const branded = data.branded || [];
+          return branded.slice(0, 10).map((item: any) => {
+            return {
+              name: item.food_name,
+              category: "Custom",
+              caloriesPer100g: Math.round((item.nf_calories || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)),
+              proteinPer100g: Math.round(((item.nf_protein || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)) * 10) / 10,
+              carbsPer100g: Math.round(((item.nf_total_carbohydrate || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)) * 10) / 10,
+              fatPer100g: Math.round(((item.nf_total_fat || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)) * 10) / 10,
+              defaultQty: 100,
+              quantityMode: "grams",
+              emoji: "🍽️",
+              barcode: null,
+            };
+          });
+        }
+      } catch (err) {
+        console.error("Nutritionix search failed:", err);
+      }
+      return [];
+    })());
+  }
+
+  // Open Food Facts Search (always active as it requires no keys)
+  tasks.push((async () => {
     try {
-      console.log(`🔍 Querying Nutritionix API for "${q}"...`);
-      const url = `https://trackapi.nutritionix.com/v2/search/instant?query=${encodeURIComponent(q)}`;
+      console.log(`🌐 Querying Open Food Facts Text Search for "${q}"...`);
+      const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=15`;
       const response = await fetch(url, {
         headers: {
-          "x-app-id": nutritionixId,
-          "x-app-key": nutritionixKey,
-        }
+          "User-Agent": "CalPro-Nutrition-App - NodeJs - Version 1.0.0",
+        },
       });
       if (response.ok) {
         const data: any = await response.json();
-        const branded = data.branded || [];
-        return branded.slice(0, 10).map((item: any) => {
-          return {
-            name: item.food_name,
+        const products = data.products || [];
+        const results = [];
+        for (const product of products) {
+          const name = product.product_name || product.product_name_en;
+          if (!name) continue;
+          const nutriments = product.nutriments || {};
+          const calories = Math.round(
+            nutriments["energy-kcal_100g"] ||
+              (nutriments["energy_100g"] ? nutriments["energy_100g"] / 4.184 : 0)
+          );
+          const protein = Math.round((nutriments["proteins_100g"] || 0) * 10) / 10;
+          const carbs = Math.round((nutriments["carbohydrates_100g"] || 0) * 10) / 10;
+          const fat = Math.round((nutriments["fat_100g"] || 0) * 10) / 10;
+
+          results.push({
+            name: name.substring(0, 100),
             category: "Custom",
-            caloriesPer100g: Math.round((item.nf_calories || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)),
-            proteinPer100g: Math.round(((item.nf_protein || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)) * 10) / 10,
-            carbsPer100g: Math.round(((item.nf_total_carbohydrate || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)) * 10) / 10,
-            fatPer100g: Math.round(((item.nf_total_fat || 0) / ((item.serving_qty * item.serving_weight_grams) / 100 || 1)) * 10) / 10,
+            caloriesPer100g: calories,
+            proteinPer100g: protein,
+            carbsPer100g: carbs,
+            fatPer100g: fat,
             defaultQty: 100,
             quantityMode: "grams",
-            emoji: "🍽️",
-            barcode: null,
-          };
-        });
+            emoji: "📦",
+            barcode: product.code || null,
+          });
+        }
+        return results;
       }
     } catch (err) {
-      console.error("Nutritionix search failed:", err);
+      console.error("Open Food Facts text search failed:", err);
     }
-  }
+    return [];
+  })());
 
-  // Fallback: Open Food Facts Text Search (does not require any API keys!)
-  try {
-    console.log(`🌐 Querying Open Food Facts Text Search for "${q}"...`);
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=15`;
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "CalPro-Nutrition-App - NodeJs - Version 1.0.0",
-      },
-    });
-    if (response.ok) {
-      const data: any = await response.json();
-      const products = data.products || [];
-      const results = [];
-      for (const product of products) {
-        const name = product.product_name || product.product_name_en;
-        if (!name) continue;
-        const nutriments = product.nutriments || {};
-        const calories = Math.round(
-          nutriments["energy-kcal_100g"] ||
-            (nutriments["energy_100g"] ? nutriments["energy_100g"] / 4.184 : 0)
-        );
-        const protein = Math.round((nutriments["proteins_100g"] || 0) * 10) / 10;
-        const carbs = Math.round((nutriments["carbohydrates_100g"] || 0) * 10) / 10;
-        const fat = Math.round((nutriments["fat_100g"] || 0) * 10) / 10;
+  const taskResults = await Promise.allSettled(tasks);
+  const combined: any[] = [];
+  const seen = new Set<string>();
 
-        results.push({
-          name: name.substring(0, 100),
-          category: "Custom",
-          caloriesPer100g: calories,
-          proteinPer100g: protein,
-          carbsPer100g: carbs,
-          fatPer100g: fat,
-          defaultQty: 100,
-          quantityMode: "grams",
-          emoji: "📦",
-          barcode: product.code || null,
-        });
+  for (const r of taskResults) {
+    if (r.status === "fulfilled" && Array.isArray(r.value)) {
+      for (const item of r.value) {
+        const key = item.name.toLowerCase().trim();
+        if (!seen.has(key)) {
+          seen.add(key);
+          combined.push(item);
+        }
       }
-      return results;
     }
-  } catch (err) {
-    console.error("Open Food Facts text search failed:", err);
   }
 
-  return [];
+  return combined;
 }
 
 // 12. GET /api/foods/search - Search local DB + external APIs (with caching)
