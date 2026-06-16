@@ -11,3 +11,9 @@
 # design
 - Use teal and green color scheme for UI accents (buttons, toggles); the green should be a vibrant Spotify-style green (e.g., #1DB954), not muted sage. Avoid orange. Confidence: 0.75
 
+# data-integrity
+- Use IFCT (Indian Food Composition Tables) or USDA FoodData Central as authoritative sources for nutritional data; avoid estimates or secondary aggregators. Confidence: 0.75
+
+# workflow
+- When modifying the food database, always sync both backend/prisma/foodDatabase.ts and frontend/lib/foodDatabase.ts, then verify with npx tsc --noEmit and duplicate ID detection before seeding. Confidence: 0.75
+
