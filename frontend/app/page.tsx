@@ -147,19 +147,19 @@ export default function DashboardPage() {
 
   return (
     <div className="relative min-h-full select-none font-sans text-[#f5f2eb]">
-      {/* Onboarding Dialog Overlay */}
+      {/* Onboarding Immersive Full-Screen Container */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm border border-white/10 bg-[#201c1a]/95 backdrop-blur-md p-6 shadow-2xl text-center rounded-2xl animate-fade-in flex flex-col items-center">
+        <div className="fixed inset-0 z-55 flex flex-col items-center justify-center bg-gradient-to-br from-[#181514] via-[#12100f] to-[#0c0a0a] p-6 md:p-12 overflow-y-auto">
+          <div className="w-full max-w-xl border border-white/[0.05] bg-[#1c1816]/75 backdrop-blur-xl p-8 md:p-12 shadow-3xl text-center rounded-3xl animate-fade-in flex flex-col items-center justify-between min-h-[480px]">
             
             {/* Step 1: What we do */}
             {onboardingStep === 1 && (
-              <div className="w-full animate-fade-in flex flex-col items-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center bg-[#282421] text-[#1DB954] mb-4 border border-white/5 rounded-full">
+              <div className="w-full animate-fade-in flex flex-col items-center flex-1 justify-center my-auto">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#282421] text-[#1DB954] mb-6 border border-white/5 rounded-full shadow-inner">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
+                    width="32"
+                    height="32"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -172,35 +172,35 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 
-                <h2 className="text-3xl font-bold tracking-tight text-white font-sans">
+                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-sans">
                   LogMyMeal
                 </h2>
-                <p className="mt-1 text-xs font-semibold tracking-widest text-[#1DB954] uppercase font-sans">
+                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#1DB954] uppercase font-sans">
                   Fast Calorie & Protein Tracker
                 </p>
                 
-                <p className="mt-4 text-sm leading-relaxed text-zinc-300 font-sans font-normal min-h-[100px]">
+                <p className="mt-6 text-sm md:text-base leading-relaxed text-zinc-300 font-sans font-normal max-w-md">
                   Welcome to LogMyMeal! We built this app to be clean, fast, and privacy-first. There are no tracking scripts, no ads, and no annoying email sign-up walls to get started.
                 </p>
 
                 <button
                   onClick={() => setOnboardingStep(2)}
-                  className="mt-6 w-full bg-[#1DB954] py-3.5 text-sm font-semibold text-[#161413] shadow-md hover:bg-[#1ed760] transition active:scale-95 font-sans rounded-full cursor-pointer flex items-center justify-center gap-1"
+                  className="mt-8 w-full max-w-sm bg-[#1DB954] py-4 text-sm font-semibold text-[#161413] shadow-lg hover:bg-[#1ed760] transition active:scale-95 font-sans rounded-full cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   Continue
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
               </div>
             )}
 
             {/* Step 2: What to expect */}
             {onboardingStep === 2 && (
-              <div className="w-full animate-fade-in flex flex-col items-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center bg-[#282421] text-[#81b29a] mb-4 border border-white/5 rounded-full">
+              <div className="w-full animate-fade-in flex flex-col items-center flex-1 justify-center my-auto">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#282421] text-[#81b29a] mb-6 border border-white/5 rounded-full shadow-inner">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
+                    width="32"
+                    height="32"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -212,46 +212,46 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 
-                <h2 className="text-2xl font-bold tracking-tight text-white font-sans">
+                <h2 className="text-3xl font-extrabold tracking-tight text-white font-sans">
                   Powerful Features
                 </h2>
-                <p className="mt-1 text-xs font-semibold tracking-widest text-[#81b29a] uppercase font-sans">
+                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#81b29a] uppercase font-sans">
                   What you can expect
                 </p>
                 
-                <div className="mt-4 text-left space-y-2.5 w-full text-zinc-300 font-sans text-sm min-h-[100px]">
-                  <div className="flex items-start gap-2">
-                    <span className="text-base shrink-0">🍕</span>
+                <div className="mt-6 text-left space-y-3.5 w-full max-w-md text-zinc-350 font-sans text-sm md:text-base">
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg shrink-0">🍕</span>
                     <span><strong>Portion Presets:</strong> Quick portion presets (small, medium, full plate) for fast entries.</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-base shrink-0">🍳</span>
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg shrink-0">🍳</span>
                     <span><strong>Cooking Multipliers:</strong> Estimate macros based on boiling, frying, or adding ghee/oil.</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-base shrink-0">💧</span>
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg shrink-0">💧</span>
                     <span><strong>Water Tracking:</strong> Track hydration levels dynamically alongside daily food targets.</span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setOnboardingStep(3)}
-                  className="mt-6 w-full bg-[#1DB954] py-3.5 text-sm font-semibold text-[#161413] shadow-md hover:bg-[#1ed760] transition active:scale-95 font-sans rounded-full cursor-pointer flex items-center justify-center gap-1"
+                  className="mt-8 w-full max-w-sm bg-[#1DB954] py-4 text-sm font-semibold text-[#161413] shadow-lg hover:bg-[#1ed760] transition active:scale-95 font-sans rounded-full cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   Almost there
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
               </div>
             )}
 
             {/* Step 3: Google Sign-in or Skip */}
             {onboardingStep === 3 && (
-              <div className="w-full animate-fade-in flex flex-col items-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center bg-[#282421] text-[#3b82f6] mb-4 border border-white/5 rounded-full">
+              <div className="w-full animate-fade-in flex flex-col items-center flex-1 justify-center my-auto">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#282421] text-[#3b82f6] mb-6 border border-white/5 rounded-full shadow-inner">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
+                    width="32"
+                    height="32"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -264,21 +264,21 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 
-                <h2 className="text-2xl font-bold tracking-tight text-white font-sans">
+                <h2 className="text-3xl font-extrabold tracking-tight text-white font-sans">
                   Secure Your Data
                 </h2>
-                <p className="mt-1 text-xs font-semibold tracking-widest text-[#3b82f6] uppercase font-sans">
+                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#3b82f6] uppercase font-sans">
                   Keep your logs in sync
                 </p>
                 
-                <p className="mt-4 text-sm leading-relaxed text-zinc-300 font-sans font-normal min-h-[100px]">
+                <p className="mt-6 text-sm md:text-base leading-relaxed text-zinc-350 font-sans font-normal max-w-md">
                   Sign in with Google to securely back up and sync your calorie settings, history, and custom foods across all devices, or continue locally anonymous.
                 </p>
 
-                <div className="w-full mt-6 space-y-3">
+                <div className="w-full max-w-sm mt-8 space-y-3">
                   <button
                     onClick={handleGoogleSignIn}
-                    className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-[#f0f0f0] text-[#161413] py-3.5 text-sm font-semibold transition active:scale-95 rounded-full cursor-pointer shadow-md"
+                    className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-[#f0f0f0] text-[#161413] py-4 text-sm font-semibold transition active:scale-95 rounded-full cursor-pointer shadow-lg"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
 
                   <button
                     onClick={handleStartTracking}
-                    className="w-full bg-[#282421] hover:bg-[#322d29] border border-white/5 text-zinc-400 hover:text-white py-3 text-xs font-semibold rounded-full active:scale-95 transition cursor-pointer"
+                    className="w-full bg-[#282421] hover:bg-[#322d29] border border-white/5 text-zinc-400 hover:text-white py-3.5 text-xs font-semibold rounded-full active:scale-95 transition cursor-pointer"
                   >
                     Skip & Continue Locally
                   </button>
@@ -300,10 +300,10 @@ export default function DashboardPage() {
             )}
 
             {/* Stepper indicators */}
-            <div className="mt-6 flex items-center justify-center gap-1.5">
-              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 1 ? "w-3 bg-[#1DB954]" : "bg-zinc-650"}`} />
-              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 2 ? "w-3 bg-[#1DB954]" : "bg-zinc-650"}`} />
-              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 3 ? "w-3 bg-[#1DB954]" : "bg-zinc-650"}`} />
+            <div className="mt-8 flex items-center justify-center gap-1.5">
+              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 1 ? "w-4 bg-[#1DB954]" : "bg-zinc-700"}`} />
+              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 2 ? "w-4 bg-[#1DB954]" : "bg-zinc-700"}`} />
+              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 3 ? "w-4 bg-[#1DB954]" : "bg-zinc-700"}`} />
             </div>
 
           </div>
