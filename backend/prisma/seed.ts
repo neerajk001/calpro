@@ -6,6 +6,10 @@ import { BUILT_IN_FOODS } from "./foodDatabase.js";
 
 dotenv.config();
 
+if (process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.DATABASE_URL.replace(/^["']|["']$/g, "");
+}
+
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error("DATABASE_URL is not set.");
