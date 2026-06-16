@@ -203,7 +203,7 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
           value={query}
           onChange={(e) => { setQuery(e.target.value); setSelectedFood(null); }}
           placeholder="Search foods..."
-          className="input-field pl-12 pr-12 text-[15px]"
+          className="input-field !pl-12 !pr-12 text-[15px]"
         />
         {query ? (
           <button

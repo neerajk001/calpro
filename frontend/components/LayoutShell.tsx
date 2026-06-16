@@ -58,17 +58,8 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-[#FFFFFF] border-r border-black/5 p-6 z-40 select-none">
         <div className="space-y-8">
-          <Link href="/" className="flex items-center gap-3 px-2 py-1.5 transition active:scale-95">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB] shadow-md shadow-[#2563EB]/20">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2v20" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </div>
-            <div>
-              <span className="font-bold text-base tracking-tight block leading-none text-[#111827]">LogMyMeal</span>
-              <span className="text-xs text-[#6B7280] font-semibold uppercase tracking-wider mt-0.5 block">Nutrition Tracker</span>
-            </div>
+          <Link href="/" className="flex items-center px-1.5 py-0.5 transition active:scale-95">
+            <img src="/logo.svg" alt="LogMyMeal" className="h-14 w-auto" />
           </Link>
 
           <nav className="flex flex-col gap-1">

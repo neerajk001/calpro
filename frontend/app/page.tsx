@@ -149,13 +149,7 @@ export default function DashboardPage() {
           <div className="w-full max-w-2xl text-center flex flex-col items-center justify-between min-h-[520px] py-8 px-4">
             {onboardingStep === 1 && (
               <div className="w-full flex flex-col items-center flex-1 justify-center my-auto">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center bg-[#EFF6FF] text-[#2563EB] mb-8 rounded-2xl shadow-sm border border-blue-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v20" />
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                </div>
-                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-[#111827]">LogMyMeal</h2>
+                <img src="/logo.svg" alt="LogMyMeal Logo" className="h-20 md:h-24 w-auto mb-8 mx-auto" />
                 <p className="mt-2 text-xs font-bold tracking-widest text-[#2563EB] uppercase">Fast Calorie & Protein Tracker</p>
                 <p className="mt-6 text-base md:text-lg leading-relaxed text-[#4B5563] max-w-md">
                   Welcome! We built this app to be clean, fast, and privacy-first. No tracking scripts, no ads, no sign-up walls.
