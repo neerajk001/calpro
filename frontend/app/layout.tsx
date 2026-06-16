@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full hide-scrollbar`}>
       <head>
-        <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body className="h-full bg-[#F3F4F6] text-[#111827] antialiased hide-scrollbar">
