@@ -609,6 +609,12 @@ async function queryExternalSearch(q: string): Promise<any[]> {
           const carbs = Math.round((nutriments["carbohydrates_100g"] || 0) * 10) / 10;
           const fat = Math.round((nutriments["fat_100g"] || 0) * 10) / 10;
 
+          const countries = product.countries_tags || [];
+          const isIndian =
+            product.code?.startsWith("890") ||
+            countries.some((c: string) => c === "en:india" || c === "en:in") ||
+            product.countries?.toLowerCase().includes("india");
+
           results.push({
             name: name.substring(0, 100),
             category: "Custom",
@@ -620,8 +626,17 @@ async function queryExternalSearch(q: string): Promise<any[]> {
             quantityMode: "grams",
             emoji: "📦",
             barcode: product.code || null,
+            isIndian: !!isIndian,
           });
         }
+
+        // Sort Indian products to the front of this Open Food Facts result list
+        results.sort((a, b) => {
+          if (a.isIndian && !b.isIndian) return -1;
+          if (!a.isIndian && b.isIndian) return 1;
+          return 0;
+        });
+
         return results;
       }
     } catch (err) {
@@ -775,12 +790,20 @@ app.get("/api/foods/search", async (req, res) => {
       }
     }
 
-    // Sort: startsWith matches first, then contains matches
+    // Sort:
+    // 1. startsWith matches first
+    // 2. Prioritize Indian products (barcodes starting with "890")
     merged.sort((a, b) => {
       const aStarts = a.name.toLowerCase().startsWith(q);
       const bStarts = b.name.toLowerCase().startsWith(q);
       if (aStarts && !bStarts) return -1;
       if (!aStarts && bStarts) return 1;
+
+      const aIsIndian = a.barcode?.startsWith("890");
+      const bIsIndian = b.barcode?.startsWith("890");
+      if (aIsIndian && !bIsIndian) return -1;
+      if (!aIsIndian && bIsIndian) return 1;
+
       return 0;
     });
 
