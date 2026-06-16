@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -16,7 +17,16 @@ function createPrismaClient(): PrismaClient {
     );
   }
 
-  const adapter = new PrismaPg({ connectionString });
+  const ssl = connectionString.includes("supabase.co") || connectionString.includes("pooler.supabase.com")
+    ? { rejectUnauthorized: false }
+    : undefined;
+
+  const pool = new pg.Pool({
+    connectionString,
+    ssl,
+  });
+
+  const adapter = new PrismaPg(pool);
 
   return new PrismaClient({
     adapter,
