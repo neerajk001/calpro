@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import dotenv from "dotenv";
-import { BUILT_IN_FOODS } from "../../lib/foodDatabase.js";
+import { BUILT_IN_FOODS } from "./foodDatabase.js";
 
 dotenv.config();
 
