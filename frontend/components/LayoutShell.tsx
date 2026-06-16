@@ -54,20 +54,20 @@ export function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-[#F8FBF4] text-[#1F1F1F]">
+    <div className="flex min-h-screen flex-col md:flex-row bg-[#F3F4F6] text-[#111827]">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-[#FFFFFF] border-r border-[#F4F7EF] p-6 z-40 select-none">
+      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-[#FFFFFF] border-r border-black/5 p-6 z-40 select-none">
         <div className="space-y-8">
           <Link href="/" className="flex items-center gap-3 px-2 py-1.5 transition active:scale-95">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#96CE4B] shadow-md shadow-[#96CE4B]/20">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB] shadow-md shadow-[#2563EB]/20">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2v20" />
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
             </div>
             <div>
-              <span className="font-bold text-base tracking-tight block leading-none text-[#1F1F1F]">LogMyMeal</span>
-              <span className="text-[10px] text-[#9A9A9A] font-semibold uppercase tracking-wider mt-0.5 block">Nutrition Tracker</span>
+              <span className="font-bold text-base tracking-tight block leading-none text-[#111827]">LogMyMeal</span>
+              <span className="text-xs text-[#6B7280] font-semibold uppercase tracking-wider mt-0.5 block">Nutrition Tracker</span>
             </div>
           </Link>
 
@@ -80,11 +80,11 @@ export function LayoutShell({ children }: { children: ReactNode }) {
                   href={tab.href}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition duration-200 ${
                     active
-                      ? "bg-[#EAF5D6] text-[#96CE4B]"
-                      : "text-[#666666] hover:text-[#1F1F1F] hover:bg-[#F4F7EF]"
+                      ? "bg-[#EFF6FF] text-[#2563EB]"
+                      : "text-[#4B5563] hover:text-[#111827] hover:bg-[#F3F4F6]"
                   }`}
                 >
-                  <span className={active ? "text-[#96CE4B]" : "text-[#9A9A9A]"}>{tab.icon}</span>
+                  <span className={active ? "text-[#2563EB]" : "text-[#4B5563]"}>{tab.icon}</span>
                   {tab.label}
                 </Link>
               );

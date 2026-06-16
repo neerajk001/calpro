@@ -114,12 +114,12 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
 
               {/* Scanning viewfinder overlay */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="relative w-64 h-40 border-2 border-[#1DB954]/50 rounded-xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+                <div className="relative w-64 h-40 border-2 border-[#2563EB]/50 rounded-xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)]">
                   {/* Glowing corners */}
-                  <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-[#1DB954]"></div>
-                  <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-[#1DB954]"></div>
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-[#1DB954]"></div>
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-[#1DB954]"></div>
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-[#2563EB]"></div>
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-[#2563EB]"></div>
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-[#2563EB]"></div>
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-[#2563EB]"></div>
 
                   {/* Red scanning line animation */}
                   <div className="absolute top-0 left-0 right-0 h-[2px] bg-red-500 shadow-[0_0_10px_#ef4444] animate-scan-line"></div>
@@ -163,7 +163,7 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
             </label>
             
             {/* Snap direct fallback for mobile */}
-            <label className="flex-1 flex items-center justify-center gap-2 border border-[#1DB954]/20 hover:border-[#1DB954]/40 bg-[#1DB954]/5 text-[#1DB954] hover:bg-[#1DB954]/10 text-xs font-bold px-4 py-3 rounded-lg cursor-pointer transition">
+            <label className="flex-1 flex items-center justify-center gap-2 border border-[#2563EB]/20 hover:border-[#2563EB]/40 bg-[#2563EB]/5 text-[#2563EB] hover:bg-[#2563EB]/10 text-xs font-bold px-4 py-3 rounded-lg cursor-pointer transition">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
               </svg>
@@ -196,12 +196,12 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
               placeholder="e.g. 8901058860264"
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
-              className="flex-1 border border-white/10 bg-[#181818] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#1DB954]/50 rounded-lg font-sans tabular-nums"
+              className="flex-1 border border-white/10 bg-[#181818] px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#2563EB]/50 rounded-lg font-sans tabular-nums"
             />
             <button
               type="submit"
               disabled={!manualCode.trim()}
-              className="px-5 bg-[#1DB954] hover:bg-[#1ed760] disabled:opacity-50 text-black text-xs font-extrabold rounded-lg transition active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+              className="px-5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white text-xs font-extrabold rounded-lg transition active:scale-95 cursor-pointer disabled:cursor-not-allowed"
             >
               Verify
             </button>

@@ -11,6 +11,9 @@
 # design
 - Use teal and green color scheme for UI accents (buttons, toggles); the green should be a vibrant Spotify-style green (e.g., #1DB954), not muted sage. Avoid orange. Confidence: 0.75
 
+# fonts
+- Use heavier font weights and ensure sufficient contrast on light backgrounds. Inter at 400–500 weight appears too thin/faded on white; prefer 600+ for body text and ensure secondary text (#666666 or darker) has enough contrast. Confidence: 0.70
+
 # data-integrity
 - Use IFCT (Indian Food Composition Tables) or USDA FoodData Central as authoritative sources for nutritional data; avoid estimates or secondary aggregators. Confidence: 0.75
 

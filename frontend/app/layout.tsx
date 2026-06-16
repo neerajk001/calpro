@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F8FBF4",
+  themeColor: "#F3F4F6",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -51,7 +51,7 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className="h-full bg-[#F8FBF4] text-[#1F1F1F] antialiased hide-scrollbar">
+      <body className="h-full bg-[#F3F4F6] text-[#111827] antialiased hide-scrollbar">
         <AppProvider>
           <LayoutShell>{children}</LayoutShell>
         </AppProvider>

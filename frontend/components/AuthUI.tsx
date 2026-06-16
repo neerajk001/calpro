@@ -72,35 +72,35 @@ export function AuthUI() {
 
   if (session) {
     return (
-      <div className="card p-5 space-y-3">
+      <div className="card p-5 space-y-3 bg-white">
         <div className="flex items-center gap-3">
           {session.avatar ? (
-            <img src={session.avatar} alt="" className="w-10 h-10 rounded-full ring-1 ring-[#F4F7EF]" />
+            <img src={session.avatar} alt="" className="w-10 h-10 rounded-full ring-1 ring-black/5" />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-[#EAF5D6] flex items-center justify-center text-[#96CE4B] font-semibold text-sm">
+            <div className="w-10 h-10 rounded-full bg-[#EFF6FF] flex items-center justify-center text-[#2563EB] font-bold text-sm">
               {session.name?.[0] || session.email?.[0] || "?"}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-[#1F1F1F] truncate">{session.name || session.email}</p>
-            <p className="text-xs text-[#666666] truncate">{session.email}</p>
+            <p className="text-sm font-bold text-[#111827] truncate">{session.name || session.email}</p>
+            <p className="text-xs text-[#4B5563] truncate">{session.email}</p>
           </div>
-          <span className="text-xs font-semibold text-[#8BC6A2] bg-[#EAF5D6] px-2.5 py-0.5 rounded-full">Synced ✓</span>
+          <span className="text-xs font-bold text-[#10B981] bg-[#10B981]/10 px-2.5 py-0.5 rounded-full">Synced ✓</span>
         </div>
-        <button onClick={handleSignOut} className="w-full bg-[#F4F7EF] hover:bg-[#EAF5D6] px-4 py-2.5 text-xs font-semibold text-[#666666] transition rounded-2xl cursor-pointer">Sign Out</button>
+        <button onClick={handleSignOut} className="w-full bg-[#E5E7EB] hover:bg-[#D1D5DB] px-4 py-2.5 text-xs font-bold text-[#111827] transition rounded-2xl cursor-pointer border border-transparent">Sign Out</button>
       </div>
     );
   }
 
   return (
-    <div className="card p-5 space-y-3">
+    <div className="card p-5 space-y-3 bg-white">
       <div>
-        <p className="text-sm font-medium text-[#1F1F1F]">Sync Across Devices</p>
-        <p className="text-xs text-[#666666] mt-1 leading-relaxed">
+        <p className="text-sm font-bold text-[#111827]">Sync Across Devices</p>
+        <p className="text-xs text-[#4B5563] mt-1 leading-relaxed">
           Sign in with Google to sync your food log, settings, and templates across all your devices.
         </p>
       </div>
-      <button onClick={handleSignIn} className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-[#F4F7EF] text-[#1F1F1F] px-4 py-2.5 text-xs font-semibold transition active:scale-95 rounded-2xl cursor-pointer border border-[#F4F7EF] shadow-sm">
+      <button onClick={handleSignIn} className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-[#EFF6FF] hover:text-[#2563EB] text-[#111827] px-4 py-2.5 text-xs font-bold transition active:scale-95 rounded-2xl cursor-pointer border border-black/5 shadow-sm">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>

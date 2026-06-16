@@ -72,7 +72,7 @@ export function DualProgressRing({
   const calorieTargetMet = calorieTotal >= calorieTarget;
   const proteinTargetMet = proteinTotal >= proteinTarget;
 
-  const calorieRingColor = calorieExceeded ? "#F1A09C" : "#96CE4B";
+  const calorieRingColor = calorieExceeded ? "#EF4444" : "#2563EB";
   const calorieDiff = calorieTotal - calorieTarget;
   const proteinDiff = proteinTotal - proteinTarget;
   const caloriesRemaining = calorieTarget - calorieTotal;
@@ -85,7 +85,7 @@ export function DualProgressRing({
         strokeWidth={12}
         progress={calorieProgress}
         color={calorieRingColor}
-        bgColor="#F4F7EF"
+        bgColor="#E5E7EB"
       />
       {/* Protein ring (inner) */}
       <div className="absolute inset-0 flex items-center justify-center">
@@ -93,37 +93,37 @@ export function DualProgressRing({
           size={168}
           strokeWidth={10}
           progress={proteinProgress}
-          color="#8BC6A2"
-          bgColor="#F4F7EF"
+          color="#10B981"
+          bgColor="#E5E7EB"
         />
       </div>
       {/* Center text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-[10px] font-semibold tracking-widest text-[#9A9A9A] uppercase">Calories</span>
-        <span className={`text-[32px] font-extrabold tracking-tight tabular-nums mt-0.5 leading-none ${calorieExceeded ? "text-[#F1A09C]" : "text-[#1F1F1F]"}`}>
+        <span className="text-[10px] font-bold tracking-widest text-[#6B7280] uppercase">Calories</span>
+        <span className={`text-[32px] font-black tracking-tight tabular-nums mt-0.5 leading-none ${calorieExceeded ? "text-[#EF4444]" : "text-[#111827]"}`}>
           {calorieTotal.toLocaleString()}
         </span>
         {calorieExceeded ? (
-          <span className="text-[11px] font-semibold text-[#F1A09C] mt-0.5">
+          <span className="text-[11px] font-semibold text-[#EF4444] mt-0.5">
             +{calorieDiff.toLocaleString()} kcal over
           </span>
         ) : (
-          <span className="text-[10px] text-[#9A9A9A] font-medium mt-0.5">
+          <span className="text-xs text-[#6B7280] font-semibold mt-0.5">
             {calorieTargetMet ? "Goal met! 🎉" : `${caloriesRemaining.toLocaleString()} left`}
           </span>
         )}
 
-        <div className="mt-2.5 w-12 h-px bg-[#F4F7EF]" />
+        <div className="mt-2.5 w-12 h-px bg-[#E5E7EB]" />
 
-        <span className={`mt-2 text-lg font-semibold tracking-tight tabular-nums ${proteinTargetMet ? "text-[#8BC6A2]" : "text-[#1F1F1F]"}`}>
+        <span className={`mt-2 text-lg font-bold tracking-tight tabular-nums ${proteinTargetMet ? "text-[#10B981]" : "text-[#111827]"}`}>
           {proteinTotal}g
         </span>
         {proteinTargetMet ? (
-          <span className="text-[9px] font-semibold text-[#8BC6A2] uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-[#10B981] uppercase tracking-wider">
             +{proteinDiff.toFixed(1)}g over
           </span>
         ) : (
-          <span className="text-[9px] text-[#9A9A9A] uppercase tracking-wider font-medium">
+          <span className="text-[10px] text-[#6B7280] uppercase tracking-wider font-bold">
             {(proteinTarget - proteinTotal).toFixed(1)}g left
           </span>
         )}
@@ -135,8 +135,8 @@ export function DualProgressRing({
 export function ProgressSkeleton() {
   return (
     <div className="relative mx-auto w-fit animate-pulse-slow">
-      <div className="h-[210px] w-[210px] rounded-full border-[12px] border-[#F4F7EF] bg-[#F8FBF4] flex items-center justify-center">
-        <div className="h-[168px] w-[168px] rounded-full border-[10px] border-[#F4F7EF] bg-[#F8FBF4]" />
+      <div className="h-[210px] w-[210px] rounded-full border-[12px] border-[#E5E7EB] bg-[#F3F4F6] flex items-center justify-center">
+        <div className="h-[168px] w-[168px] rounded-full border-[10px] border-[#E5E7EB] bg-[#F3F4F6]" />
       </div>
     </div>
   );

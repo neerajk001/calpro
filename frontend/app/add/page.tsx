@@ -175,20 +175,20 @@ export default function AddFoodPage() {
   }, [mealItems, today, addFood, router, settings.trackCarbsFat]);
 
   return (
-    <div className="relative min-h-full select-none text-[#1F1F1F]">
+    <div className="relative min-h-full select-none text-[#1A1A1A]">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl md:text-2xl font-bold tracking-tight">{editId ? "Edit Entry" : "Log Nutrition"}</h1>
         <button onClick={() => router.push(editDate ? `/?date=${editDate}` : "/")} className="btn-secondary px-4 py-2.5 text-xs font-semibold rounded-xl cursor-pointer">Cancel</button>
       </div>
 
       {!editId && (
-        <div className="mb-6 flex gap-1 card p-1 rounded-2xl max-w-sm">
-          <button onClick={() => setActiveTab("db")} className={`flex-1 py-2.5 text-xs font-semibold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "db" ? "bg-[#96CE4B] text-white" : "text-[#9A9A9A] hover:text-[#1F1F1F]"}`}>
+        <div className="mb-6 flex gap-1 card p-1 rounded-2xl max-w-sm bg-white">
+          <button onClick={() => setActiveTab("db")} className={`flex-1 py-2.5 text-xs font-bold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "db" ? "bg-[#2563EB] text-white" : "text-[#6B7280] hover:text-[#111827] hover:bg-[#EFF6FF]"}`}>
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
             Food DB
-            {mealItems.length > 0 && <span className="ml-1 bg-[#EAF5D6] text-[#96CE4B] px-1.5 py-0.5 rounded-full text-[10px] font-bold">{mealItems.length}</span>}
+            {mealItems.length > 0 && <span className="ml-1 bg-white/20 text-white px-1.5 py-0.5 rounded-full text-[10px] font-black">{mealItems.length}</span>}
           </button>
-          <button onClick={() => setActiveTab("manual")} className={`flex-1 py-2.5 text-xs font-semibold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "manual" ? "bg-[#F4F7EF] text-[#1F1F1F]" : "text-[#9A9A9A] hover:text-[#1F1F1F]"}`}>
+          <button onClick={() => setActiveTab("manual")} className={`flex-1 py-2.5 text-xs font-bold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "manual" ? "bg-[#2563EB] text-white" : "text-[#6B7280] hover:text-[#111827] hover:bg-[#EFF6FF]"}`}>
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Manual
           </button>
@@ -200,7 +200,7 @@ export default function AddFoodPage() {
           <div className="lg:col-span-7 space-y-6">
             {mealTemplates && mealTemplates.length > 0 && (
               <div className="space-y-2">
-                <h2 className="text-xs font-semibold uppercase tracking-widest text-[#9A9A9A]">My Saved Meals</h2>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">My Saved Meals</h2>
                 <div className="hide-scrollbar flex gap-3 overflow-x-auto pb-1.5">
                   {mealTemplates.map((template) => {
                     const totalCals = template.items.reduce((sum, item) => sum + item.calories, 0);
@@ -208,17 +208,17 @@ export default function AddFoodPage() {
                     const emoji = template.items[0]?.emoji || "🍱";
                     const tagEmoji = template.tag === "breakfast" ? "🍳" : template.tag === "lunch" ? "🥗" : template.tag === "dinner" ? "🍽️" : template.tag === "snack" ? "🍏" : "🍕";
                     return (
-                      <button key={template.id} onClick={() => setSelectedTemplate(template)} className="shrink-0 flex flex-col justify-between items-start text-left card p-3.5 w-[160px] h-[105px] transition hover:bg-[#F8FBF4] active:scale-95 rounded-xl cursor-pointer">
+                      <button key={template.id} onClick={() => setSelectedTemplate(template)} className="shrink-0 flex flex-col justify-between items-start text-left card p-3.5 w-[160px] h-[105px] bg-white border border-black/5 hover:border-blue-600/10 hover:shadow-md transition rounded-xl cursor-pointer">
                         <div className="w-full">
                           <div className="flex items-center justify-between gap-1 w-full mb-1">
-                            <span className="text-xs truncate font-semibold text-[#1F1F1F]">{template.name}</span>
+                            <span className="text-xs truncate font-extrabold text-[#111827]">{template.name}</span>
                             <span className="text-sm shrink-0">{emoji}</span>
                           </div>
-                          <span className="text-[9px] font-semibold text-[#9A9A9A] uppercase tracking-wide">{tagEmoji} {template.tag}</span>
+                          <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">{tagEmoji} {template.tag}</span>
                         </div>
-                        <div className="text-xs font-semibold text-[#666666]">
-                          <p className="text-[#96CE4B] leading-tight text-[11px]">{totalCals} kcal</p>
-                          <p className="text-[#8BC6A2] text-[9px] leading-tight mt-0.5">{totalProt.toFixed(1)}g Protein</p>
+                        <div className="text-xs font-bold">
+                          <p className="text-[#2563EB] leading-tight text-[11px]">{totalCals} kcal</p>
+                          <p className="text-[#10B981] text-[11px] leading-tight mt-0.5">{totalProt.toFixed(1)}g Protein</p>
                         </div>
                       </button>
                     );
@@ -233,46 +233,46 @@ export default function AddFoodPage() {
 
             <div className="card p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <button onClick={() => { setShowCustomFoods(!showCustomFoods); setShowAddCustomForm(false); }} className="flex items-center gap-2 text-xs font-semibold text-[#666666] hover:text-[#1F1F1F] transition cursor-pointer">
+                <button onClick={() => { setShowCustomFoods(!showCustomFoods); setShowAddCustomForm(false); }} className="flex items-center gap-2 text-xs font-bold text-[#4B5563] hover:text-[#111827] transition cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showCustomFoods ? "rotate-90" : ""}`}><path d="m9 18 6-6-6-6"/></svg>
                   My Custom Foods ({customFoods.length})
                 </button>
-                <button onClick={() => { setShowAddCustomForm(!showAddCustomForm); setShowCustomFoods(true); }} className="flex items-center gap-1 btn-primary h-auto py-1.5 px-3 text-[10px] font-semibold cursor-pointer">+ Add</button>
+                <button onClick={() => { setShowAddCustomForm(!showAddCustomForm); setShowCustomFoods(true); }} className="flex items-center gap-1 btn-primary h-auto py-1.5 px-3 text-xs font-bold cursor-pointer">+ Add</button>
               </div>
 
               {showAddCustomForm && (
-                <div className="bg-[#F8FBF4] p-4 rounded-xl space-y-3 border border-[#EAF5D6] animate-fade-in">
+                <div className="bg-[#F3F4F6] p-4 rounded-xl space-y-3 border border-black/5 animate-fade-in">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="col-span-2">
-                      <input type="text" value={customForm.name} onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })} placeholder="Food name" className="w-full bg-[#FFFFFF] border border-[#F4F7EF] px-3 py-2 text-xs text-[#1F1F1F] placeholder-[#9A9A9A] outline-none rounded-lg" />
+                      <input type="text" value={customForm.name} onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })} placeholder="Food name" className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#6B7280] outline-none rounded-lg" />
                     </div>
-                    <div><input type="number" min="0" step="0.1" placeholder="Kcal/100g" value={customForm.caloriesPer100g} onChange={(e) => setCustomForm({ ...customForm, caloriesPer100g: e.target.value })} className="w-full bg-[#FFFFFF] border border-[#F4F7EF] px-3 py-2 text-xs text-[#96CE4B] placeholder-[#9A9A9A] outline-none rounded-lg" /></div>
-                    <div><input type="number" min="0" step="0.1" placeholder="Protein/100g" value={customForm.proteinPer100g} onChange={(e) => setCustomForm({ ...customForm, proteinPer100g: e.target.value })} className="w-full bg-[#FFFFFF] border border-[#F4F7EF] px-3 py-2 text-xs text-[#8BC6A2] placeholder-[#9A9A9A] outline-none rounded-lg" /></div>
+                    <div><input type="number" min="0" step="0.1" placeholder="Kcal/100g" value={customForm.caloriesPer100g} onChange={(e) => setCustomForm({ ...customForm, caloriesPer100g: e.target.value })} className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#2563EB] placeholder-[#6B7280] outline-none rounded-lg" /></div>
+                    <div><input type="number" min="0" step="0.1" placeholder="Protein/100g" value={customForm.proteinPer100g} onChange={(e) => setCustomForm({ ...customForm, proteinPer100g: e.target.value })} className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#10B981] placeholder-[#6B7280] outline-none rounded-lg" /></div>
                   </div>
                   <div className="flex gap-1.5">
                     {(["grams", "piece", "ml"] as QuantityMode[]).map((mode) => (
-                      <button key={mode} type="button" onClick={() => setCustomForm({ ...customForm, quantityMode: mode })} className={`px-2.5 py-1 text-[10px] font-semibold rounded-full border transition cursor-pointer ${customForm.quantityMode === mode ? "bg-[#96CE4B] border-[#96CE4B] text-white" : "bg-[#F4F7EF] border-transparent text-[#666666] hover:text-[#1F1F1F]"}`}>{mode}</button>
+                      <button key={mode} type="button" onClick={() => setCustomForm({ ...customForm, quantityMode: mode })} className={`px-2.5 py-1 text-xs font-semibold rounded-full border transition cursor-pointer ${customForm.quantityMode === mode ? "bg-[#2563EB] border-[#2563EB] text-white" : "bg-[#E5E7EB] border-transparent text-[#4B5563] hover:text-[#111827]"}`}>{mode}</button>
                     ))}
                   </div>
                   <div className="flex gap-2">
                     <button onClick={handleAddCustomFood} disabled={!customForm.name.trim() || !customForm.caloriesPer100g || !customForm.proteinPer100g} className="flex-1 btn-primary h-auto py-2 text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save</button>
-                    <button onClick={() => setShowAddCustomForm(false)} className="px-4 py-2 bg-[#F4F7EF] text-[#666666] text-xs rounded-xl cursor-pointer">Cancel</button>
+                    <button onClick={() => setShowAddCustomForm(false)} className="px-4 py-2 bg-[#E5E7EB] text-[#4B5563] text-xs font-semibold rounded-xl cursor-pointer">Cancel</button>
                   </div>
                 </div>
               )}
 
               {showCustomFoods && (
                 <div className="space-y-1 max-h-[200px] overflow-y-auto hide-scrollbar">
-                  {customFoods.length === 0 ? <p className="text-xs text-[#9A9A9A] text-center py-2">No custom foods yet</p> : customFoods.map((food) => (
-                    <div key={food.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-[#F4F7EF] rounded-lg group">
+                  {customFoods.length === 0 ? <p className="text-xs text-[#6B7280] text-center py-2">No custom foods yet</p> : customFoods.map((food) => (
+                    <div key={food.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-[#EFF6FF] rounded-lg group">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="text-sm shrink-0">{food.emoji || "🍽️"}</span>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-[#1F1F1F] truncate">{food.name}</p>
-                          <p className="text-[10px] text-[#9A9A9A]">{food.caloriesPer100g} kcal · {food.proteinPer100g}g P / 100g</p>
+                          <p className="text-xs font-bold text-[#111827] truncate">{food.name}</p>
+                          <p className="text-xs text-[#6B7280]">{food.caloriesPer100g} kcal · {food.proteinPer100g}g P / 100g</p>
                         </div>
                       </div>
-                      <button onClick={() => deleteCustomFood(food.id)} className="shrink-0 text-[#9A9A9A] hover:text-[#F1A09C] opacity-0 group-hover:opacity-100 transition p-1 cursor-pointer">
+                      <button onClick={() => deleteCustomFood(food.id)} className="shrink-0 text-[#6B7280] hover:text-[#EF4444] opacity-0 group-hover:opacity-100 transition p-1 cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                       </button>
                     </div>
@@ -283,7 +283,7 @@ export default function AddFoodPage() {
           </div>
 
           <div className="lg:col-span-5 lg:sticky lg:top-24">
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#9A9A9A] lg:block hidden">Meal Composition</h2>
+            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] lg:block hidden">Meal Composition</h2>
             <MealBuilder items={mealItems} onRemoveItem={handleRemoveItem} onClearAll={handleClearAll} onLogMeal={handleLogMeal} trackCarbsFat={settings.trackCarbsFat} />
           </div>
         </div>
@@ -294,22 +294,22 @@ export default function AddFoodPage() {
           <div className="lg:col-span-5 space-y-6">
             {recentlyLogged.length > 0 && !editId && (
               <div>
-                <h2 className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#9A9A9A]">Logged Today</h2>
+                <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6B7280]">Logged Today</h2>
                 <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
                   {recentlyLogged.map((food) => (
-                    <button key={food.id} onClick={() => handleReLog(food as any)} className="shrink-0 chip text-[#96CE4B] cursor-pointer">+ {food.name}</button>
+                    <button key={food.id} onClick={() => handleReLog(food as any)} className="shrink-0 chip text-[#2563EB] cursor-pointer">+ {food.name}</button>
                   ))}
                 </div>
               </div>
             )}
             {suggestions.length > 0 && !editId && (
               <div className="card p-4">
-                <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-[#9A9A9A]">Suggestions</h2>
+                <h2 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-[#6B7280]">Suggestions</h2>
                 <div className="flex flex-col gap-1">
                   {suggestions.map((food) => (
-                    <button key={food.name} onClick={() => handleSuggestionTap(food)} className="flex w-full items-center justify-between px-3 py-2.5 text-left transition hover:bg-[#F4F7EF] active:scale-[0.99] rounded-xl cursor-pointer">
-                      <span className="text-xs font-semibold text-[#1F1F1F]">{food.name}</span>
-                      <span className="text-[10px] font-semibold text-[#666666]">{food.calories} kcal · {food.protein}g P</span>
+                    <button key={food.name} onClick={() => handleSuggestionTap(food)} className="flex w-full items-center justify-between px-3 py-2.5 text-left border border-transparent hover:border-blue-600/10 hover:bg-[#EFF6FF] active:scale-[0.99] rounded-xl cursor-pointer">
+                      <span className="text-xs font-bold text-[#111827]">{food.name}</span>
+                      <span className="text-xs font-semibold text-[#4B5563]">{food.calories} kcal · {food.protein}g P</span>
                     </button>
                   ))}
                 </div>
@@ -318,44 +318,44 @@ export default function AddFoodPage() {
           </div>
 
           <div className="lg:col-span-7">
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#9A9A9A] lg:block hidden">Nutrition Value Inputs</h2>
-            <div className="flex flex-col gap-4 card p-5">
+            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] lg:block hidden">Nutrition Value Inputs</h2>
+            <div className="flex flex-col gap-4 card p-5 bg-white">
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between items-center text-xs font-semibold text-[#9A9A9A] uppercase tracking-wide mb-1">
+                  <div className="flex justify-between items-center text-xs font-bold text-[#6B7280] uppercase tracking-wide mb-1">
                     <span>Calories</span>
                     {isEditingCal ? (
-                      <input type="number" value={calories} onChange={(e) => setCalories(Math.max(0, parseInt(e.target.value, 10) || 0))} onBlur={() => setIsEditingCal(false)} onKeyDown={(e) => e.key === "Enter" && setIsEditingCal(false)} autoFocus className="w-20 bg-[#F4F7EF] px-2 py-0.5 text-right text-xs font-semibold text-[#96CE4B] outline-none rounded-md" />
+                      <input type="number" value={calories} onChange={(e) => setCalories(Math.max(0, parseInt(e.target.value, 10) || 0))} onBlur={() => setIsEditingCal(false)} onKeyDown={(e) => e.key === "Enter" && setIsEditingCal(false)} autoFocus className="w-20 bg-[#EFF6FF] px-2 py-0.5 text-right text-xs font-semibold text-[#2563EB] outline-none rounded-md" />
                     ) : (
-                      <span onClick={() => setIsEditingCal(true)} className="text-[#96CE4B] cursor-pointer bg-[#F4F7EF] px-2.5 py-1 rounded-md font-semibold">{calories} kcal ✎</span>
+                      <span onClick={() => setIsEditingCal(true)} className="text-[#2563EB] cursor-pointer bg-[#E5E7EB] px-2.5 py-1 rounded-md font-bold">{calories} kcal ✎</span>
                     )}
                   </div>
-                  <input type="range" min="0" max="1200" step="5" value={calories > 1200 ? 1200 : calories} onChange={(e) => setCalories(parseInt(e.target.value, 10))} className="w-full accent-[#96CE4B] cursor-pointer" />
-                  <div className="flex justify-between text-[10px] text-[#9A9A9A] font-semibold mt-0.5"><span>0 kcal</span><span>600 kcal</span><span>1200 kcal</span></div>
+                  <input type="range" min="0" max="1200" step="5" value={calories > 1200 ? 1200 : calories} onChange={(e) => setCalories(parseInt(e.target.value, 10))} className="w-full accent-[#2563EB] cursor-pointer" />
+                  <div className="flex justify-between text-[10px] text-[#6B7280] font-bold mt-0.5"><span>0 kcal</span><span>600 kcal</span><span>1200 kcal</span></div>
                 </div>
                 <div>
-                  <div className="flex justify-between items-center text-xs font-semibold text-[#9A9A9A] uppercase tracking-wide mb-1">
+                  <div className="flex justify-between items-center text-xs font-bold text-[#6B7280] uppercase tracking-wide mb-1">
                     <span>Protein</span>
                     {isEditingProt ? (
-                      <input type="number" value={protein} onChange={(e) => setProtein(Math.max(0, parseFloat(e.target.value) || 0))} onBlur={() => setIsEditingProt(false)} onKeyDown={(e) => e.key === "Enter" && setIsEditingProt(false)} autoFocus step="0.1" className="w-20 bg-[#F4F7EF] px-2 py-0.5 text-right text-xs font-semibold text-[#8BC6A2] outline-none rounded-md" />
+                      <input type="number" value={protein} onChange={(e) => setProtein(Math.max(0, parseFloat(e.target.value) || 0))} onBlur={() => setIsEditingProt(false)} onKeyDown={(e) => e.key === "Enter" && setIsEditingProt(false)} autoFocus step="0.1" className="w-20 bg-[#EFF6FF] px-2 py-0.5 text-right text-xs font-semibold text-[#10B981] outline-none rounded-md" />
                     ) : (
-                      <span onClick={() => setIsEditingProt(true)} className="text-[#8BC6A2] cursor-pointer bg-[#F4F7EF] px-2.5 py-1 rounded-md font-semibold">{protein}g ✎</span>
+                      <span onClick={() => setIsEditingProt(true)} className="text-[#10B981] cursor-pointer bg-[#E5E7EB] px-2.5 py-1 rounded-md font-bold">{protein}g ✎</span>
                     )}
                   </div>
-                  <input type="range" min="0" max="100" step="1" value={protein > 100 ? 100 : protein} onChange={(e) => setProtein(parseInt(e.target.value, 10))} className="w-full accent-[#8BC6A2] cursor-pointer" />
-                  <div className="flex justify-between text-[10px] text-[#9A9A9A] font-semibold mt-0.5"><span>0g</span><span>50g</span><span>100g</span></div>
+                  <input type="range" min="0" max="100" step="1" value={protein > 100 ? 100 : protein} onChange={(e) => setProtein(parseInt(e.target.value, 10))} className="w-full accent-[#10B981] cursor-pointer" />
+                  <div className="flex justify-between text-[10px] text-[#6B7280] font-bold mt-0.5"><span>0g</span><span>50g</span><span>100g</span></div>
                 </div>
               </div>
 
-              <div className="h-px bg-[#F4F7EF]" />
+              <div className="h-px bg-black/5" />
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-widest text-[#9A9A9A] mb-2">Category Tag</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#6B7280] mb-2">Category Tag</label>
                 <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
                   {tagsList.map((item) => {
                     const active = activeTag === item.value;
                     return (
                       <button key={item.value} type="button" onClick={() => setActiveTag(item.value)}
-                        className={`shrink-0 px-4 py-2 text-xs font-semibold transition active:scale-95 rounded-full cursor-pointer ${active ? "bg-[#96CE4B] text-white" : "chip"}`}>
+                        className={`shrink-0 px-4 py-2 text-xs font-bold transition active:scale-95 rounded-full cursor-pointer ${active ? "bg-[#2563EB] text-white" : "chip"}`}>
                         {item.label}
                       </button>
                     );
@@ -363,18 +363,18 @@ export default function AddFoodPage() {
                 </div>
               </div>
 
-              <div className="h-px bg-[#F4F7EF]" />
+              <div className="h-px bg-black/5" />
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-widest text-[#9A9A9A] mb-1.5">Describe meal or override name</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Describe meal or override name</label>
                 <input type="text" value={naturalText} onChange={(e) => {
                   const text = e.target.value; setNaturalText(text);
                   const parsed = parseNaturalLanguage(text);
                   if (parsed) { setName(parsed.name); if (parsed.calories > 0) setCalories(parsed.calories); if (parsed.protein > 0) setProtein(parsed.protein); if (parsed.tag) setActiveTag(parsed.tag); }
                   else { setName(text); }
-                }} placeholder="e.g. egg (auto-fills breakfast) or pizza 280 kcal" className="w-full bg-[#F4F7EF] border border-[#EAF5D6] px-4 py-3.5 text-xs text-[#1F1F1F] placeholder-[#9A9A9A] outline-none focus:border-[#96CE4B]/40 rounded-xl" />
+                }} placeholder="e.g. egg (auto-fills breakfast) or pizza 280 kcal" className="w-full bg-[#FFFFFF] border border-black/10 px-4 py-3.5 text-xs text-[#111827] placeholder-[#6B7280] outline-none focus:border-[#2563EB]/40 rounded-xl" />
               </div>
 
-              <button onClick={handleSubmit} disabled={!canSubmit} className={`w-full py-4 text-sm font-semibold transition active:scale-95 rounded-2xl cursor-pointer ${canSubmit ? "btn-primary" : "bg-[#F4F7EF] text-[#9A9A9A] cursor-not-allowed h-[52px] flex items-center justify-center"}`}>
+              <button onClick={handleSubmit} disabled={!canSubmit} className={`w-full py-4 text-sm font-semibold transition active:scale-95 rounded-2xl cursor-pointer ${canSubmit ? "btn-primary" : "bg-[#E5E7EB] text-[#6B7280] cursor-not-allowed h-[52px] flex items-center justify-center font-bold"}`}>
                 {editId ? "Save Changes" : "Confirm Log Entry"}
               </button>
             </div>
@@ -386,21 +386,21 @@ export default function AddFoodPage() {
 
       {selectedTemplate && (
         <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm card p-6 relative animate-slide-up">
-            <button onClick={() => setSelectedTemplate(null)} className="absolute top-4 right-4 text-[#9A9A9A] hover:text-[#1F1F1F] p-1 hover:bg-[#F4F7EF] transition rounded-full cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <div className="w-full max-w-sm card p-6 relative bg-white animate-slide-up">
+            <button onClick={() => setSelectedTemplate(null)} className="absolute top-4 right-4 text-[#6B7280] hover:text-[#111827] p-1.5 hover:bg-[#E5E7EB] transition rounded-full cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
             <div className="mb-4">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#96CE4B] bg-[#EAF5D6] px-2.5 py-1 rounded-full">Saved Meal Template</span>
-              <h3 className="text-lg font-bold text-[#1F1F1F] mt-3 truncate">{selectedTemplate.name}</h3>
-              <p className="text-xs text-[#9A9A9A] font-medium uppercase mt-0.5">Category: {selectedTemplate.tag}</p>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#2563EB] bg-[#EFF6FF] px-2.5 py-1 rounded-full">Saved Meal Template</span>
+              <h3 className="text-lg font-bold text-[#111827] mt-3 truncate">{selectedTemplate.name}</h3>
+              <p className="text-xs text-[#6B7280] font-bold uppercase mt-0.5">Category: {selectedTemplate.tag}</p>
             </div>
-            <div className="bg-[#F4F7EF] rounded-xl p-3.5 mb-5 space-y-2.5 max-h-40 overflow-y-auto hide-scrollbar">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9A9A9A] border-b border-[#EAF5D6] pb-1.5">Ingredients ({selectedTemplate.items.length})</p>
+            <div className="bg-[#F3F4F6] border border-black/5 rounded-xl p-3.5 mb-5 space-y-2.5 max-h-40 overflow-y-auto hide-scrollbar">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] border-b border-black/5 pb-1.5">Ingredients ({selectedTemplate.items.length})</p>
               {selectedTemplate.items.map((item, idx) => (
                 <div key={item.id || idx} className="flex justify-between items-center text-xs">
-                  <span className="text-[#1F1F1F] truncate pr-2 font-semibold">{item.emoji || "🍽️"} {item.name}</span>
-                  <span className="text-[#9A9A9A] font-medium shrink-0">{item.displayQty} {item.quantityMode === "piece" ? (item.displayQty === 1 ? "piece" : "pieces") : item.quantityMode === "ml" ? "ml" : item.quantityMode === "serving" ? "serving" : "g"}</span>
+                  <span className="text-[#111827] truncate pr-2 font-bold">{item.emoji || "🍽️"} {item.name}</span>
+                  <span className="text-[#4B5563] font-semibold shrink-0">{item.displayQty} {item.quantityMode === "piece" ? (item.displayQty === 1 ? "piece" : "pieces") : item.quantityMode === "ml" ? "ml" : item.quantityMode === "serving" ? "serving" : "g"}</span>
                 </div>
               ))}
             </div>
@@ -408,8 +408,8 @@ export default function AddFoodPage() {
               <button onClick={() => handleLogTemplate(selectedTemplate)} className="btn-primary w-full cursor-pointer">🚀 Log Instantly</button>
               <button onClick={() => handleLoadTemplateToBuilder(selectedTemplate)} className="btn-secondary w-full cursor-pointer">📥 Load to Meal Builder</button>
               <div className="flex gap-2.5 pt-1">
-                <button onClick={() => handleDeleteTemplate(selectedTemplate.id)} className="flex-1 py-2.5 bg-[#F1A09C]/10 hover:bg-[#F1A09C]/20 text-[#F1A09C] text-[10px] font-semibold transition active:scale-95 rounded-full cursor-pointer">🗑️ Delete Template</button>
-                <button onClick={() => setSelectedTemplate(null)} className="flex-1 py-2.5 bg-[#F4F7EF] hover:bg-[#EAF5D6] text-[#666666] text-[10px] font-semibold transition active:scale-95 rounded-full cursor-pointer">Close</button>
+                <button onClick={() => handleDeleteTemplate(selectedTemplate.id)} className="flex-1 py-2.5 bg-red-50 hover:bg-red-100 text-[#EF4444] border border-red-100/50 text-xs font-bold transition active:scale-95 rounded-full cursor-pointer">🗑️ Delete Template</button>
+                <button onClick={() => setSelectedTemplate(null)} className="flex-1 py-2.5 bg-[#E5E7EB] hover:bg-[#D1D5DB] text-[#4B5563] text-xs font-bold transition active:scale-95 rounded-full cursor-pointer">Close</button>
               </div>
             </div>
           </div>

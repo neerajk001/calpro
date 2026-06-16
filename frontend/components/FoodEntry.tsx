@@ -10,18 +10,18 @@ interface FoodEntryItemProps {
 
 export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
   return (
-    <div className="group relative flex items-center justify-between bg-[#F4F7EF] px-4 py-3.5 rounded-xl transition hover:bg-[#EAF5D6] active:scale-[0.99]">
-      <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-80 transition cursor-pointer select-none">
-        <p className="truncate text-[15px] font-semibold tracking-tight text-[#1F1F1F]">
+    <div className="group relative flex items-center justify-between bg-white border border-black/5 shadow-sm px-4 py-3.5 rounded-xl transition hover:bg-[#EFF6FF] hover:border-blue-600/10 active:scale-[0.99]">
+      <Link href={`/add?edit=${entry.id}`} className="min-w-0 flex-1 hover:opacity-85 transition cursor-pointer select-none">
+        <p className="truncate text-[15px] font-semibold tracking-tight text-[#111827]">
           {entry.name}
         </p>
-        <p className="mt-0.5 text-sm font-medium text-[#9A9A9A]">
-          {entry.calories} kcal <span className="mx-1.5 text-[#D4D4D4]">·</span> {entry.protein}g protein
+        <p className="mt-0.5 text-xs font-semibold text-[#4B5563]">
+          {entry.calories} kcal <span className="mx-1 text-[#E5E7EB]">·</span> {entry.protein}g protein
         </p>
       </Link>
       <button
         onClick={onDelete}
-        className="ml-3 shrink-0 rounded-full p-2 text-[#9A9A9A] transition hover:bg-[#F1A09C]/10 hover:text-[#F1A09C] active:scale-90"
+        className="ml-3 shrink-0 rounded-full p-2 text-[#9CA3AF] transition hover:bg-red-50 hover:text-red-500 active:scale-90"
         aria-label={`Delete ${entry.name}`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
