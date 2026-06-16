@@ -36,6 +36,7 @@ interface AppContextValue {
   getDaySummary: (date: string) => DaySummary;
   getDistinctFoods: (limit?: number) => { name: string; calories: number; protein: number }[];
   getStreak: () => number;
+  userName: string | null;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -53,6 +54,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
   const [hydrated, setHydrated] = useState(false);
   const [lastDeleted, setLastDeleted] = useState<FoodEntry | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const rehydrate = useCallback(async (triggerClaim = false) => {
     try {
@@ -88,6 +90,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     rehydrate();
 
     const supabase = createClient();
+
+    // Check current session immediately on mount
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setAuthToken(
+          data.session.access_token,
+          data.session.user.email,
+          data.session.user.user_metadata?.full_name,
+          data.session.user.user_metadata?.avatar_url
+        );
+        setUserName(data.session.user.user_metadata?.full_name || data.session.user.email || null);
+      }
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.access_token) {
         setAuthToken(
@@ -96,9 +112,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           session.user.user_metadata?.full_name,
           session.user.user_metadata?.avatar_url
         );
+        setUserName(session.user.user_metadata?.full_name || session.user.email || null);
         await rehydrate(true);
       } else if (event === "SIGNED_OUT") {
         clearAuthToken();
+        setUserName(null);
         await rehydrate(false);
       }
     });
@@ -465,6 +483,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         getDaySummary,
         getDistinctFoods,
         getStreak,
+        userName,
       }}
     >
       {children}

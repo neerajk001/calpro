@@ -51,6 +51,7 @@ export default function DashboardPage() {
     addFood,
     waterLogs,
     saveWaterLog,
+    userName,
   } = useApp();
 
   const summary = getDaySummary(selectedDate);
@@ -64,6 +65,32 @@ export default function DashboardPage() {
   const currentWater = waterLogs.find((w) => w.date === selectedDate)?.amount ?? 0;
   const waterTarget = settings.dailyWaterTarget ?? 2500;
   const waterProgress = waterTarget > 0 ? Math.min(currentWater / waterTarget, 1) : 0;
+
+  // Time-aware greeting
+  const getGreetingTime = () => {
+    const hrs = new Date().getHours();
+    if (hrs >= 5 && hrs < 12) return "Good Morning 👋";
+    if (hrs >= 12 && hrs < 17) return "Good Afternoon 👋";
+    return "Good Evening 👋";
+  };
+  const greetingTime = getGreetingTime();
+
+  // Extract capitalized first name
+  const firstName = userName ? userName.split(" ")[0].trim() : "";
+  const displayName = firstName ? firstName.charAt(0).toUpperCase() + firstName.slice(1) : "";
+
+  // Day of the week greetings (0 is Sunday, 6 is Saturday)
+  const dayOfWeek = new Date().getDay();
+  const dayGreetings = [
+    displayName ? `Recharge and refuel today, ${displayName}.` : "Recharge and refuel today.", // Sunday
+    displayName ? `Set the tone for the week, ${displayName}.` : "Set the tone for the week.", // Monday
+    displayName ? `Stay consistent today, ${displayName}.` : "Stay consistent today.", // Tuesday
+    displayName ? `Halfway through, keep it up ${displayName}!` : "Halfway through, keep it up!", // Wednesday
+    displayName ? `Stay disciplined today, ${displayName}.` : "Stay disciplined today.", // Thursday
+    displayName ? `Finish the week strong, ${displayName}!` : "Finish the week strong!", // Friday
+    displayName ? `Balance is key today, ${displayName}.` : "Balance is key today.", // Saturday
+  ];
+  const currentGreeting = dayGreetings[dayOfWeek];
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -241,8 +268,8 @@ export default function DashboardPage() {
 
       {/* Header */}
       <div className="mb-6">
-        <p className="text-sm text-[#6B7280] font-semibold tracking-wide uppercase">Good Morning 👋</p>
-        <h1 className="text-[32px] font-black tracking-tight text-[#111827] mt-1">Stay consistent today.</h1>
+        <p className="text-sm text-[#6B7280] font-semibold tracking-wide uppercase">{greetingTime}</p>
+        <h1 className="text-[32px] font-black tracking-tight text-[#111827] mt-1">{currentGreeting}</h1>
       </div>
 
       {/* Date selector */}
