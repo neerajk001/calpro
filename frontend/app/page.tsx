@@ -59,12 +59,12 @@ export default function DashboardPage() {
   const canGoForward = selectedDate < today;
   const calorieExceeded = summary.totalCalories > settings.dailyCalorieTarget;
   const calorieDiff = summary.totalCalories - settings.dailyCalorieTarget;
+  const caloriesRemaining = settings.dailyCalorieTarget - summary.totalCalories;
 
   const currentWater = waterLogs.find((w) => w.date === selectedDate)?.amount ?? 0;
   const waterTarget = settings.dailyWaterTarget ?? 2500;
   const waterProgress = waterTarget > 0 ? Math.min(currentWater / waterTarget, 1) : 0;
 
-  // Sync date selection from query parameters
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -75,7 +75,6 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // Hydrate onboarding overlay state
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isDismissed = localStorage.getItem("calpro_onboarded_v1");
@@ -85,7 +84,6 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // Show undo toast when a log is deleted
   useEffect(() => {
     if (hasLastDeleted) {
       setShowUndo(true);
@@ -122,14 +120,12 @@ export default function DashboardPage() {
     [addFood, selectedDate],
   );
 
-
   const starterFoods = [
     { name: "2 Scrambled Eggs", calories: 140, protein: 12, tag: "breakfast" as FoodTag },
     { name: "Whey Protein Shake", calories: 130, protein: 25, tag: "snack" as FoodTag },
     { name: "Greek Yogurt Cup", calories: 120, protein: 15, tag: "snack" as FoodTag },
   ];
 
-  // Group logged items by categories
   const tagsOrder: FoodTag[] = ["breakfast", "lunch", "dinner", "snack", "junk"];
   const groupedEntries = summary.entries.reduce((acc, entry) => {
     const t = entry.tag || "snack";
@@ -138,147 +134,90 @@ export default function DashboardPage() {
     return acc;
   }, {} as Record<FoodTag, FoodEntry[]>);
   const tagLabelMapping = {
-    breakfast: "🍳 Breakfast",
-    lunch: "🥗 Lunch",
-    dinner: "🍽️ Dinner",
-    snack: "🍏 Snack",
-    junk: "🍕 Junk Food",
+    breakfast: "Breakfast",
+    lunch: "Lunch",
+    dinner: "Dinner",
+    snack: "Snack",
+    junk: "Junk Food",
   };
 
   return (
-    <div className="relative min-h-full select-none font-sans text-[#f5f2eb]">
-      {/* Onboarding Immersive Full-Screen Container */}
+    <div className="relative min-h-full select-none">
+      {/* Onboarding */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-55 flex flex-col items-center justify-center bg-gradient-to-br from-[#181514] via-[#12100f] to-[#0c0a0a] p-6 md:p-12 overflow-y-auto">
-          <div className="w-full max-w-xl border border-white/[0.05] bg-[#1c1816]/75 backdrop-blur-xl p-8 md:p-12 shadow-3xl text-center rounded-3xl animate-fade-in flex flex-col items-center justify-between min-h-[480px]">
-            
-            {/* Step 1: What we do */}
+        <div className="fixed inset-0 z-55 flex flex-col items-center justify-center bg-[#F8FBF4] p-6 md:p-12 overflow-y-auto">
+          <div className="w-full max-w-xl bg-[#FFFFFF] p-8 md:p-12 shadow-lg rounded-3xl text-center flex flex-col items-center justify-between min-h-[480px]">
             {onboardingStep === 1 && (
-              <div className="w-full animate-fade-in flex flex-col items-center flex-1 justify-center my-auto">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#282421] text-[#1DB954] mb-6 border border-white/5 rounded-full shadow-inner">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+              <div className="w-full flex flex-col items-center flex-1 justify-center my-auto">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#EAF5D6] text-[#96CE4B] mb-6 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2v20" />
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
                 </div>
-                
-                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-sans">
-                  LogMyMeal
-                </h2>
-                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#1DB954] uppercase font-sans">
-                  Fast Calorie & Protein Tracker
+                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#1F1F1F]">LogMyMeal</h2>
+                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#96CE4B] uppercase">Fast Calorie & Protein Tracker</p>
+                <p className="mt-6 text-sm md:text-base leading-relaxed text-[#666666] max-w-md">
+                  Welcome! We built this app to be clean, fast, and privacy-first. No tracking scripts, no ads, no sign-up walls.
                 </p>
-                
-                <p className="mt-6 text-sm md:text-base leading-relaxed text-zinc-300 font-sans font-normal max-w-md">
-                  Welcome to LogMyMeal! We built this app to be clean, fast, and privacy-first. There are no tracking scripts, no ads, and no annoying email sign-up walls to get started.
-                </p>
-
                 <button
                   onClick={() => setOnboardingStep(2)}
-                  className="mt-8 w-full max-w-sm bg-[#1DB954] py-4 text-sm font-semibold text-[#161413] shadow-lg hover:bg-[#1ed760] transition active:scale-95 font-sans rounded-full cursor-pointer flex items-center justify-center gap-1.5"
+                  className="mt-8 w-full max-w-sm btn-primary cursor-pointer"
                 >
                   Continue
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
               </div>
             )}
-
-            {/* Step 2: What to expect */}
             {onboardingStep === 2 && (
-              <div className="w-full animate-fade-in flex flex-col items-center flex-1 justify-center my-auto">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#282421] text-[#81b29a] mb-6 border border-white/5 rounded-full shadow-inner">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+              <div className="w-full flex flex-col items-center flex-1 justify-center my-auto">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#EAF5D6] text-[#96CE4B] mb-6 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
                   </svg>
                 </div>
-                
-                <h2 className="text-3xl font-extrabold tracking-tight text-white font-sans">
-                  Powerful Features
-                </h2>
-                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#81b29a] uppercase font-sans">
-                  What you can expect
-                </p>
-                
-                <div className="mt-6 text-left space-y-3.5 w-full max-w-md text-zinc-350 font-sans text-sm md:text-base">
+                <h2 className="text-3xl font-extrabold tracking-tight text-[#1F1F1F]">Powerful Features</h2>
+                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#96CE4B] uppercase">What you can expect</p>
+                <div className="mt-6 text-left space-y-3.5 w-full max-w-md text-[#666666] text-sm md:text-base">
                   <div className="flex items-start gap-3">
                     <span className="text-lg shrink-0">🍕</span>
-                    <span><strong>Portion Presets:</strong> Quick portion presets (small, medium, full plate) for fast entries.</span>
+                    <span><strong className="text-[#1F1F1F]">Portion Presets:</strong> Quick presets (small, medium, full plate) for fast entries.</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="text-lg shrink-0">🍳</span>
-                    <span><strong>Cooking Multipliers:</strong> Estimate macros based on boiling, frying, or adding ghee/oil.</span>
+                    <span><strong className="text-[#1F1F1F]">Cooking Multipliers:</strong> Estimate macros based on boiling, frying, or adding ghee.</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="text-lg shrink-0">💧</span>
-                    <span><strong>Water Tracking:</strong> Track hydration levels dynamically alongside daily food targets.</span>
+                    <span><strong className="text-[#1F1F1F]">Water Tracking:</strong> Track hydration alongside daily food targets.</span>
                   </div>
                 </div>
-
                 <button
                   onClick={() => setOnboardingStep(3)}
-                  className="mt-8 w-full max-w-sm bg-[#1DB954] py-4 text-sm font-semibold text-[#161413] shadow-lg hover:bg-[#1ed760] transition active:scale-95 font-sans rounded-full cursor-pointer flex items-center justify-center gap-1.5"
+                  className="mt-8 w-full max-w-sm btn-primary cursor-pointer"
                 >
                   Almost there
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
               </div>
             )}
-
-            {/* Step 3: Google Sign-in or Skip */}
             {onboardingStep === 3 && (
-              <div className="w-full animate-fade-in flex flex-col items-center flex-1 justify-center my-auto">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#282421] text-[#3b82f6] mb-6 border border-white/5 rounded-full shadow-inner">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+              <div className="w-full flex flex-col items-center flex-1 justify-center my-auto">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-[#EAF5D6] text-[#96CE4B] mb-6 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
                 </div>
-                
-                <h2 className="text-3xl font-extrabold tracking-tight text-white font-sans">
-                  Secure Your Data
-                </h2>
-                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#3b82f6] uppercase font-sans">
-                  Keep your logs in sync
+                <h2 className="text-3xl font-extrabold tracking-tight text-[#1F1F1F]">Secure Your Data</h2>
+                <p className="mt-1.5 text-xs font-bold tracking-widest text-[#96CE4B] uppercase">Keep your logs in sync</p>
+                <p className="mt-6 text-sm md:text-base leading-relaxed text-[#666666] max-w-md">
+                  Sign in with Google to securely back up and sync your calorie settings, history, and custom foods across all devices.
                 </p>
-                
-                <p className="mt-6 text-sm md:text-base leading-relaxed text-zinc-350 font-sans font-normal max-w-md">
-                  Sign in with Google to securely back up and sync your calorie settings, history, and custom foods across all devices, or continue locally anonymous.
-                </p>
-
                 <div className="w-full max-w-sm mt-8 space-y-3">
                   <button
                     onClick={handleGoogleSignIn}
-                    className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-[#f0f0f0] text-[#161413] py-4 text-sm font-semibold transition active:scale-95 rounded-full cursor-pointer shadow-lg"
+                    className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-[#F4F7EF] text-[#1F1F1F] py-4 text-sm font-semibold transition active:scale-95 rounded-2xl cursor-pointer shadow-md border border-[#F4F7EF]"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -288,96 +227,73 @@ export default function DashboardPage() {
                     </svg>
                     Sign In with Google
                   </button>
-
                   <button
                     onClick={handleStartTracking}
-                    className="w-full bg-[#282421] hover:bg-[#322d29] border border-white/5 text-zinc-400 hover:text-white py-3.5 text-xs font-semibold rounded-full active:scale-95 transition cursor-pointer"
+                    className="w-full bg-[#F4F7EF] hover:bg-[#EAF5D6] text-[#666666] hover:text-[#1F1F1F] py-3.5 text-xs font-semibold rounded-2xl active:scale-95 transition cursor-pointer"
                   >
                     Skip & Continue Locally
                   </button>
                 </div>
               </div>
             )}
-
-            {/* Stepper indicators */}
             <div className="mt-8 flex items-center justify-center gap-1.5">
-              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 1 ? "w-4 bg-[#1DB954]" : "bg-zinc-700"}`} />
-              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 2 ? "w-4 bg-[#1DB954]" : "bg-zinc-700"}`} />
-              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 3 ? "w-4 bg-[#1DB954]" : "bg-zinc-700"}`} />
+              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 1 ? "w-4 bg-[#96CE4B]" : "bg-[#EAF5D6]"}`} />
+              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 2 ? "w-4 bg-[#96CE4B]" : "bg-[#EAF5D6]"}`} />
+              <div className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${onboardingStep === 3 ? "w-4 bg-[#96CE4B]" : "bg-[#EAF5D6]"}`} />
             </div>
-
           </div>
         </div>
       )}
 
-      {/* Dynamic Grid Layout for Desktop & Mobile Compatibility */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        
-        {/* Left Stats Column */}
+      {/* Header */}
+      <div className="mb-6">
+        <p className="text-sm text-[#9A9A9A] font-medium">Good Morning 👋</p>
+        <h1 className="text-[32px] font-extrabold tracking-tight text-[#1F1F1F] mt-1">Stay consistent today.</h1>
+      </div>
+
+      {/* Date selector */}
+      <div className="flex items-center justify-between card p-4 mb-6">
+        <button
+          onClick={() => setSelectedDate((d) => offsetDate(d, -1))}
+          className="bg-[#F4F7EF] p-2.5 text-[#666666] hover:bg-[#EAF5D6] hover:text-[#1F1F1F] transition active:scale-90 rounded-full cursor-pointer"
+          aria-label="Previous day"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+        <div className="text-center">
+          <h1 className="text-sm font-bold tracking-tight text-[#1F1F1F]">
+            {isToday(selectedDate) ? "Today" : fmtDate(selectedDate)}
+          </h1>
+          {isToday(selectedDate) && (
+            <p className="text-[10px] text-[#9A9A9A] font-semibold uppercase tracking-wider mt-0.5">
+              {fmtDate(selectedDate)}
+            </p>
+          )}
+        </div>
+        <button
+          onClick={() => canGoForward && setSelectedDate((d) => offsetDate(d, 1))}
+          disabled={!canGoForward}
+          className={`p-2.5 transition active:scale-90 rounded-full cursor-pointer ${
+            canGoForward
+              ? "bg-[#F4F7EF] text-[#666666] hover:bg-[#EAF5D6] hover:text-[#1F1F1F]"
+              : "bg-[#F4F7EF]/30 text-[#9A9A9A] cursor-not-allowed"
+          }`}
+          aria-label="Next day"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
-          {/* Date selector navigation */}
-          <div className="flex items-center justify-between glass-panel p-3 rounded-2xl">
-            <button
-              onClick={() => setSelectedDate((d) => offsetDate(d, -1))}
-              className="border border-white/[0.04] bg-[#201c1a] p-2.5 text-zinc-300 hover:bg-[#282421] hover:text-white transition active:scale-90 shadow-sm rounded-full cursor-pointer"
-              aria-label="Previous day"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </button>
 
-            <div className="text-center">
-              <h1 className="text-sm font-bold tracking-tight text-white font-sans">
-                {isToday(selectedDate) ? "Today" : fmtDate(selectedDate)}
-              </h1>
-              {isToday(selectedDate) && (
-                <p className="text-[9px] text-zinc-400 font-semibold uppercase tracking-wider mt-0.5">
-                  {fmtDate(selectedDate)}
-                </p>
-              )}
-            </div>
-
-            <button
-              onClick={() =>
-                canGoForward && setSelectedDate((d) => offsetDate(d, 1))
-              }
-              disabled={!canGoForward}
-              className={`border transition active:scale-90 shadow-sm rounded-full p-2.5 cursor-pointer ${
-                canGoForward
-                  ? "bg-[#201c1a] border-white/[0.04] text-zinc-300 hover:bg-[#282421] hover:text-white"
-                  : "bg-[#201c1a]/30 border-transparent text-zinc-650 cursor-not-allowed"
-              }`}
-              aria-label="Next day"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Radial Progress Display */}
-          <div className="glass-panel p-6 rounded-2xl">
+          {/* Calorie Hero Card */}
+          <div className="card p-6">
             {hydrated ? (
               <DualProgressRing
                 calorieProgress={summary.calorieProgress}
@@ -390,167 +306,126 @@ export default function DashboardPage() {
             ) : (
               <ProgressSkeleton />
             )}
+            {hydrated && (
+              <p className="mt-4 text-center text-sm text-[#9A9A9A] font-medium">
+                {calorieExceeded
+                  ? `${calorieDiff.toLocaleString()} kcal over target`
+                  : `${caloriesRemaining.toLocaleString()} kcal remaining`}
+              </p>
+            )}
           </div>
 
-          {/* Prominent Calorie Surplus Alert */}
-          {hydrated && calorieExceeded && (
-            <div className="mx-auto w-full border border-[#ef4444]/15 bg-[#ef4444]/5 p-4 rounded-2xl flex items-start gap-3 shadow-lg animate-fade-in">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                  <line x1="12" y1="9" x2="12" y2="13" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-              </div>
-              <div className="flex-1 text-left">
-                <h3 className="text-sm font-semibold text-[#ef4444] uppercase tracking-wider font-sans">
-                  Surplus Detected
-                </h3>
-                <p className="mt-0.5 text-xs text-[#a19890] font-medium leading-relaxed font-sans">
-                  You have surpassed your daily calorie budget by{" "}
-                  <span className="font-bold text-white text-sm">
-                    {calorieDiff.toLocaleString()} kcal
-                  </span>
-                  . Keep an eye on your activity levels.
-                </p>
-              </div>
+          {/* Macro Cards */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="card p-4 text-center">
+              <p className="text-xs text-[#9A9A9A] font-semibold mb-1">Protein</p>
+              <p className="text-xl font-bold text-[#1F1F1F] tabular-nums">{summary.totalProtein}g</p>
+              <p className="text-[11px] text-[#9A9A9A] mt-0.5">/ {settings.dailyProteinTarget}g</p>
             </div>
-          )}
+            <div className="card p-4 text-center">
+              <p className="text-xs text-[#9A9A9A] font-semibold mb-1">Carbs</p>
+              <p className="text-xl font-bold text-[#1F1F1F] tabular-nums">{summary.totalCarbs}g</p>
+              <p className="text-[11px] text-[#9A9A9A] mt-0.5">&nbsp;</p>
+            </div>
+            <div className="card p-4 text-center">
+              <p className="text-xs text-[#9A9A9A] font-semibold mb-1">Fat</p>
+              <p className="text-xl font-bold text-[#1F1F1F] tabular-nums">{summary.totalFat}g</p>
+              <p className="text-[11px] text-[#9A9A9A] mt-0.5">&nbsp;</p>
+            </div>
+          </div>
 
-          {/* Water Intake Widget */}
-          {hydrated && (
-            <div className="mx-auto w-full glass-panel p-4 rounded-2xl animate-fade-in text-[#f5f2eb]">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">💧</span>
-                  <div className="text-left">
-                    <h3 className="text-sm font-semibold text-white font-sans">Water Intake</h3>
-                    <p className="text-[10px] text-zinc-400 font-semibold font-sans">Goal: {waterTarget} ml</p>
-                  </div>
+          {/* Water Tracker */}
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">💧</span>
+                <div>
+                  <h3 className="text-sm font-semibold text-[#1F1F1F]">Water Intake</h3>
+                  <p className="text-[10px] text-[#9A9A9A] font-semibold">Goal: {waterTarget} ml</p>
                 </div>
-                <span className="text-sm font-semibold text-[#5f85a6] tabular-nums font-sans">
-                  {currentWater} / {waterTarget} ml
-                </span>
               </div>
-              {/* Progress Bar */}
-              <div className="h-2.5 w-full bg-zinc-850 rounded-full overflow-hidden mb-4">
-                <div
-                  className="h-full bg-[#5f85a6] shadow-[0_0_10px_rgba(95,133,166,0.3)] rounded-full transition-all duration-300"
-                  style={{ width: `${waterProgress * 100}%` }}
-                />
-              </div>
-              {/* Control Buttons */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => saveWaterLog(selectedDate, currentWater + 250)}
-                  className="flex-1 py-2 bg-[#5f85a6]/10 border border-[#5f85a6]/20 hover:bg-[#5f85a6]/20 text-[#5f85a6] text-xs font-semibold rounded-xl active:scale-95 transition cursor-pointer flex items-center justify-center gap-1 font-sans"
-                >
-                  +250ml 🥛
-                </button>
-                <button
-                  onClick={() => saveWaterLog(selectedDate, currentWater + 500)}
-                  className="flex-1 py-2 bg-[#5f85a6]/10 border border-[#5f85a6]/20 hover:bg-[#5f85a6]/20 text-[#5f85a6] text-xs font-semibold rounded-xl active:scale-95 transition cursor-pointer flex items-center justify-center gap-1 font-sans"
-                >
-                  +500ml 🍼
-                </button>
-                {currentWater > 0 && (
-                  <button
-                    onClick={() => saveWaterLog(selectedDate, Math.max(0, currentWater - 250))}
-                    className="px-3 py-2 bg-[#282421] border border-white/[0.04] hover:bg-[#322d29] text-zinc-400 hover:text-white text-xs font-semibold rounded-xl active:scale-95 transition cursor-pointer font-sans"
-                    title="Subtract 250ml"
-                  >
-                    −250
-                  </button>
-                )}
-              </div>
+              <span className="text-sm font-semibold text-[#7CC7E8] tabular-nums">
+                {currentWater} / {waterTarget} ml
+              </span>
             </div>
-          )}
-
-          {/* Done for the Day Button */}
-          {hydrated && (
-            <div className="flex justify-center">
+            <div className="h-2.5 w-full bg-[#F4F7EF] rounded-full overflow-hidden mb-4">
+              <div
+                className="h-full bg-[#7CC7E8] rounded-full transition-all duration-300"
+                style={{ width: `${waterProgress * 100}%` }}
+              />
+            </div>
+            <div className="flex gap-2">
               <button
-                onClick={() => setShowSummaryModal(true)}
-                className="glass-button w-full py-3.5 text-xs font-semibold text-zinc-300 hover:text-white rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md"
+                onClick={() => saveWaterLog(selectedDate, currentWater + 250)}
+                className="flex-1 py-2.5 bg-[#EAF5D6] hover:bg-[#D4E9B8] text-[#96CE4B] text-xs font-semibold rounded-xl active:scale-95 transition cursor-pointer"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="m9 12 2 2 4-4" />
-                </svg>
-                Done for the Day
+                +250ml
               </button>
+              <button
+                onClick={() => saveWaterLog(selectedDate, currentWater + 500)}
+                className="flex-1 py-2.5 bg-[#EAF5D6] hover:bg-[#D4E9B8] text-[#96CE4B] text-xs font-semibold rounded-xl active:scale-95 transition cursor-pointer"
+              >
+                +500ml
+              </button>
+              {currentWater > 0 && (
+                <button
+                  onClick={() => saveWaterLog(selectedDate, Math.max(0, currentWater - 250))}
+                  className="px-3 py-2.5 bg-[#F4F7EF] hover:bg-[#EAF5D6] text-[#666666] text-xs font-semibold rounded-xl active:scale-95 transition cursor-pointer"
+                >
+                  −250
+                </button>
+              )}
             </div>
+          </div>
+
+          {/* Done for the Day */}
+          {hydrated && (
+            <button
+              onClick={() => setShowSummaryModal(true)}
+              className="btn-secondary w-full cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+              Done for the Day
+            </button>
           )}
         </div>
 
-        {/* Right Logged items column */}
+        {/* Right Column — Today's Meals */}
         <div className="lg:col-span-7 space-y-6">
           <div>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-500 font-sans">
-              Logged Items
-            </h2>
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#9A9A9A]">Today&apos;s Meals</h2>
 
             {summary.entries.length === 0 ? (
-              <div className="glass-panel p-6 text-center rounded-2xl">
-                <p className="text-base font-semibold text-white font-sans">
-                  No entries logged for this date.
-                </p>
-                <p className="mt-2 text-xs font-medium text-zinc-400 uppercase tracking-widest font-sans">
-                  Quick log recommendations:
-                </p>
-                
+              <div className="card p-6 text-center">
+                <p className="text-base font-semibold text-[#1F1F1F]">No entries logged for this date.</p>
+                <p className="mt-2 text-xs font-medium text-[#9A9A9A] uppercase tracking-widest">Quick log recommendations:</p>
                 <div className="mt-4 flex flex-col gap-2">
                   {starterFoods.map((food) => (
                     <button
                       key={food.name}
                       onClick={() => handleQuickAdd(food.name, food.calories, food.protein, food.tag)}
-                      className="flex items-center justify-between border border-white/[0.04] bg-[#282421]/50 hover:bg-[#322d29]/85 px-4 py-3.5 text-left transition group active:scale-95 shadow-sm rounded-xl cursor-pointer"
+                      className="flex items-center justify-between bg-[#F4F7EF] hover:bg-[#EAF5D6] px-4 py-3.5 text-left transition active:scale-[0.99] rounded-xl cursor-pointer"
                     >
-                      <span className="text-xs font-semibold text-white transition font-sans">
-                        + {food.name}
-                      </span>
-                      <span className="text-xs font-medium text-[#a19890] transition font-sans">
-                        {food.calories} kcal · {food.protein}g P
-                      </span>
+                      <span className="text-sm font-semibold text-[#1F1F1F]">+ {food.name}</span>
+                      <span className="text-xs font-medium text-[#666666]">{food.calories} kcal · {food.protein}g P</span>
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="space-y-4 glass-panel p-5 rounded-2xl">
-                {/* Iterative grouping rendering */}
+              <div className="space-y-4">
                 {tagsOrder.map((tag) => {
                   const entries = groupedEntries[tag];
                   if (!entries || entries.length === 0) return null;
                   return (
                     <div key={tag} className="flex flex-col gap-2.5">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                          {tagLabelMapping[tag]}
-                        </span>
-                        <div className="h-px flex-1 bg-white/[0.04]" />
+                        <span className="text-xs font-semibold text-[#1F1F1F]">{tagLabelMapping[tag]}</span>
+                        <div className="h-px flex-1 bg-[#F4F7EF]" />
                       </div>
-                      
                       <div className="flex flex-col gap-2">
                         {entries.map((entry) => (
                           <FoodEntryItem
@@ -563,24 +438,20 @@ export default function DashboardPage() {
                     </div>
                   );
                 })}
-
-
               </div>
             )}
           </div>
 
-          {/* Recurrent items fast loader */}
+          {/* Quick Log Frequent */}
           {distinct.length > 0 && (
             <div>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-500 font-sans">
-                Quick Log Frequent
-              </h2>
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#9A9A9A]">Quick Log Frequent</h2>
               <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
                 {distinct.map((food) => (
                   <button
                     key={food.name}
                     onClick={() => handleQuickAdd(food.name, food.calories, food.protein, "snack")}
-                    className="shrink-0 border border-white/[0.04] bg-[#201c1a]/60 hover:bg-[#282421]/80 px-4 py-2.5 text-xs font-semibold text-[#f5f2eb] transition active:scale-95 font-sans rounded-full shadow-sm cursor-pointer"
+                    className="shrink-0 chip whitespace-nowrap cursor-pointer"
                   >
                     + {food.name}
                   </button>
@@ -589,20 +460,16 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-
       </div>
 
-      {/* Undo Toast notification popup */}
+      {/* Undo Toast */}
       {showUndo && (
-        <div className="fixed bottom-24 left-1/2 z-50 w-full max-w-xs -translate-x-1/2 px-4 transition-all duration-300 ease-out">
-          <div className="flex items-center justify-between border border-white/[0.04] bg-[#201c1a]/95 backdrop-blur-md p-3.5 shadow-2xl rounded-full px-5 py-2.5">
-            <span className="text-xs text-zinc-300 font-medium font-sans">Item deleted.</span>
+        <div className="fixed bottom-24 left-1/2 z-50 w-full max-w-xs -translate-x-1/2 px-4">
+          <div className="flex items-center justify-between bg-[#FFFFFF] p-3.5 shadow-lg rounded-xl border border-[#F4F7EF]">
+            <span className="text-xs text-[#666666] font-medium">Item deleted.</span>
             <button
-              onClick={() => {
-                undoDeleteFood();
-                setShowUndo(false);
-              }}
-              className="text-xs font-semibold text-[#1DB954] hover:text-[#1ed760] px-2 py-0.5 active:scale-95 transition font-sans cursor-pointer"
+              onClick={() => { undoDeleteFood(); setShowUndo(false); }}
+              className="text-xs font-semibold text-[#96CE4B] hover:text-[#86BC3B] px-2 py-0.5 active:scale-95 transition cursor-pointer"
             >
               Undo
             </button>
@@ -610,25 +477,15 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Floating Action Button (FAB) - Mobile only (desktop uses sidebar nav) */}
+      {/* FAB - Mobile */}
       {isToday(selectedDate) && (
         <div className="fixed bottom-24 right-4 z-40 md:hidden">
           <Link
             href="/add"
-            className="flex h-14 w-14 items-center justify-center bg-[#1DB954] text-[#161413] shadow-xl shadow-black/45 hover:bg-[#1ed760] transition active:scale-95 rounded-full"
+            className="flex h-14 w-14 items-center justify-center bg-[#96CE4B] text-white shadow-lg shadow-[#96CE4B]/25 hover:bg-[#86BC3B] transition active:scale-95 rounded-full"
             aria-label="Add food log item"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14" />
               <path d="M12 5v14" />
             </svg>
@@ -636,7 +493,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Daily Recap Modal */}
+      {/* Done Summary Modal */}
       {hydrated && (
         <DoneSummaryModal
           isOpen={showSummaryModal}
