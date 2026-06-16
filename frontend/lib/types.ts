@@ -55,6 +55,8 @@ export type FoodDbCategory =
   | "Fruits"
   | "Indian Dishes"
   | "Snacks & Street Food"
+  | "Chinese"
+  | "Sandwiches"
   | "Junk Food"
   | "Healthy & Fitness"
   | "Beverages"
