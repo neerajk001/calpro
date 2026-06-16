@@ -8,7 +8,10 @@ export function createClient() {
       cookieOptions: {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        path: "/",
+        maxAge: 31536000, // 1 year in seconds
       },
+      isSingleton: true,
     }
   );
 }
