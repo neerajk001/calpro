@@ -18,6 +18,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/backend
+  DATABASE_URL: postgresql://postgres:dummy@localhost:5432/dummy
 
 jobs:
   build-and-test:
