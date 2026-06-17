@@ -146,7 +146,9 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
         apiClient.scanFoodImage(base64, userPrompt.trim() || undefined).then((res) => {
           setResults(res.items);
           const gramMap: Record<string, number> = {};
-          res.items.forEach((item) => { gramMap[item.id] = item.defaultGrams; });
+          res.items.forEach((item) => {
+            gramMap[item.id] = item.defaultGrams;
+          });
           setSelectedGrams(gramMap);
           setState("results");
           setTimeout(() => resultsScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }), 100);
@@ -489,12 +491,20 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                           <div className="mt-3">
                             <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">How much?</p>
                             <div className="flex flex-wrap gap-1.5">
-                              {item.portionPresets.map((preset) => (
-                                <button key={preset.label} onClick={() => setGrams(item.id, preset.grams)}
-                                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer ${
-                                    grams === preset.grams ? "bg-[#1DB954] text-white shadow-sm" : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
-                                  }`}>{preset.label}</button>
-                              ))}
+                              {item.portionPresets.map((preset) => {
+                                const active = grams === preset.grams;
+                                return (
+                                  <button key={preset.label} onClick={() => setGrams(item.id, preset.grams)}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer ${
+                                      active ? "bg-[#1DB954] text-white shadow-sm" : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                                    }`}>{preset.label}</button>
+                                );
+                              })}
+                              {item.servingCount !== 1 && !item.portionPresets.some((p) => p.grams === grams) && (
+                                <span className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#1DB954]/20 text-[#1DB954]">
+                                  {item.servingCount} × {item.portionPresets[0]?.grams ?? 60}g = {grams}g
+                                </span>
+                              )}
                             </div>
                           </div>
 

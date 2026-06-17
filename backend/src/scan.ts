@@ -196,17 +196,19 @@ async function identifyFoodsFromImage(base64Image: string, userPrompt?: string):
   });
 
   const extraContext = userPrompt?.trim()
-    ? `\n\nAdditional context from the user: "${userPrompt.trim()}"`
+    ? `\n\nCRITICAL USER INPUT (trust this over visual guesses for serving count, cooking method, and identification): "${userPrompt.trim()}"`
     : "";
 
   const prompt = `Analyze this food photo and identify all visible food items with Indian cuisine knowledge.${extraContext}
+
+IMPORTANT: If the user specified a quantity or serving count in their input above, use THAT exact number as servingCount — do not override it with what you visually see. For example, if the user says "1.5 eggs" but you see 3 objects, use 1.5.
 
 For each item, return this exact JSON shape:
 {
   "name": "string (specific, e.g. 'Tandoori Roti' not just 'roti', 'Dal Tadka' not just 'dal')",
   "portionType": "piece" | "bowl" | "plate" | "glass" | "grams",
   "cookingMethod": "normal" | "fried" | "ghee" | "boiled",
-  "servingCount": number (how many individual servings visible: 1, 2, 3, 4+),
+  "servingCount": number (how many servings: 1, 1.5, 2, 3 etc — CAN BE FRACTIONAL if user specified half servings),
   "confidence": number (0.0 to 1.0),
   "alternatives": string[] (2-3 alternatives if unsure, otherwise [])
 }
@@ -406,8 +408,9 @@ export async function scanFoodImage(base64Image: string, userPrompt?: string): P
     }
 
     const { presets, defaultGrams } = buildPortionPresets(item.name, item.portionType);
-    const sc = Math.max(1, Math.min(item.servingCount ?? 1, 4));
-    const effectiveGrams = presets[sc - 1]?.grams ?? defaultGrams;
+    const sc = item.servingCount ?? 1;
+    const perUnitGrams = presets[0]?.grams ?? defaultGrams;
+    const effectiveGrams = Math.round(Math.max(0.5, sc) * perUnitGrams);
     const factor = effectiveGrams / 100;
 
     results.push({
@@ -421,7 +424,7 @@ export async function scanFoodImage(base64Image: string, userPrompt?: string): P
       portionPresets: presets,
       defaultGrams: effectiveGrams,
       cookingMethod: item.cookingMethod || "normal",
-      servingCount: item.servingCount ?? 1,
+      servingCount: sc,
       estimatedCalories: Math.round(macros.caloriesPer100g * factor),
       estimatedProtein: Math.round(macros.proteinPer100g * factor * 10) / 10,
       estimatedCarbs: Math.round(macros.carbsPer100g * factor * 10) / 10,
