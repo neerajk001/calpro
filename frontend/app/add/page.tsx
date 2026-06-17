@@ -154,8 +154,32 @@ export default function AddFoodPage() {
   function handleSuggestionTap(food: { name: string; calories: number; protein: number }) { setNaturalText(""); setName(food.name); setCalories(food.calories); setProtein(food.protein); }
   function handleReLog(food: { name: string; calories: number; protein: number; tag: FoodTag }) { addFood(food.name, food.calories, food.protein, today, food.tag || activeTag); router.push("/"); }
 
+  const handleAddManualToQueue = useCallback(() => {
+    const finalName = name.trim() || "Manual Entry";
+    const item: MealBuilderItem = {
+      dbItemId: `manual-${Date.now()}`,
+      name: finalName,
+      quantity: 100,
+      quantityMode: "grams",
+      displayQty: 100,
+      calories,
+      protein,
+      carbs: 0,
+      fat: 0,
+      emoji: activeTag === "breakfast" ? "🍳" : activeTag === "lunch" ? "🥗" : activeTag === "dinner" ? "🍽️" : activeTag === "snack" ? "🍏" : "🍕",
+    };
+    setMealItems((prev) => [...prev, item]);
+    setName("");
+    setCalories(0);
+    setProtein(0);
+    setNaturalText("");
+  }, [name, calories, protein, activeTag]);
+
   const handleAddToMeal = useCallback((item: MealBuilderItem) => { setMealItems((prev) => [...prev, item]); }, []);
   const handleRemoveItem = useCallback((index: number) => { setMealItems((prev) => prev.filter((_, i) => i !== index)); }, []);
+  const handleUpdateItem = useCallback((index: number, updated: MealBuilderItem) => {
+    setMealItems((prev) => prev.map((item, i) => (i === index ? updated : item)));
+  }, []);
   const handleClearAll = useCallback(() => { setMealItems([]); }, []);
 
   const handleLogMeal = useCallback((mode: "combined" | "individual", tag: FoodTag) => {
@@ -180,6 +204,35 @@ export default function AddFoodPage() {
         <h1 className="text-xl md:text-2xl font-bold tracking-tight">{editId ? "Edit Entry" : "Log Nutrition"}</h1>
       </div>
 
+      {!editId && mealTemplates && mealTemplates.length > 0 && (
+        <div className="mb-5 space-y-2">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">My Saved Meals</h2>
+          <div className="hide-scrollbar flex gap-3 overflow-x-auto pb-1.5">
+            {mealTemplates.map((template) => {
+              const totalCals = template.items.reduce((sum, item) => sum + item.calories, 0);
+              const totalProt = template.items.reduce((sum, item) => sum + item.protein, 0);
+              const emoji = template.items[0]?.emoji || "🍱";
+              const tagEmoji = template.tag === "breakfast" ? "🍳" : template.tag === "lunch" ? "🥗" : template.tag === "dinner" ? "🍽️" : template.tag === "snack" ? "🍏" : "🍕";
+              return (
+                <button key={template.id} onClick={() => setSelectedTemplate(template)} className="shrink-0 flex flex-col justify-between items-start text-left card p-3.5 w-[160px] h-[105px] bg-white border border-black/5 hover:border-blue-600/10 hover:shadow-md transition rounded-xl cursor-pointer">
+                  <div className="w-full">
+                    <div className="flex items-center justify-between gap-1 w-full mb-1">
+                      <span className="text-xs truncate font-extrabold text-[#111827]">{template.name}</span>
+                      <span className="text-sm shrink-0">{emoji}</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">{tagEmoji} {template.tag}</span>
+                  </div>
+                  <div className="text-xs font-bold">
+                    <p className="text-[#2563EB] leading-tight text-[11px]">{totalCals} kcal</p>
+                    <p className="text-[#10B981] text-[11px] leading-tight mt-0.5">{totalProt.toFixed(1)}g Protein</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {!editId && (
         <div className="mb-6 flex gap-1 card p-1 rounded-2xl max-w-sm bg-white">
           <button onClick={() => setActiveTab("db")} className={`flex-1 py-2.5 text-xs font-bold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "db" ? "bg-[#2563EB] text-white" : "text-[#6B7280] hover:text-[#111827] hover:bg-[#EFF6FF]"}`}>
@@ -190,6 +243,7 @@ export default function AddFoodPage() {
           <button onClick={() => setActiveTab("manual")} className={`flex-1 py-2.5 text-xs font-bold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "manual" ? "bg-[#2563EB] text-white" : "text-[#6B7280] hover:text-[#111827] hover:bg-[#EFF6FF]"}`}>
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Manual
+            {mealItems.length > 0 && <span className="ml-1 bg-white/20 text-white px-1.5 py-0.5 rounded-full text-[10px] font-black">{mealItems.length}</span>}
           </button>
         </div>
       )}
@@ -197,35 +251,6 @@ export default function AddFoodPage() {
       {activeTab === "db" && !editId && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-7 space-y-6">
-            {mealTemplates && mealTemplates.length > 0 && (
-              <div className="space-y-2">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">My Saved Meals</h2>
-                <div className="hide-scrollbar flex gap-3 overflow-x-auto pb-1.5">
-                  {mealTemplates.map((template) => {
-                    const totalCals = template.items.reduce((sum, item) => sum + item.calories, 0);
-                    const totalProt = template.items.reduce((sum, item) => sum + item.protein, 0);
-                    const emoji = template.items[0]?.emoji || "🍱";
-                    const tagEmoji = template.tag === "breakfast" ? "🍳" : template.tag === "lunch" ? "🥗" : template.tag === "dinner" ? "🍽️" : template.tag === "snack" ? "🍏" : "🍕";
-                    return (
-                      <button key={template.id} onClick={() => setSelectedTemplate(template)} className="shrink-0 flex flex-col justify-between items-start text-left card p-3.5 w-[160px] h-[105px] bg-white border border-black/5 hover:border-blue-600/10 hover:shadow-md transition rounded-xl cursor-pointer">
-                        <div className="w-full">
-                          <div className="flex items-center justify-between gap-1 w-full mb-1">
-                            <span className="text-xs truncate font-extrabold text-[#111827]">{template.name}</span>
-                            <span className="text-sm shrink-0">{emoji}</span>
-                          </div>
-                          <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">{tagEmoji} {template.tag}</span>
-                        </div>
-                        <div className="text-xs font-bold">
-                          <p className="text-[#2563EB] leading-tight text-[11px]">{totalCals} kcal</p>
-                          <p className="text-[#10B981] text-[11px] leading-tight mt-0.5">{totalProt.toFixed(1)}g Protein</p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             <div className="card p-4 md:p-5">
               <FoodDBSearch customFoods={customFoods} onAddToMeal={handleAddToMeal} trackCarbsFat={settings.trackCarbsFat} initialFoodId={initialFoodId} scannedFood={scannedFood} onScanClick={() => setShowScanner(true)} />
             </div>
@@ -283,7 +308,7 @@ export default function AddFoodPage() {
 
           <div className="lg:col-span-5 lg:sticky lg:top-24">
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] lg:block hidden">Meal Composition</h2>
-            <MealBuilder items={mealItems} onRemoveItem={handleRemoveItem} onClearAll={handleClearAll} onLogMeal={handleLogMeal} trackCarbsFat={settings.trackCarbsFat} />
+            <MealBuilder items={mealItems} onRemoveItem={handleRemoveItem} onUpdateItem={handleUpdateItem} onClearAll={handleClearAll} onLogMeal={handleLogMeal} trackCarbsFat={settings.trackCarbsFat} />
           </div>
         </div>
       )}
@@ -373,10 +398,20 @@ export default function AddFoodPage() {
                 }} placeholder="e.g. egg (auto-fills breakfast) or pizza 280 kcal" className="w-full bg-[#FFFFFF] border border-black/10 px-4 py-3.5 text-xs text-[#111827] placeholder-[#6B7280] outline-none focus:border-[#2563EB]/40 rounded-xl" />
               </div>
 
-              <button onClick={handleSubmit} disabled={!canSubmit} className={`w-full py-4 text-sm font-semibold transition active:scale-95 rounded-2xl cursor-pointer ${canSubmit ? "btn-primary" : "bg-[#E5E7EB] text-[#6B7280] cursor-not-allowed h-[52px] flex items-center justify-center font-bold"}`}>
-                {editId ? "Save Changes" : "Confirm Log Entry"}
-              </button>
+              <div className="flex gap-2">
+                <button onClick={handleAddManualToQueue} disabled={!canSubmit} className={`flex-1 py-4 text-sm font-semibold transition active:scale-95 rounded-2xl cursor-pointer ${canSubmit ? "btn-secondary" : "bg-[#E5E7EB] text-[#6B7280] cursor-not-allowed h-[52px] flex items-center justify-center font-bold"}`}>
+                  + Add to Queue
+                </button>
+                <button onClick={handleSubmit} disabled={!canSubmit} className={`flex-1 py-4 text-sm font-semibold transition active:scale-95 rounded-2xl cursor-pointer ${canSubmit ? "btn-primary" : "bg-[#E5E7EB] text-[#6B7280] cursor-not-allowed h-[52px] flex items-center justify-center font-bold"}`}>
+                  {editId ? "Save Changes" : "Log Now"}
+                </button>
+              </div>
             </div>
+            {mealItems.length > 0 && (
+              <div className="mt-4">
+                <MealBuilder items={mealItems} onRemoveItem={handleRemoveItem} onUpdateItem={handleUpdateItem} onClearAll={handleClearAll} onLogMeal={handleLogMeal} trackCarbsFat={settings.trackCarbsFat} />
+              </div>
+            )}
           </div>
         </div>
       )}

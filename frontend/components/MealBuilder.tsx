@@ -7,6 +7,7 @@ import { useApp } from "@/lib/AppContext";
 interface MealBuilderProps {
   items: MealBuilderItem[];
   onRemoveItem: (index: number) => void;
+  onUpdateItem: (index: number, item: MealBuilderItem) => void;
   onClearAll: () => void;
   onLogMeal: (mode: "combined" | "individual", tag: FoodTag) => void;
   trackCarbsFat: boolean;
@@ -28,7 +29,77 @@ function getDefaultTag(): FoodTag {
   return "snack";
 }
 
-export function MealBuilder({ items, onRemoveItem, onClearAll, onLogMeal, trackCarbsFat }: MealBuilderProps) {
+function recalculateMacros(item: MealBuilderItem, newDisplayQty: number): MealBuilderItem {
+  let quantityGrams = newDisplayQty;
+  if (item.quantityMode === "piece" && item.gramsPerPiece) {
+    quantityGrams = newDisplayQty * item.gramsPerPiece;
+  } else if (item.quantityMode === "serving" && item.mlPerServing) {
+    quantityGrams = newDisplayQty * item.mlPerServing;
+  }
+
+  const hasPer100g = item.caloriesPer100g != null && item.caloriesPer100g > 0;
+  if (!hasPer100g) {
+    const scale = newDisplayQty / Math.max(item.displayQty, 1);
+    return {
+      ...item,
+      displayQty: newDisplayQty,
+      quantity: quantityGrams,
+      calories: Math.round(item.calories * scale),
+      protein: Math.round(item.protein * scale * 10) / 10,
+      carbs: Math.round((item.carbs ?? 0) * scale * 10) / 10,
+      fat: Math.round((item.fat ?? 0) * scale * 10) / 10,
+    };
+  }
+
+  const per100 = {
+    calories: item.caloriesPer100g ?? 0,
+    protein: item.proteinPer100g ?? 0,
+    carbs: item.carbsPer100g ?? 0,
+    fat: item.fatPer100g ?? 0,
+  };
+  const ratio = quantityGrams / 100;
+  let calories = Math.round(per100.calories * ratio);
+  let protein = Math.round(per100.protein * ratio * 10) / 10;
+  let carbs = Math.round(per100.carbs * ratio * 10) / 10;
+  let fat = Math.round(per100.fat * ratio * 10) / 10;
+
+  if (item.cookingMethod === "boiled") {
+    calories = Math.round(calories * 0.9);
+    fat = Math.round(fat * 0.8 * 10) / 10;
+  } else if (item.cookingMethod === "fried") {
+    calories = Math.round(calories * 1.25);
+    fat = Math.round(fat * 1.8 * 10) / 10;
+  } else if (item.cookingMethod === "ghee") {
+    const gheeGrams = Math.round(quantityGrams * 0.12);
+    calories = calories + Math.round(gheeGrams * 9);
+    fat = Math.round((fat + gheeGrams * 0.99) * 10) / 10;
+  }
+
+  return { ...item, displayQty: newDisplayQty, quantity: quantityGrams, calories, protein, carbs, fat };
+}
+
+function getStep(item: MealBuilderItem): number {
+  if (item.quantityMode === "piece") return 1;
+  if (item.quantityMode === "ml") return 25;
+  if (item.quantityMode === "serving") return 1;
+  return 5;
+}
+
+function getMaxQty(item: MealBuilderItem): number {
+  if (item.quantityMode === "piece") return 20;
+  if (item.quantityMode === "ml") return 1000;
+  if (item.quantityMode === "serving") return 5;
+  return 800;
+}
+
+function unitLabel(item: MealBuilderItem): string {
+  if (item.quantityMode === "piece") return item.displayQty === 1 ? "pc" : "pcs";
+  if (item.quantityMode === "ml") return "ml";
+  if (item.quantityMode === "serving") return item.displayQty === 1 ? "serv" : "servs";
+  return "g";
+}
+
+export function MealBuilder({ items, onRemoveItem, onUpdateItem, onClearAll, onLogMeal, trackCarbsFat }: MealBuilderProps) {
   const { addMealTemplate } = useApp();
   const [tag, setTag] = useState<FoodTag>(getDefaultTag);
   const [logMode, setLogMode] = useState<"combined" | "individual">("individual");
@@ -120,9 +191,19 @@ export function MealBuilder({ items, onRemoveItem, onClearAll, onLogMeal, trackC
               <span className="text-base shrink-0">{item.emoji || "🍽️"}</span>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-[#111827] truncate">{item.name}</p>
-                <p className="text-[10px] text-[#6B7280] font-bold">
-                  {item.displayQty} {item.quantityMode === "piece" ? (item.displayQty === 1 ? "piece" : "pieces") : item.quantityMode === "ml" ? "ml" : item.quantityMode === "serving" ? "serving" : "g"}
-                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <button
+                    onClick={() => { const step = getStep(item); const n = Math.max(step, item.displayQty - step); onUpdateItem(idx, recalculateMacros(item, n)); }}
+                    className="w-4 h-4 flex items-center justify-center rounded-full bg-[#E5E7EB] hover:bg-[#2563EB] hover:text-white text-[#4B5563] text-[10px] leading-none transition cursor-pointer"
+                  >−</button>
+                  <span className="text-[10px] text-[#6B7280] font-bold tabular-nums min-w-[35px] text-center">
+                    {item.displayQty}{unitLabel(item)}
+                  </span>
+                  <button
+                    onClick={() => { const step = getStep(item); const n = Math.min(getMaxQty(item), item.displayQty + step); onUpdateItem(idx, recalculateMacros(item, n)); }}
+                    className="w-4 h-4 flex items-center justify-center rounded-full bg-[#E5E7EB] hover:bg-[#2563EB] hover:text-white text-[#4B5563] text-[10px] leading-none transition cursor-pointer"
+                  >+</button>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3 shrink-0">

@@ -92,6 +92,13 @@ export interface MealBuilderItem {
   carbs: number;           // calculated
   fat: number;             // calculated
   emoji?: string;
+  cookingMethod?: "normal" | "boiled" | "fried" | "ghee";
+  caloriesPer100g?: number;
+  proteinPer100g?: number;
+  carbsPer100g?: number;
+  fatPer100g?: number;
+  gramsPerPiece?: number;
+  mlPerServing?: number;
 }
 
 export interface MealTemplateItem {

@@ -187,6 +187,13 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
       carbs: macros.carbs,
       fat: macros.fat,
       emoji: selectedFood.emoji,
+      cookingMethod,
+      caloriesPer100g: selectedFood.caloriesPer100g,
+      proteinPer100g: selectedFood.proteinPer100g,
+      carbsPer100g: selectedFood.carbsPer100g,
+      fatPer100g: selectedFood.fatPer100g,
+      gramsPerPiece: selectedFood.gramsPerPiece,
+      mlPerServing: selectedFood.mlPerServing,
     };
     onAddToMeal(item);
     setSelectedFood(null);
