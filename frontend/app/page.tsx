@@ -534,12 +534,13 @@ export default function DashboardPage() {
         <div className="fixed bottom-24 right-4 z-40 md:hidden">
           <button
             onClick={() => setShowCamera(true)}
-            className="flex h-14 w-14 items-center justify-center bg-[#1DB954] text-white shadow-lg shadow-[#1DB954]/25 hover:bg-[#17a94a] transition active:scale-95 rounded-full cursor-pointer"
+            className="flex items-center gap-2.5 h-12 px-5 bg-[#1DB954] text-white shadow-lg shadow-[#1DB954]/25 hover:bg-[#17a94a] transition active:scale-95 rounded-full cursor-pointer"
             aria-label="Scan food with camera"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
             </svg>
+            <span className="text-sm font-bold">Scan Meal</span>
           </button>
         </div>
       )}
