@@ -384,6 +384,13 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                     const isEditingName = editingItemId === item.id;
                     const grams = selectedGrams[item.id] ?? item.defaultGrams;
                     const m = calcMacros(item, grams);
+                    const calFromProtein = m.protein * 4;
+                    const calFromCarbs = m.carbs * 4;
+                    const calFromFat = m.fat * 9;
+                    const calTotal = calFromProtein + calFromCarbs + calFromFat || 1;
+                    const pctP = (calFromProtein / calTotal) * 100;
+                    const pctC = (calFromCarbs / calTotal) * 100;
+                    const pctF = (calFromFat / calTotal) * 100;
 
                     return (
                       <div
@@ -393,6 +400,7 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                         }`}
                       >
                         <div className="p-4 pb-0">
+                          {/* Headline row */}
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
                               {isLow && (
@@ -403,48 +411,31 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                                 {isEditingName ? (
                                   <div className="flex-1">
                                     <input
-                                      type="text"
-                                      value={editNameQuery}
+                                      type="text" value={editNameQuery}
                                       onChange={(e) => setEditNameQuery(e.target.value)}
-                                      placeholder="Search foods..."
-                                      autoFocus
+                                      placeholder="Search foods..." autoFocus
                                       className="w-full bg-[#282828] border border-white/10 px-3 py-2 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#1DB954] rounded-lg"
                                     />
                                     {editNameQuery.trim().length > 0 && (
                                       <div className="mt-1 bg-[#282828] border border-white/10 rounded-lg overflow-hidden max-h-32 overflow-y-auto hide-scrollbar">
-                                        {editNameLoading ? (
-                                          <p className="px-3 py-2 text-xs text-zinc-500">Searching...</p>
-                                        ) : editNameResults.length === 0 ? (
-                                          <p className="px-3 py-2 text-xs text-zinc-500">No matches</p>
-                                        ) : (
-                                          editNameResults.slice(0, 5).map((f) => (
-                                            <button
-                                              key={f.id}
-                                              onClick={() => swapFoodName(item.id, f)}
-                                              className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#333] transition cursor-pointer"
-                                            >
-                                              <span className="text-sm text-white">{f.emoji || "🍽️"} {f.name}</span>
-                                              <span className="text-xs text-zinc-400">{f.caloriesPer100g} kcal</span>
-                                            </button>
-                                          ))
-                                        )}
+                                        {editNameLoading ? <p className="px-3 py-2 text-xs text-zinc-500">Searching...</p>
+                                        : editNameResults.length === 0 ? <p className="px-3 py-2 text-xs text-zinc-500">No matches</p>
+                                        : editNameResults.slice(0, 5).map((f) => (
+                                          <button key={f.id} onClick={() => swapFoodName(item.id, f)}
+                                            className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#333] transition cursor-pointer">
+                                            <span className="text-sm text-white">{f.emoji || "🍽️"} {f.name}</span>
+                                            <span className="text-xs text-zinc-400">{f.caloriesPer100g} kcal</span>
+                                          </button>
+                                        ))}
                                       </div>
                                     )}
-                                    <button
-                                      onClick={() => { setEditingItemId(null); setEditNameQuery(""); }}
-                                      className="text-xs text-zinc-500 hover:text-white mt-1 cursor-pointer"
-                                    >
-                                      Cancel
-                                    </button>
+                                    <button onClick={() => { setEditingItemId(null); setEditNameQuery(""); }}
+                                      className="text-xs text-zinc-500 hover:text-white mt-1 cursor-pointer">Cancel</button>
                                   </div>
                                 ) : (
                                   <>
-                                    <h3
-                                      onClick={() => { setEditingItemId(item.id); setEditNameQuery(item.name); }}
-                                      className="text-lg font-bold text-white cursor-pointer hover:text-[#1DB954] transition"
-                                    >
-                                      {item.name}
-                                    </h3>
+                                    <h3 onClick={() => { setEditingItemId(item.id); setEditNameQuery(item.name); }}
+                                      className="text-lg font-bold text-white cursor-pointer hover:text-[#1DB954] transition">{item.name}</h3>
                                     {item.source === "database" && (
                                       <span className="shrink-0 px-2 py-0.5 bg-[#1DB954]/20 text-[#1DB954] text-[10px] font-bold rounded-full">✓</span>
                                     )}
@@ -457,42 +448,79 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                             </div>
                           </div>
 
-                          {/* Portion Picker — the key UX improvement */}
+                          {/* Cooking method chips */}
+                          {item.cookingMethod && item.cookingMethod !== "normal" && (
+                            <div className="mt-2 flex gap-1.5">
+                              {item.cookingMethod === "fried" && (
+                                <span className="px-2 py-0.5 bg-[#EF4444]/15 text-[#EF4444] text-[10px] font-bold rounded-full">🔥 Fried</span>
+                              )}
+                              {item.cookingMethod === "ghee" && (
+                                <span className="px-2 py-0.5 bg-[#F59E0B]/15 text-[#F59E0B] text-[10px] font-bold rounded-full">🧈 With Ghee</span>
+                              )}
+                              {item.cookingMethod === "boiled" && (
+                                <span className="px-2 py-0.5 bg-[#3B82F6]/15 text-[#3B82F6] text-[10px] font-bold rounded-full">💧 Boiled</span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Portion Picker */}
                           <div className="mt-3">
                             <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">How much?</p>
                             <div className="flex flex-wrap gap-1.5">
-                              {item.portionPresets.map((preset) => {
-                                const active = grams === preset.grams;
-                                return (
-                                  <button
-                                    key={preset.label}
-                                    onClick={() => setGrams(item.id, preset.grams)}
-                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer ${
-                                      active
-                                        ? "bg-[#1DB954] text-white shadow-sm"
-                                        : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
-                                    }`}
-                                  >
-                                    {preset.label}
-                                  </button>
-                                );
-                              })}
+                              {item.portionPresets.map((preset) => (
+                                <button key={preset.label} onClick={() => setGrams(item.id, preset.grams)}
+                                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer ${
+                                    grams === preset.grams ? "bg-[#1DB954] text-white shadow-sm" : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                                  }`}>{preset.label}</button>
+                              ))}
                             </div>
                           </div>
 
                           {/* Big calorie number */}
-                          <p className="text-4xl font-black text-white mt-4 tabular-nums">
-                            {m.calories}
-                            <span className="text-lg font-semibold text-zinc-500 ml-1">kcal</span>
-                          </p>
+                          <div className="flex items-baseline gap-2 mt-4">
+                            <p className="text-4xl font-black text-white tabular-nums">{m.calories}</p>
+                            <span className="text-lg font-semibold text-zinc-500">kcal</span>
+                          </div>
 
-                          {/* Macro row */}
-                          <div className="flex gap-3 mt-2">
-                            <span className="text-xs text-[#3B82F6] font-bold">{m.protein}g protein</span>
-                            <span className="text-xs text-zinc-500">·</span>
-                            <span className="text-xs text-[#F59E0B] font-bold">{m.carbs}g carbs</span>
-                            <span className="text-xs text-zinc-500">·</span>
-                            <span className="text-xs text-[#EF4444] font-bold">{m.fat}g fat</span>
+                          {/* ─── Interactive Macro Breakdown Bar ─── */}
+                          <div className="mt-3 space-y-2">
+                            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
+                              <span className="text-zinc-500">Macro split</span>
+                              <span className="text-zinc-500">per serving</span>
+                            </div>
+                            {/* Stacked bar */}
+                            <div className="h-3 w-full bg-zinc-800 rounded-full overflow-hidden flex">
+                              <div
+                                className="h-full bg-[#3B82F6] transition-all duration-300 ease-out rounded-l-full"
+                                style={{ width: `${Math.max(pctP, 2)}%` }}
+                              />
+                              <div
+                                className="h-full bg-[#F59E0B] transition-all duration-300 ease-out"
+                                style={{ width: `${Math.max(pctC, 2)}%` }}
+                              />
+                              <div
+                                className="h-full bg-[#EF4444] transition-all duration-300 ease-out rounded-r-full"
+                                style={{ width: `${Math.max(pctF, 2)}%` }}
+                              />
+                            </div>
+                            {/* Legend */}
+                            <div className="flex gap-4 text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-2.5 h-2.5 rounded-sm bg-[#3B82F6]" />
+                                <span className="text-zinc-300 font-bold">{m.protein}g</span>
+                                <span className="text-zinc-500">protein</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-2.5 h-2.5 rounded-sm bg-[#F59E0B]" />
+                                <span className="text-zinc-300 font-bold">{m.carbs}g</span>
+                                <span className="text-zinc-500">carbs</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-2.5 h-2.5 rounded-sm bg-[#EF4444]" />
+                                <span className="text-zinc-300 font-bold">{m.fat}g</span>
+                                <span className="text-zinc-500">fat</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
 

@@ -134,6 +134,8 @@ export interface ScanResultItem {
   portionType: string;
   portionPresets: PortionPreset[];
   defaultGrams: number;
+  cookingMethod: string;
+  servingCount: number;
   estimatedCalories: number;
   estimatedProtein: number;
   estimatedCarbs: number;

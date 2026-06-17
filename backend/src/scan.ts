@@ -4,6 +4,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 interface VisionFoodItem {
   name: string;
   portionType: string;
+  cookingMethod: string;
+  servingCount: number;
   confidence: number;
   alternatives: string[];
 }
@@ -30,6 +32,8 @@ export interface ScanResultItem {
   portionType: string;
   portionPresets: PortionPreset[];
   defaultGrams: number;
+  cookingMethod: string;
+  servingCount: number;
   estimatedCalories: number;
   estimatedProtein: number;
   estimatedCarbs: number;
@@ -38,6 +42,34 @@ export interface ScanResultItem {
   source: "database" | "ai_estimated";
   emoji?: string;
   alternatives: string[];
+}
+
+function applyCookingModifiers(macros: MacroEstimate, method: string): MacroEstimate {
+  if (method === "fried") {
+    return {
+      caloriesPer100g: Math.round(macros.caloriesPer100g * 1.25),
+      proteinPer100g: macros.proteinPer100g,
+      carbsPer100g: Math.round(macros.carbsPer100g * 1.1),
+      fatPer100g: Math.round(macros.fatPer100g * 1.8 * 10) / 10,
+    };
+  }
+  if (method === "ghee") {
+    return {
+      caloriesPer100g: Math.round(macros.caloriesPer100g * 1.15),
+      proteinPer100g: macros.proteinPer100g,
+      carbsPer100g: macros.carbsPer100g,
+      fatPer100g: Math.round((macros.fatPer100g + 5) * 10) / 10,
+    };
+  }
+  if (method === "boiled") {
+    return {
+      caloriesPer100g: Math.round(macros.caloriesPer100g * 0.9),
+      proteinPer100g: macros.proteinPer100g,
+      carbsPer100g: Math.round(macros.carbsPer100g * 0.95),
+      fatPer100g: Math.round(macros.fatPer100g * 0.7 * 10) / 10,
+    };
+  }
+  return macros;
 }
 
 const CONFIDENCE_THRESHOLD = 0.7;
@@ -167,18 +199,28 @@ async function identifyFoodsFromImage(base64Image: string): Promise<VisionFoodIt
 
 For each item, return this exact JSON shape:
 {
-  "name": "string (specific name, e.g. 'Dal Tadka' not just 'dal', 'Tandoori Roti' not just 'roti')",
+  "name": "string (specific, e.g. 'Tandoori Roti' not just 'roti', 'Dal Tadka' not just 'dal')",
   "portionType": "piece" | "bowl" | "plate" | "glass" | "grams",
+  "cookingMethod": "normal" | "fried" | "ghee" | "boiled",
+  "servingCount": number (how many individual servings visible: 1, 2, 3, 4+),
   "confidence": number (0.0 to 1.0),
   "alternatives": string[] (2-3 alternatives if unsure, otherwise [])
 }
 
 portionType rules:
-- "piece" for breads (roti, naan, paratha), eggs, idli, dosa, samosa, pakora, kebabs, tikka
+- "piece" for roti, naan, paratha, eggs, idli, dosa, samosa, pakora, kebabs, tikka
 - "bowl" for dals, curries, sabzis, raita, soups, sambhar, chutneys
 - "plate" for rice, biryani, pulao, khichdi, pasta, noodles
 - "glass" for drinks, lassi, milk, shakes, juice, tea, coffee
 - "grams" for anything else
+
+cookingMethod rules:
+- "fried" if food looks deep/shallow fried (samosa, pakora, puri, fried rice)
+- "ghee" if visible ghee/butter topping (roti with ghee shine, dal tadka with tadka)
+- "boiled" if steamed/boiled (idli, boiled eggs, steamed rice)
+- "normal" otherwise
+
+servingCount: count how many distinct pieces/servings you see. For bowls/plates, 1 unless multiple bowls are visible.
 
 Return ONLY a JSON array. If no food detected, return []. No markdown wrapping.`;
 
@@ -349,6 +391,7 @@ export async function scanFoodImage(base64Image: string): Promise<ScanResultItem
         emoji = "🤖";
         confidence = 0.3;
       }
+      macros = applyCookingModifiers(macros, item.cookingMethod || "normal");
     }
 
     if (confidence < CONFIDENCE_THRESHOLD && alternatives.length === 0) {
@@ -359,7 +402,9 @@ export async function scanFoodImage(base64Image: string): Promise<ScanResultItem
     }
 
     const { presets, defaultGrams } = buildPortionPresets(item.name, item.portionType);
-    const factor = defaultGrams / 100;
+    const sc = Math.max(1, Math.min(item.servingCount ?? 1, 4));
+    const effectiveGrams = presets[sc - 1]?.grams ?? defaultGrams;
+    const factor = effectiveGrams / 100;
 
     results.push({
       id: `scan-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
@@ -370,7 +415,9 @@ export async function scanFoodImage(base64Image: string): Promise<ScanResultItem
       fatPer100g: macros.fatPer100g,
       portionType: item.portionType || "grams",
       portionPresets: presets,
-      defaultGrams,
+      defaultGrams: effectiveGrams,
+      cookingMethod: item.cookingMethod || "normal",
+      servingCount: item.servingCount ?? 1,
       estimatedCalories: Math.round(macros.caloriesPer100g * factor),
       estimatedProtein: Math.round(macros.proteinPer100g * factor * 10) / 10,
       estimatedCarbs: Math.round(macros.carbsPer100g * factor * 10) / 10,
