@@ -23,6 +23,7 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
   const [results, setResults] = useState<FoodDbItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [cookingMethod, setCookingMethod] = useState<"normal" | "boiled" | "fried" | "ghee">("normal");
+  const [showModifierInfo, setShowModifierInfo] = useState(false);
 
   const selectFood = useCallback((food: FoodDbItem) => {
     setSelectedFood(food);
@@ -114,8 +115,9 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
       calories = Math.round(calories * 1.25);
       fat = Math.round(fat * 1.8 * 10) / 10;
     } else if (cookingMethod === "ghee") {
-      calories = calories + 100;
-      fat = Math.round((fat + 11) * 10) / 10;
+      const gheeGrams = Math.round(quantityGrams * 0.12);
+      calories = calories + Math.round(gheeGrams * 9);
+      fat = Math.round((fat + gheeGrams * 0.99) * 10) / 10;
     }
     return { calories, protein, carbs, fat };
   }, [rawMacros, cookingMethod]);
@@ -297,10 +299,55 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
 
           {/* Cooking Method */}
           <div className="border-t border-black/5 pt-3">
-            <span className="text-xs font-bold text-[#6B7280] uppercase tracking-wider block mb-2">Preparation Modifier</span>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Preparation</span>
+              <button
+                onClick={() => setShowModifierInfo(v => !v)}
+                className="text-[10px] font-semibold text-[#6B7280] hover:text-[#2563EB] transition cursor-pointer flex items-center gap-0.5"
+              >
+                {showModifierInfo ? "Hide" : "What's this?"}
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={showModifierInfo ? "rotate-180 transition-transform" : "transition-transform"}>
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </div>
+
+            {showModifierInfo && (
+              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3 mb-3 space-y-2.5 animate-fade-in">
+                <div className="flex gap-2">
+                  <span className="text-sm shrink-0">🍳</span>
+                  <div>
+                    <p className="text-xs font-extrabold text-[#111827]">As-is</p>
+                    <p className="text-[10px] text-[#6B7280] font-semibold leading-relaxed">No changes. Pick this when you're eating the food in its listed form (raw, boiled, or cooked as noted in the food name).</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-sm shrink-0">💧</span>
+                  <div>
+                    <p className="text-xs font-extrabold text-[#111827]">Boiled / Steamed</p>
+                    <p className="text-[10px] text-[#6B7280] font-semibold leading-relaxed">Food is boiled or steamed in water — no oil or fat added. Calories drop slightly (−10%), fat reduces (−20%). Ideal for dal, rice, veggies.</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-sm shrink-0">🔥</span>
+                  <div>
+                    <p className="text-xs font-extrabold text-[#111827]">Fried</p>
+                    <p className="text-[10px] text-[#6B7280] font-semibold leading-relaxed">Fried in oil — food absorbs oil during cooking. Calories increase +25%, fat nearly doubles (+80%). Use for fried chicken, pakoras, puris, etc.</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-sm shrink-0">🧈</span>
+                  <div>
+                    <p className="text-xs font-extrabold text-[#111827]">With Ghee / Butter</p>
+                    <p className="text-[10px] text-[#6B7280] font-semibold leading-relaxed">Ghee or butter added while cooking or on top (~12% of food weight). Adds ~108 kcal per 100g of food. Use for dal tadka, paratha with butter, etc.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-1.5 flex-wrap">
               {[
-                { method: "normal", label: "🍳 Raw/Normal" },
+                { method: "normal", label: "🍳 As-is" },
                 { method: "boiled", label: "💧 Boiled/Steamed" },
                 { method: "fried", label: "🔥 Fried" },
                 { method: "ghee", label: "🧈 with Ghee/Butter" },
