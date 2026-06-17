@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import { useApp } from "@/lib/AppContext";
 import { DualProgressRing, ProgressSkeleton } from "@/components/ProgressRing";
 import { FoodEntryItem } from "@/components/FoodEntry";
@@ -41,7 +40,6 @@ export default function DashboardPage() {
   const [showUndo, setShowUndo] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [showFabMenu, setShowFabMenu] = useState(false);
 
   const {
     hydrated,
@@ -531,44 +529,16 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* FAB - Mobile */}
+      {/* Scan Meal FAB - Mobile */}
       {isToday(selectedDate) && (
         <div className="fixed bottom-24 right-4 z-40 md:hidden">
-          {showFabMenu && (
-            <div className="absolute bottom-16 right-0 flex flex-col gap-3 items-end animate-fade-in">
-              <button
-                onClick={() => { setShowCamera(true); setShowFabMenu(false); }}
-                className="flex items-center gap-2 bg-[#1DB954] text-white px-4 py-3 shadow-lg shadow-[#1DB954]/25 hover:bg-[#17a94a] transition active:scale-95 rounded-full cursor-pointer"
-              >
-                <span className="text-xs font-bold">Scan Food</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
-                </svg>
-              </button>
-              <Link
-                href="/add"
-                onClick={() => setShowFabMenu(false)}
-                className="flex items-center gap-2 bg-[#2563EB] text-white px-4 py-3 shadow-lg shadow-[#2563EB]/25 hover:bg-[#1D4ED8] transition active:scale-95 rounded-full"
-              >
-                <span className="text-xs font-bold">Add Food</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14" /><path d="M12 5v14" />
-                </svg>
-              </Link>
-            </div>
-          )}
           <button
-            onClick={() => setShowFabMenu(!showFabMenu)}
-            className={`flex h-14 w-14 items-center justify-center text-white shadow-lg transition active:scale-95 rounded-full cursor-pointer ${
-              showFabMenu
-                ? "bg-[#111827] shadow-black/25 rotate-45"
-                : "bg-[#2563EB] shadow-[#2563EB]/25 hover:bg-[#1D4ED8]"
-            }`}
-            aria-label="Add food log item"
+            onClick={() => setShowCamera(true)}
+            className="flex h-14 w-14 items-center justify-center bg-[#1DB954] text-white shadow-lg shadow-[#1DB954]/25 hover:bg-[#17a94a] transition active:scale-95 rounded-full cursor-pointer"
+            aria-label="Scan food with camera"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14" />
-              <path d="M12 5v14" />
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
             </svg>
           </button>
         </div>
@@ -589,14 +559,6 @@ export default function DashboardPage() {
         <FoodCamera
           onLogItem={handleLogScannedItem}
           onClose={() => setShowCamera(false)}
-        />
-      )}
-
-      {/* FAB overlay backdrop */}
-      {showFabMenu && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20"
-          onClick={() => setShowFabMenu(false)}
         />
       )}
     </div>
