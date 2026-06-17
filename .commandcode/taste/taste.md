@@ -30,3 +30,6 @@
 # workflow
 - When modifying the food database, always sync both backend/prisma/foodDatabase.ts and frontend/lib/foodDatabase.ts, then verify with npx tsc --noEmit and duplicate ID detection before seeding. Confidence: 0.75
 
+# manual-logging
+- Manual logging entries use serving mode (whole-item totals), not per-100g grams mode. Calories and protein entered are the absolute values for the entire meal, not per-100g. Confidence: 0.70
+

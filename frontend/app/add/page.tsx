@@ -159,9 +159,9 @@ export default function AddFoodPage() {
     const item: MealBuilderItem = {
       dbItemId: `manual-${Date.now()}`,
       name: finalName,
-      quantity: 100,
-      quantityMode: "grams",
-      displayQty: 100,
+      quantity: 1,
+      quantityMode: "serving",
+      displayQty: 1,
       calories,
       protein,
       carbs: 0,
@@ -296,8 +296,8 @@ export default function AddFoodPage() {
                           <p className="text-xs text-[#6B7280]">{food.caloriesPer100g} kcal · {food.proteinPer100g}g P / 100g</p>
                         </div>
                       </div>
-                      <button onClick={() => deleteCustomFood(food.id)} className="shrink-0 text-[#6B7280] hover:text-[#EF4444] opacity-0 group-hover:opacity-100 transition p-1 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      <button onClick={() => { if (window.confirm(`Delete "${food.name}"?`)) deleteCustomFood(food.id); }} className="shrink-0 text-[#6B7280] hover:text-[#EF4444] hover:bg-red-50 p-1.5 rounded-lg transition cursor-pointer" title="Delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                       </button>
                     </div>
                   ))}
