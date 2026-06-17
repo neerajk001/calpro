@@ -188,4 +188,16 @@ export const apiClient = {
       body: JSON.stringify({ image: base64Image }),
     });
   },
+
+  recordCorrection: (data: {
+    originalName: string;
+    correctedName: string;
+    originalPortionG: number;
+    correctedPortionG: number;
+  }): Promise<{ success: boolean }> => {
+    return request<{ success: boolean }>("/api/scan/correct", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
 };

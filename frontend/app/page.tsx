@@ -6,7 +6,8 @@ import { useApp } from "@/lib/AppContext";
 import { DualProgressRing, ProgressSkeleton } from "@/components/ProgressRing";
 import { FoodEntryItem } from "@/components/FoodEntry";
 import { DoneSummaryModal } from "@/components/DoneSummaryModal";
-import type { FoodTag, FoodEntry } from "@/lib/types";
+import { FoodCamera } from "@/components/FoodCamera";
+import type { FoodTag, FoodEntry, ScanResultItem } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 
 function todayStr(): string {
@@ -39,6 +40,8 @@ export default function DashboardPage() {
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [showUndo, setShowUndo] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [showFabMenu, setShowFabMenu] = useState(false);
 
   const {
     hydrated,
@@ -143,6 +146,21 @@ export default function DashboardPage() {
   const handleQuickAdd = useCallback(
     (name: string, calories: number, protein: number, tag: FoodTag = "snack") => {
       addFood(name, calories, protein, selectedDate, tag);
+    },
+    [addFood, selectedDate],
+  );
+
+  const handleLogScannedItem = useCallback(
+    (item: ScanResultItem) => {
+      addFood(
+        item.name,
+        item.estimatedCalories,
+        item.estimatedProtein,
+        selectedDate,
+        "snack",
+        item.estimatedCarbs,
+        item.estimatedFat,
+      );
     },
     [addFood, selectedDate],
   );
@@ -268,8 +286,23 @@ export default function DashboardPage() {
 
       {/* Header */}
       <div className="mb-6">
-        <p className="text-sm text-[#6B7280] font-semibold tracking-wide uppercase">{greetingTime}</p>
-        <h1 className="text-[32px] font-black tracking-tight text-[#111827] mt-1">{currentGreeting}</h1>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm text-[#6B7280] font-semibold tracking-wide uppercase">{greetingTime}</p>
+            <h1 className="text-[32px] font-black tracking-tight text-[#111827] mt-1">{currentGreeting}</h1>
+          </div>
+          {isToday(selectedDate) && (
+            <button
+              onClick={() => setShowCamera(true)}
+              className="hidden md:flex items-center gap-1.5 bg-[#1DB954] text-white px-3 py-2 text-xs font-bold rounded-xl hover:bg-[#17a94a] transition active:scale-95 shadow-sm cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+              </svg>
+              Scan Meal
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Date selector */}
@@ -501,16 +534,43 @@ export default function DashboardPage() {
       {/* FAB - Mobile */}
       {isToday(selectedDate) && (
         <div className="fixed bottom-24 right-4 z-40 md:hidden">
-          <Link
-            href="/add"
-            className="flex h-14 w-14 items-center justify-center bg-[#2563EB] text-white shadow-lg shadow-[#2563EB]/25 hover:bg-[#1D4ED8] transition active:scale-95 rounded-full"
+          {showFabMenu && (
+            <div className="absolute bottom-16 right-0 flex flex-col gap-3 items-end animate-fade-in">
+              <button
+                onClick={() => { setShowCamera(true); setShowFabMenu(false); }}
+                className="flex items-center gap-2 bg-[#1DB954] text-white px-4 py-3 shadow-lg shadow-[#1DB954]/25 hover:bg-[#17a94a] transition active:scale-95 rounded-full cursor-pointer"
+              >
+                <span className="text-xs font-bold">Scan Food</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+                </svg>
+              </button>
+              <Link
+                href="/add"
+                onClick={() => setShowFabMenu(false)}
+                className="flex items-center gap-2 bg-[#2563EB] text-white px-4 py-3 shadow-lg shadow-[#2563EB]/25 hover:bg-[#1D4ED8] transition active:scale-95 rounded-full"
+              >
+                <span className="text-xs font-bold">Add Food</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14" /><path d="M12 5v14" />
+                </svg>
+              </Link>
+            </div>
+          )}
+          <button
+            onClick={() => setShowFabMenu(!showFabMenu)}
+            className={`flex h-14 w-14 items-center justify-center text-white shadow-lg transition active:scale-95 rounded-full cursor-pointer ${
+              showFabMenu
+                ? "bg-[#111827] shadow-black/25 rotate-45"
+                : "bg-[#2563EB] shadow-[#2563EB]/25 hover:bg-[#1D4ED8]"
+            }`}
             aria-label="Add food log item"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14" />
               <path d="M12 5v14" />
             </svg>
-          </Link>
+          </button>
         </div>
       )}
 
@@ -521,6 +581,22 @@ export default function DashboardPage() {
           onClose={() => setShowSummaryModal(false)}
           summary={summary}
           settings={settings}
+        />
+      )}
+
+      {/* Food Camera */}
+      {showCamera && (
+        <FoodCamera
+          onLogItem={handleLogScannedItem}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
+
+      {/* FAB overlay backdrop */}
+      {showFabMenu && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20"
+          onClick={() => setShowFabMenu(false)}
         />
       )}
     </div>

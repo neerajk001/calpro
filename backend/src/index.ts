@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { prisma } from "./prisma.js";
 import { resolveUserId } from "./auth.js";
-import { scanFoodImage } from "./scan.js";
+import { scanFoodImage, recordCorrection } from "./scan.js";
 
 dotenv.config();
 
@@ -1185,6 +1185,30 @@ app.post("/api/scan", async (req, res) => {
   } catch (error: any) {
     console.error("Scan failed:", error);
     res.status(500).json({ error: error.message || "Internal server error" });
+  }
+});
+
+// 20. POST /api/scan/correct - Record food identification correction
+app.post("/api/scan/correct", async (req, res) => {
+  try {
+    await resolveUserId(req);
+
+    const { originalName, correctedName, originalPortionG, correctedPortionG } = req.body;
+    if (!originalName || !correctedName) {
+      return res.status(400).json({ error: "Missing originalName or correctedName" });
+    }
+
+    await recordCorrection(
+      originalName,
+      correctedName,
+      originalPortionG ?? 100,
+      correctedPortionG ?? 100,
+    );
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Correction recording failed:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

@@ -120,18 +120,24 @@ export interface MealTemplate {
 // ─── AI Food Scanning Types ────────────────────────────────────────────────────
 
 export interface ScanResultItem {
+  id: string;
   name: string;
   caloriesPer100g: number;
   proteinPer100g: number;
   carbsPer100g: number;
   fatPer100g: number;
   estimatedPortionG: number;
+  portionLabel: string;
+  portionUnit: string;
+  portionValue: number;
   estimatedCalories: number;
   estimatedProtein: number;
   estimatedCarbs: number;
   estimatedFat: number;
+  confidence: number;
   source: "database" | "ai_estimated";
   emoji?: string;
+  alternatives: string[];
 }
 
 export interface ScanResponse {
