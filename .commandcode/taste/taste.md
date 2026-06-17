@@ -17,6 +17,13 @@
 # data-integrity
 - Use IFCT (Indian Food Composition Tables) or USDA FoodData Central as authoritative sources for nutritional data; avoid estimates or secondary aggregators. Confidence: 0.75
 
+# error-handling
+- Never expose raw API error text to users — catch server-side, log full error, and always show only a friendly fallback message regardless of underlying error. Confidence: 0.80
+- Add retry logic with exponential backoff (3 retries, ~500ms/1.5s/3s) for transient 503/429 errors from external APIs; do not retry on invalid-request errors. Confidence: 0.75
+
+# api
+- Verify external API model names against latest provider docs before use — avoid hardcoding potentially deprecated model versions. Confidence: 0.70
+
 # workflow
 - When modifying the food database, always sync both backend/prisma/foodDatabase.ts and frontend/lib/foodDatabase.ts, then verify with npx tsc --noEmit and duplicate ID detection before seeding. Confidence: 0.75
 

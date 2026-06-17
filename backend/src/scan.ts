@@ -44,6 +44,42 @@ export interface ScanResultItem {
 
 const CONFIDENCE_THRESHOLD = 0.7;
 
+class UserFacingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UserFacingError";
+  }
+}
+
+function shouldRetry(error: unknown): boolean {
+  const message = String(error);
+  return message.includes("503") || message.includes("Service Unavailable") ||
+         message.includes("429") || message.includes("Too Many Requests") ||
+         message.includes("overloaded") || message.includes("unavailable");
+}
+
+async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
+  const delays = [500, 1500, 3000];
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= delays.length; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (attempt < delays.length && shouldRetry(error)) {
+        console.warn(`[scan] ${label} attempt ${attempt + 1} failed (${String(error).slice(0, 120)}), retrying in ${delays[attempt]}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
+        continue;
+      }
+      break;
+    }
+  }
+
+  console.error(`[scan] ${label} failed after all retries:`, lastError);
+  throw new UserFacingError("The AI service is temporarily unavailable. Please try again in a moment.");
+}
+
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
@@ -62,7 +98,7 @@ function mapGramsToIndianUnit(grams: number): PortionLabel {
 
 async function identifyFoodsFromImage(base64Image: string): Promise<VisionFoodItem[]> {
   const genAI = getGeminiClient();
-  const modelName = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const model = genAI.getGenerativeModel({
     model: modelName,
     generationConfig: { responseMimeType: "application/json" },
@@ -81,14 +117,23 @@ For each item, return this exact JSON shape:
 Return ONLY a JSON array of these objects. If you cannot identify any food items, return [].
 Do not wrap the JSON in markdown code fences.`;
 
-  const result = await model.generateContent([
-    prompt,
-    { inlineData: { mimeType: "image/jpeg", data: base64Image } },
-  ]);
+  const result = await withRetry(
+    () =>
+      model.generateContent([
+        prompt,
+        { inlineData: { mimeType: "image/jpeg", data: base64Image } },
+      ]),
+    "identifyFoodsFromImage",
+  );
 
   const text = result.response.text();
   const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-  return JSON.parse(cleaned) as VisionFoodItem[];
+  const parsed = JSON.parse(cleaned);
+  if (!Array.isArray(parsed)) {
+    console.error("[scan] identifyFoodsFromImage returned non-array:", cleaned);
+    throw new UserFacingError("The AI service returned an unexpected response. Please try again.");
+  }
+  return parsed as VisionFoodItem[];
 }
 
 async function fuzzySearchFood(name: string): Promise<{
@@ -150,7 +195,7 @@ async function getFuzzyAlternatives(name: string): Promise<string[]> {
 
 async function estimateMacrosFromGemini(foodName: string): Promise<MacroEstimate> {
   const genAI = getGeminiClient();
-  const modelName = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const model = genAI.getGenerativeModel({
     model: modelName,
     generationConfig: { responseMimeType: "application/json" },
@@ -164,7 +209,11 @@ Return ONLY a JSON object with these keys (all numbers):
 - fatPer100g (grams)
 Be realistic and conservative in your estimates. Do not wrap in markdown.`;
 
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(
+    () => model.generateContent(prompt),
+    "estimateMacrosFromGemini",
+  );
+
   const text = result.response.text();
   const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
   return JSON.parse(cleaned) as MacroEstimate;
@@ -200,7 +249,7 @@ async function cacheAiFood(
 }
 
 export async function scanFoodImage(base64Image: string): Promise<ScanResultItem[]> {
-  if (!base64Image) throw new Error("No image data provided");
+  if (!base64Image) throw new UserFacingError("No image data provided");
 
   const foods = await identifyFoodsFromImage(base64Image);
   if (!Array.isArray(foods) || foods.length === 0) return [];
@@ -227,10 +276,23 @@ export async function scanFoodImage(base64Image: string): Promise<ScanResultItem
       emoji = dbMatch.emoji ?? undefined;
       confidence = Math.max(confidence, dbMatch.similarity);
     } else {
-      macros = await estimateMacrosFromGemini(item.name);
-      const cached = await cacheAiFood(item.name, macros);
-      source = "ai_estimated";
-      emoji = cached.emoji ?? undefined;
+      try {
+        macros = await estimateMacrosFromGemini(item.name);
+        const cached = await cacheAiFood(item.name, macros);
+        source = "ai_estimated";
+        emoji = cached.emoji ?? undefined;
+      } catch (err) {
+        console.error(`[scan] Macro estimation failed for "${item.name}":`, err);
+        macros = {
+          caloriesPer100g: 150,
+          proteinPer100g: 5,
+          carbsPer100g: 20,
+          fatPer100g: 5,
+        };
+        source = "ai_estimated";
+        emoji = "🤖";
+        confidence = 0.3;
+      }
     }
 
     if (confidence < CONFIDENCE_THRESHOLD && alternatives.length === 0) {

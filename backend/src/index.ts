@@ -1184,7 +1184,11 @@ app.post("/api/scan", async (req, res) => {
     res.json({ items: results });
   } catch (error: any) {
     console.error("Scan failed:", error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    const message =
+      error?.name === "UserFacingError"
+        ? error.message
+        : "We couldn't analyze your photo. Make sure the food is clearly visible and try again.";
+    res.status(500).json({ error: message });
   }
 });
 

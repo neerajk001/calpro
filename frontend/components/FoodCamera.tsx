@@ -96,7 +96,10 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
           setState("results");
           setTimeout(() => resultsScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }), 100);
         }).catch((err) => {
-          setError(err.message || "Failed to scan. Please try again.");
+          const msg = typeof err?.message === "string" && err.message.length < 200
+            ? err.message
+            : "We couldn't analyze your photo. Make sure the food is clearly visible and try again.";
+          setError(msg);
           setState("results");
         });
       });
