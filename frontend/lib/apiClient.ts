@@ -1,4 +1,4 @@
-import type { FoodEntry, UserSettings, FoodDbItem, MealTemplate, MealTemplateItem, WaterLog } from "./types";
+import type { FoodEntry, UserSettings, FoodDbItem, MealTemplate, MealTemplateItem, WaterLog, ScanResponse } from "./types";
 import { getAuthHeaders, clearAuthToken } from "./authStore";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
@@ -178,6 +178,14 @@ export const apiClient = {
     return request<{ merged: boolean; reason?: string }>("/api/auth/claim", {
       method: "POST",
       body: JSON.stringify({ deviceId }),
+    });
+  },
+
+  // AI Food Scanning
+  scanFoodImage: (base64Image: string): Promise<ScanResponse> => {
+    return request<ScanResponse>("/api/scan", {
+      method: "POST",
+      body: JSON.stringify({ image: base64Image }),
     });
   },
 };

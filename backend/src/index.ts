@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { prisma } from "./prisma.js";
 import { resolveUserId } from "./auth.js";
+import { scanFoodImage } from "./scan.js";
 
 dotenv.config();
 
@@ -1166,6 +1167,24 @@ app.post("/api/auth/claim", async (req, res) => {
   } catch (error) {
     console.error("Error claiming anonymous data:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// 19. POST /api/scan - AI food photo scanning
+app.post("/api/scan", async (req, res) => {
+  try {
+    await resolveUserId(req);
+
+    const { image } = req.body;
+    if (!image || typeof image !== "string") {
+      return res.status(400).json({ error: "Missing or invalid 'image' field. Provide a base64-encoded JPEG string." });
+    }
+
+    const results = await scanFoodImage(image);
+    res.json({ items: results });
+  } catch (error: any) {
+    console.error("Scan failed:", error);
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 });
 

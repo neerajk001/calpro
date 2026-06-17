@@ -116,3 +116,24 @@ export interface MealTemplate {
   items: MealTemplateItem[];
   createdAt: number; // Unix timestamp ms
 }
+
+// ─── AI Food Scanning Types ────────────────────────────────────────────────────
+
+export interface ScanResultItem {
+  name: string;
+  caloriesPer100g: number;
+  proteinPer100g: number;
+  carbsPer100g: number;
+  fatPer100g: number;
+  estimatedPortionG: number;
+  estimatedCalories: number;
+  estimatedProtein: number;
+  estimatedCarbs: number;
+  estimatedFat: number;
+  source: "database" | "ai_estimated";
+  emoji?: string;
+}
+
+export interface ScanResponse {
+  items: ScanResultItem[];
+}
