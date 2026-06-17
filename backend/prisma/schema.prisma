@@ -85,6 +85,14 @@ model CustomFood {
   @@index([userId])
 }
 
+enum FoodSource {
+  IFCT
+  USDA
+  OFF
+  VERIFIED_USER
+  AI_GENERATED
+}
+
 model Food {
   id              String       @id @default(cuid())
   name            String
@@ -99,10 +107,67 @@ model Food {
   mlPerServing    Float?
   emoji           String?
   barcode         String?      @unique
-
+  source          FoodSource   @default(IFCT)
+  sourceRef       String?
   createdAt       DateTime     @default(now())
+  aliases         FoodAlias[]
+  portions        FoodPortion[]
+  scanFeedbacks   ScanFeedback[]
 
   @@index([name])
+}
+
+model FoodAlias {
+  id        String         @id @default(cuid())
+  foodId    String
+  food      Food           @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  alias     String
+  language  String         @default("en")
+  region    String?
+
+  @@index([alias])
+  @@unique([foodId, alias])
+}
+
+model FoodPortion {
+  id        String         @id @default(cuid())
+  foodId    String
+  food      Food           @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  label     String
+  unit      String
+  grams     Float
+  sortOrder Int            @default(0)
+  isDefault Boolean        @default(false)
+
+  @@index([foodId])
+}
+
+model ScanCache {
+  id        String   @id @default(cuid())
+  imageHash String   @unique
+  result    Json
+  hitCount  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([imageHash])
+}
+
+model ScanFeedback {
+  id              String          @id @default(cuid())
+  userId          String
+  foodId          String?
+  food            Food?           @relation(fields: [foodId], references: [id], onDelete: SetNull)
+  originalName    String
+  correctedName   String
+  originalGrams   Float
+  correctedGrams  Float
+  applied         Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+
+  @@index([userId])
+  @@index([originalName])
+  @@index([correctedName])
 }
 
 model MealTemplate {                  // Roadmap 3.3 "My Meals"

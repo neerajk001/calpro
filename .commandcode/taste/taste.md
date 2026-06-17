@@ -21,6 +21,9 @@
 - Never expose raw API error text to users — catch server-side, log full error, and always show only a friendly fallback message regardless of underlying error. Confidence: 0.80
 - Add retry logic with exponential backoff (3 retries, ~500ms/1.5s/3s) for transient 503/429 errors from external APIs; do not retry on invalid-request errors. Confidence: 0.75
 
+# architecture
+- Gemini (or any LLM) must only classify/detect foods and estimate portions from images — never calculate calories, macros, or nutrition values. All nutrition data must come from a verified database (IFCT/USDA). Confidence: 0.85
+
 # api
 - Verify external API model names against latest provider docs before use — avoid hardcoding potentially deprecated model versions. Confidence: 0.70
 

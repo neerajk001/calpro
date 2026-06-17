@@ -142,6 +142,7 @@ export interface ScanResultItem {
   estimatedFat: number;
   confidence: number;
   source: "database" | "ai_estimated";
+  sourceRef?: string;
   emoji?: string;
   alternatives: string[];
 }

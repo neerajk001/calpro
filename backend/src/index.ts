@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { prisma } from "./prisma.js";
 import { resolveUserId } from "./auth.js";
-import { scanFoodImage, recordCorrection } from "./scan.js";
+import { scanFoodImage, UserFacingError } from "./scan/orchestrator.js";
+import { recordCorrection } from "./scan/feedback.js";
 
 dotenv.config();
 
@@ -1185,7 +1186,7 @@ app.post("/api/scan", async (req, res) => {
   } catch (error: any) {
     console.error("Scan failed:", error);
     const message =
-      error?.name === "UserFacingError"
+      error instanceof UserFacingError
         ? error.message
         : "We couldn't analyze your photo. Make sure the food is clearly visible and try again.";
     res.status(500).json({ error: message });
@@ -1195,7 +1196,7 @@ app.post("/api/scan", async (req, res) => {
 // 20. POST /api/scan/correct - Record food identification correction
 app.post("/api/scan/correct", async (req, res) => {
   try {
-    await resolveUserId(req);
+    const userId = await resolveUserId(req);
 
     const { originalName, correctedName, originalPortionG, correctedPortionG } = req.body;
     if (!originalName || !correctedName) {
@@ -1203,6 +1204,7 @@ app.post("/api/scan/correct", async (req, res) => {
     }
 
     await recordCorrection(
+      userId,
       originalName,
       correctedName,
       originalPortionG ?? 100,
