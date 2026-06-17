@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface VisionFoodItem {
   name: string;
-  estimatedPortionG: number;
+  portionType: string;
   confidence: number;
   alternatives: string[];
 }
@@ -15,10 +15,9 @@ interface MacroEstimate {
   fatPer100g: number;
 }
 
-interface PortionLabel {
-  unit: string;
-  value: number;
+export interface PortionPreset {
   label: string;
+  grams: number;
 }
 
 export interface ScanResultItem {
@@ -28,10 +27,9 @@ export interface ScanResultItem {
   proteinPer100g: number;
   carbsPer100g: number;
   fatPer100g: number;
-  estimatedPortionG: number;
-  portionLabel: string;
-  portionUnit: string;
-  portionValue: number;
+  portionType: string;
+  portionPresets: PortionPreset[];
+  defaultGrams: number;
   estimatedCalories: number;
   estimatedProtein: number;
   estimatedCarbs: number;
@@ -43,6 +41,77 @@ export interface ScanResultItem {
 }
 
 const CONFIDENCE_THRESHOLD = 0.7;
+
+function buildPortionPresets(foodName: string, portionType: string): { presets: PortionPreset[]; defaultGrams: number } {
+  const lower = foodName.toLowerCase();
+  const t = portionType || "";
+
+  if (t === "piece" || lower.includes("roti") || lower.includes("chapati") || lower.includes("naan") ||
+      lower.includes("paratha") || lower.includes("bread") || lower.includes("egg") ||
+      lower.includes("idli") || lower.includes("dosa") || lower.includes("samosa") ||
+      lower.includes("pakora") || lower.includes("vada") || lower.includes("paneer") && lower.includes("tikka")) {
+    return {
+      presets: [
+        { label: "1 piece (60g)", grams: 60 },
+        { label: "2 pieces (120g)", grams: 120 },
+        { label: "3 pieces (180g)", grams: 180 },
+        { label: "4 pieces (240g)", grams: 240 },
+      ],
+      defaultGrams: 60,
+    };
+  }
+
+  if (t === "bowl" || lower.includes("dal") || lower.includes("curry") || lower.includes("sabzi") ||
+      lower.includes("paneer") || lower.includes("chicken") && lower.includes("curry") ||
+      lower.includes("raita") || lower.includes("chutney") || lower.includes("soup") ||
+      lower.includes("sambhar") || lower.includes("rasam")) {
+    return {
+      presets: [
+        { label: "½ katori (75g)", grams: 75 },
+        { label: "1 katori (150g)", grams: 150 },
+        { label: "1.5 katori (225g)", grams: 225 },
+        { label: "2 katori (300g)", grams: 300 },
+      ],
+      defaultGrams: 150,
+    };
+  }
+
+  if (t === "glass" || lower.includes("lassi") || lower.includes("milk") || lower.includes("juice") ||
+      lower.includes("shake") || lower.includes("drink") || lower.includes("tea") ||
+      lower.includes("coffee") || lower.includes("buttermilk") || lower.includes("chaas")) {
+    return {
+      presets: [
+        { label: "½ glass (125ml)", grams: 125 },
+        { label: "1 glass (250ml)", grams: 250 },
+        { label: "2 glasses (500ml)", grams: 500 },
+      ],
+      defaultGrams: 250,
+    };
+  }
+
+  if (t === "plate" || lower.includes("rice") || lower.includes("biryani") || lower.includes("pulao") ||
+      lower.includes("khichdi") || lower.includes("pasta") || lower.includes("noodles") ||
+      lower.includes("fried rice")) {
+    return {
+      presets: [
+        { label: "½ plate (150g)", grams: 150 },
+        { label: "1 plate (300g)", grams: 300 },
+        { label: "1.5 plate (450g)", grams: 450 },
+        { label: "2 plates (600g)", grams: 600 },
+      ],
+      defaultGrams: 300,
+    };
+  }
+
+  return {
+    presets: [
+      { label: "Small (100g)", grams: 100 },
+      { label: "Medium (200g)", grams: 200 },
+      { label: "Large (350g)", grams: 350 },
+    ],
+    defaultGrams: 200,
+  };
+}
 
 class UserFacingError extends Error {
   constructor(message: string) {
@@ -86,16 +155,6 @@ function getGeminiClient() {
   return new GoogleGenerativeAI(apiKey);
 }
 
-function mapGramsToIndianUnit(grams: number): PortionLabel {
-  if (grams <= 0) return { unit: "grams", value: grams, label: `${grams}g` };
-  if (grams < 60) return { unit: "small bowl", value: 1, label: `1 small bowl (${grams}g)` };
-  if (grams <= 200) return { unit: "katori", value: 1, label: `1 katori (${grams}g)` };
-  if (grams <= 350) return { unit: "plate", value: 1, label: `1 plate (${grams}g)` };
-  if (grams <= 600) return { unit: "full plate", value: 1, label: `1 full plate (${grams}g)` };
-  const plates = Math.round(grams / 300);
-  return { unit: "plates", value: plates, label: `${plates} plates (${grams}g)` };
-}
-
 async function identifyFoodsFromImage(base64Image: string): Promise<VisionFoodItem[]> {
   const genAI = getGeminiClient();
   const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -104,18 +163,24 @@ async function identifyFoodsFromImage(base64Image: string): Promise<VisionFoodIt
     generationConfig: { responseMimeType: "application/json" },
   });
 
-  const prompt = `Analyze this food photo and identify all visible food items with Indian cuisine knowledge where applicable.
+  const prompt = `Analyze this food photo and identify all visible food items with Indian cuisine knowledge.
 
 For each item, return this exact JSON shape:
 {
-  "name": "string (specific name, e.g. 'Dal Tadka' not just 'dal')",
-  "estimatedPortionG": number (grams),
-  "confidence": number (0.0 to 1.0, how sure you are about this identification),
-  "alternatives": string[] (2-3 alternative food names if confidence < 0.8, otherwise empty array)
+  "name": "string (specific name, e.g. 'Dal Tadka' not just 'dal', 'Tandoori Roti' not just 'roti')",
+  "portionType": "piece" | "bowl" | "plate" | "glass" | "grams",
+  "confidence": number (0.0 to 1.0),
+  "alternatives": string[] (2-3 alternatives if unsure, otherwise [])
 }
 
-Return ONLY a JSON array of these objects. If you cannot identify any food items, return [].
-Do not wrap the JSON in markdown code fences.`;
+portionType rules:
+- "piece" for breads (roti, naan, paratha), eggs, idli, dosa, samosa, pakora, kebabs, tikka
+- "bowl" for dals, curries, sabzis, raita, soups, sambhar, chutneys
+- "plate" for rice, biryani, pulao, khichdi, pasta, noodles
+- "glass" for drinks, lassi, milk, shakes, juice, tea, coffee
+- "grams" for anything else
+
+Return ONLY a JSON array. If no food detected, return []. No markdown wrapping.`;
 
   const result = await withRetry(
     () =>
@@ -201,13 +266,9 @@ async function estimateMacrosFromGemini(foodName: string): Promise<MacroEstimate
     generationConfig: { responseMimeType: "application/json" },
   });
 
-  const prompt = `Estimate the nutritional content per 100g for "${foodName}".
-Return ONLY a JSON object with these keys (all numbers):
-- caloriesPer100g (kcal)
-- proteinPer100g (grams)
-- carbsPer100g (grams)
-- fatPer100g (grams)
-Be realistic and conservative in your estimates. Do not wrap in markdown.`;
+  const prompt = `Estimate nutritional content per 100g for "${foodName}".
+Return ONLY JSON: { "caloriesPer100g": number, "proteinPer100g": number, "carbsPer100g": number, "fatPer100g": number }
+Be conservative and realistic. No markdown wrapping.`;
 
   const result = await withRetry(
     () => model.generateContent(prompt),
@@ -283,12 +344,7 @@ export async function scanFoodImage(base64Image: string): Promise<ScanResultItem
         emoji = cached.emoji ?? undefined;
       } catch (err) {
         console.error(`[scan] Macro estimation failed for "${item.name}":`, err);
-        macros = {
-          caloriesPer100g: 150,
-          proteinPer100g: 5,
-          carbsPer100g: 20,
-          fatPer100g: 5,
-        };
+        macros = { caloriesPer100g: 150, proteinPer100g: 5, carbsPer100g: 20, fatPer100g: 5 };
         source = "ai_estimated";
         emoji = "🤖";
         confidence = 0.3;
@@ -302,9 +358,8 @@ export async function scanFoodImage(base64Image: string): Promise<ScanResultItem
       } catch {}
     }
 
-    const portion = item.estimatedPortionG || 100;
-    const factor = portion / 100;
-    const portionLabel = mapGramsToIndianUnit(portion);
+    const { presets, defaultGrams } = buildPortionPresets(item.name, item.portionType);
+    const factor = defaultGrams / 100;
 
     results.push({
       id: `scan-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
@@ -313,10 +368,9 @@ export async function scanFoodImage(base64Image: string): Promise<ScanResultItem
       proteinPer100g: macros.proteinPer100g,
       carbsPer100g: macros.carbsPer100g,
       fatPer100g: macros.fatPer100g,
-      estimatedPortionG: portion,
-      portionLabel: portionLabel.label,
-      portionUnit: portionLabel.unit,
-      portionValue: portionLabel.value,
+      portionType: item.portionType || "grams",
+      portionPresets: presets,
+      defaultGrams,
       estimatedCalories: Math.round(macros.caloriesPer100g * factor),
       estimatedProtein: Math.round(macros.proteinPer100g * factor * 10) / 10,
       estimatedCarbs: Math.round(macros.carbsPer100g * factor * 10) / 10,

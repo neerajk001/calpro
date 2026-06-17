@@ -119,6 +119,11 @@ export interface MealTemplate {
 
 // ─── AI Food Scanning Types ────────────────────────────────────────────────────
 
+export interface PortionPreset {
+  label: string;
+  grams: number;
+}
+
 export interface ScanResultItem {
   id: string;
   name: string;
@@ -126,10 +131,9 @@ export interface ScanResultItem {
   proteinPer100g: number;
   carbsPer100g: number;
   fatPer100g: number;
-  estimatedPortionG: number;
-  portionLabel: string;
-  portionUnit: string;
-  portionValue: number;
+  portionType: string;
+  portionPresets: PortionPreset[];
+  defaultGrams: number;
   estimatedCalories: number;
   estimatedProtein: number;
   estimatedCarbs: number;

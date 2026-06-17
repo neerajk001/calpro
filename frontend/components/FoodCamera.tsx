@@ -34,12 +34,65 @@ function compressImage(dataUrl: string): Promise<string> {
   });
 }
 
-function mapGramsToUnitGrams(unit: string): number {
-  if (unit === "small bowl") return 50;
-  if (unit === "katori") return 150;
-  if (unit === "plate") return 300;
-  if (unit === "full plate" || unit === "plates") return 450;
-  return 100;
+function rebuildPresets(foodName: string): { label: string; grams: number }[] {
+  const lower = foodName.toLowerCase();
+  if (lower.includes("roti") || lower.includes("chapati") || lower.includes("naan") ||
+      lower.includes("paratha") || lower.includes("egg") || lower.includes("idli") ||
+      lower.includes("dosa") || lower.includes("samosa") || lower.includes("pakora") ||
+      lower.includes("vada") || lower.includes("tikka") || lower.includes("bread") ||
+      lower.includes("kebab")) {
+    return [
+      { label: "1 piece (60g)", grams: 60 },
+      { label: "2 pieces (120g)", grams: 120 },
+      { label: "3 pieces (180g)", grams: 180 },
+      { label: "4 pieces (240g)", grams: 240 },
+    ];
+  }
+  if (lower.includes("dal") || lower.includes("curry") || lower.includes("sabzi") ||
+      lower.includes("paneer") || lower.includes("raita") || lower.includes("chutney") ||
+      lower.includes("soup") || lower.includes("sambhar") || lower.includes("rasam") ||
+      lower.includes("gravy")) {
+    return [
+      { label: "½ katori (75g)", grams: 75 },
+      { label: "1 katori (150g)", grams: 150 },
+      { label: "1.5 katori (225g)", grams: 225 },
+      { label: "2 katori (300g)", grams: 300 },
+    ];
+  }
+  if (lower.includes("rice") || lower.includes("biryani") || lower.includes("pulao") ||
+      lower.includes("khichdi") || lower.includes("pasta") || lower.includes("noodles") ||
+      lower.includes("fried rice")) {
+    return [
+      { label: "½ plate (150g)", grams: 150 },
+      { label: "1 plate (300g)", grams: 300 },
+      { label: "1.5 plate (450g)", grams: 450 },
+      { label: "2 plates (600g)", grams: 600 },
+    ];
+  }
+  if (lower.includes("lassi") || lower.includes("milk") || lower.includes("juice") ||
+      lower.includes("shake") || lower.includes("tea") || lower.includes("coffee") ||
+      lower.includes("drink") || lower.includes("buttermilk") || lower.includes("chaas")) {
+    return [
+      { label: "½ glass (125ml)", grams: 125 },
+      { label: "1 glass (250ml)", grams: 250 },
+      { label: "2 glasses (500ml)", grams: 500 },
+    ];
+  }
+  return [
+    { label: "Small (100g)", grams: 100 },
+    { label: "Medium (200g)", grams: 200 },
+    { label: "Large (350g)", grams: 350 },
+  ];
+}
+
+function calcMacros(item: ScanResultItem, grams: number) {
+  const factor = grams / 100;
+  return {
+    calories: Math.round(item.caloriesPer100g * factor),
+    protein: Math.round(item.proteinPer100g * factor * 10) / 10,
+    carbs: Math.round(item.carbsPer100g * factor * 10) / 10,
+    fat: Math.round(item.fatPer100g * factor * 10) / 10,
+  };
 }
 
 export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
@@ -53,12 +106,11 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
   const [torchOn, setTorchOn] = useState(false);
   const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
   const [results, setResults] = useState<ScanResultItem[]>([]);
-  const [resultsMessage, setResultsMessage] = useState<string>("");
+  const [selectedGrams, setSelectedGrams] = useState<Record<string, number>>({});
   const [loggedIds, setLoggedIds] = useState<Set<string>>(new Set());
   const [allLogged, setAllLogged] = useState(false);
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [editingPortionItemId, setEditingPortionItemId] = useState<string | null>(null);
   const [editNameQuery, setEditNameQuery] = useState("");
   const [editNameResults, setEditNameResults] = useState<FoodDbItem[]>([]);
   const [editNameLoading, setEditNameLoading] = useState(false);
@@ -92,7 +144,9 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
         if (!base64) return;
         apiClient.scanFoodImage(base64).then((res) => {
           setResults(res.items);
-          setResultsMessage(res.items.length === 0 ? "No food items detected." : "");
+          const gramMap: Record<string, number> = {};
+          res.items.forEach((item) => { gramMap[item.id] = item.defaultGrams; });
+          setSelectedGrams(gramMap);
           setState("results");
           setTimeout(() => resultsScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }), 100);
         }).catch((err) => {
@@ -157,52 +211,33 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
   const confirmCapture = () => { setState("loading"); };
   const retryAfterError = () => { setError(null); retake(); };
 
-  const recalculateItem = (item: ScanResultItem, newPortionG: number): ScanResultItem => {
-    const factor = newPortionG / 100;
-    const portionStr = formatPortionLabel(newPortionG);
-    return {
-      ...item,
-      estimatedPortionG: newPortionG,
-      portionLabel: portionStr.label,
-      portionUnit: portionStr.unit,
-      portionValue: portionStr.value,
-      estimatedCalories: Math.round(item.caloriesPer100g * factor),
-      estimatedProtein: Math.round(item.proteinPer100g * factor * 10) / 10,
-      estimatedCarbs: Math.round(item.carbsPer100g * factor * 10) / 10,
-      estimatedFat: Math.round(item.fatPer100g * factor * 10) / 10,
-    };
-  };
-
-  const handlePortionChange = (itemId: string, delta: number) => {
-    setResults((prev) => prev.map((r) => {
-      if (r.id !== itemId) return r;
-      const unitGrams = mapGramsToUnitGrams(r.portionUnit);
-      const currentUnits = r.estimatedPortionG / unitGrams;
-      const newUnits = Math.max(0.5, Math.round((currentUnits + delta) * 2) / 2);
-      return recalculateItem(r, Math.round(newUnits * unitGrams));
-    }));
+  const setGrams = (itemId: string, grams: number) => {
+    setSelectedGrams((prev) => ({ ...prev, [itemId]: grams }));
   };
 
   const swapFoodName = (itemId: string, newFood: FoodDbItem) => {
-    setResults((prev) => {
-      const oldItem = prev.find((r) => r.id === itemId);
-      return prev.map((r) => {
+    setResults((prev) =>
+      prev.map((r) => {
         if (r.id !== itemId) return r;
-        const updated: ScanResultItem = {
+        const newPresets = rebuildPresets(newFood.name);
+        const newDefault = newPresets[0]?.grams ?? 60;
+        setGrams(itemId, newDefault);
+        return {
           ...r,
           name: newFood.name,
           caloriesPer100g: newFood.caloriesPer100g,
           proteinPer100g: newFood.proteinPer100g,
           carbsPer100g: newFood.carbsPer100g,
           fatPer100g: newFood.fatPer100g,
+          portionPresets: newPresets,
+          defaultGrams: newDefault,
           confidence: 1,
-          source: "database",
+          source: "database" as const,
           emoji: newFood.emoji,
           alternatives: [],
         };
-        return recalculateItem(updated, r.estimatedPortionG);
-      });
-    });
+      }),
+    );
     setEditingItemId(null);
     setEditNameQuery("");
 
@@ -211,30 +246,26 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
       apiClient.recordCorrection({
         originalName: oldItem.name,
         correctedName: newFood.name,
-        originalPortionG: oldItem.estimatedPortionG,
-        correctedPortionG: oldItem.estimatedPortionG,
+        originalPortionG: selectedGrams[itemId] ?? oldItem.defaultGrams,
+        correctedPortionG: newFood.defaultQty,
       }).catch(() => {});
-    }
-
-    const oldItem2 = results.find((r) => r.id === itemId);
-    if (oldItem2) {
-      const unitGrams = mapGramsToUnitGrams(oldItem2.portionUnit);
-      const newFoodUnitGrams = mapGramsToUnitGrams("katori");
-      if (unitGrams !== newFoodUnitGrams) {
-        Math.round(oldItem2.estimatedPortionG);
-      }
-      setEditingPortionItemId(null);
     }
   };
 
   const handleLogSingle = (item: ScanResultItem) => {
-    onLogItem(item);
+    const grams = selectedGrams[item.id] ?? item.defaultGrams;
+    const m = calcMacros(item, grams);
+    onLogItem({ ...item, estimatedCalories: m.calories, estimatedProtein: m.protein, estimatedCarbs: m.carbs, estimatedFat: m.fat });
     setLoggedIds((prev) => new Set(prev).add(item.id));
   };
 
   const handleLogAll = () => {
     const remaining = results.filter((r) => !loggedIds.has(r.id));
-    remaining.forEach((item) => onLogItem(item));
+    remaining.forEach((item) => {
+      const grams = selectedGrams[item.id] ?? item.defaultGrams;
+      const m = calcMacros(item, grams);
+      onLogItem({ ...item, estimatedCalories: m.calories, estimatedProtein: m.protein, estimatedCarbs: m.carbs, estimatedFat: m.fat });
+    });
     setLoggedIds((prev) => {
       const next = new Set(prev);
       remaining.forEach((r) => next.add(r.id));
@@ -252,7 +283,6 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
         <canvas ref={canvasRef} className="hidden" />
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFilePick} className="hidden" />
 
-        {/* Camera Viewfinder */}
         {state === "camera" && (
           <>
             <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-12 pb-4 bg-gradient-to-b from-black/60 to-transparent">
@@ -265,23 +295,18 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                 </button>
               </div>
             </div>
-
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-            
-            {error && (
+            {error ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 p-8 text-center z-20">
                 <span className="text-4xl mb-4">📷</span>
                 <p className="text-sm text-white font-medium mb-2">{error}</p>
                 <button onClick={retryAfterError} className="px-5 py-2.5 bg-[#1DB954] text-white text-sm font-bold rounded-xl cursor-pointer">Try Again</button>
               </div>
-            )}
-
-            {!error && (
+            ) : (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-64 h-64 border-2 border-white/20 rounded-3xl" />
               </div>
             )}
-
             <div className="absolute bottom-0 left-0 right-0 z-10 pb-10 pt-16 bg-gradient-to-t from-black/70 to-transparent">
               <div className="flex items-center justify-center gap-12">
                 <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 flex items-center justify-center bg-black/30 rounded-full text-white hover:bg-black/50 transition cursor-pointer">
@@ -296,7 +321,6 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
           </>
         )}
 
-        {/* Preview */}
         {state === "preview" && capturedDataUrl && (
           <>
             <img src={capturedDataUrl} alt="Preview" className="w-full h-full object-cover" />
@@ -313,7 +337,6 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
           </>
         )}
 
-        {/* Loading */}
         {state === "loading" && (
           <div className="flex-1 flex flex-col items-center justify-center space-y-5 px-8">
             <div className="w-16 h-16 border-4 border-[#1DB954]/30 border-t-[#1DB954] rounded-full animate-spin" />
@@ -322,7 +345,6 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
           </div>
         )}
 
-        {/* Results Screen */}
         {state === "results" && (
           <>
             <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-12 pb-4 bg-gradient-to-b from-black/80 to-transparent">
@@ -360,6 +382,8 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                   {results.map((item) => {
                     const isLow = lowConfidence(item);
                     const isEditingName = editingItemId === item.id;
+                    const grams = selectedGrams[item.id] ?? item.defaultGrams;
+                    const m = calcMacros(item, grams);
 
                     return (
                       <div
@@ -368,8 +392,7 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                           isLow ? "border-[#F59E0B]/30 bg-[#1e1a10]" : "border-white/10 bg-[#1a1a1a]"
                         }`}
                       >
-                        {/* Headline + Confidence Badge */}
-                        <div className="p-4 pb-2">
+                        <div className="p-4 pb-0">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
                               {isLow && (
@@ -423,10 +446,10 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                                       {item.name}
                                     </h3>
                                     {item.source === "database" && (
-                                      <span className="shrink-0 px-2 py-0.5 bg-[#1DB954]/20 text-[#1DB954] text-[10px] font-bold rounded-full">✓ Verified</span>
+                                      <span className="shrink-0 px-2 py-0.5 bg-[#1DB954]/20 text-[#1DB954] text-[10px] font-bold rounded-full">✓</span>
                                     )}
                                     {item.source === "ai_estimated" && (
-                                      <span className="shrink-0 px-2 py-0.5 bg-[#3B82F6]/20 text-[#3B82F6] text-[10px] font-bold rounded-full">⚡ AI</span>
+                                      <span className="shrink-0 px-2 py-0.5 bg-[#3B82F6]/20 text-[#3B82F6] text-[10px] font-bold rounded-full">⚡AI</span>
                                     )}
                                   </>
                                 )}
@@ -434,38 +457,47 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                             </div>
                           </div>
 
-                          {/* Portion display */}
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-sm text-zinc-400">{item.portionLabel}</span>
-                            <button
-                              onClick={() => handlePortionChange(item.id, -0.5)}
-                              className="w-6 h-6 flex items-center justify-center bg-zinc-800 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-700 transition cursor-pointer text-xs"
-                            >−</button>
-                            <button
-                              onClick={() => handlePortionChange(item.id, 0.5)}
-                              className="w-6 h-6 flex items-center justify-center bg-zinc-800 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-700 transition cursor-pointer text-xs"
-                            >+</button>
+                          {/* Portion Picker — the key UX improvement */}
+                          <div className="mt-3">
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-2">How much?</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {item.portionPresets.map((preset) => {
+                                const active = grams === preset.grams;
+                                return (
+                                  <button
+                                    key={preset.label}
+                                    onClick={() => setGrams(item.id, preset.grams)}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer ${
+                                      active
+                                        ? "bg-[#1DB954] text-white shadow-sm"
+                                        : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700"
+                                    }`}
+                                  >
+                                    {preset.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
 
                           {/* Big calorie number */}
-                          <p className="text-4xl font-black text-white mt-3 tabular-nums">
-                            {item.estimatedCalories}
+                          <p className="text-4xl font-black text-white mt-4 tabular-nums">
+                            {m.calories}
                             <span className="text-lg font-semibold text-zinc-500 ml-1">kcal</span>
                           </p>
 
                           {/* Macro row */}
                           <div className="flex gap-3 mt-2">
-                            <span className="text-xs text-[#3B82F6] font-bold">{item.estimatedProtein}g protein</span>
+                            <span className="text-xs text-[#3B82F6] font-bold">{m.protein}g protein</span>
                             <span className="text-xs text-zinc-500">·</span>
-                            <span className="text-xs text-[#F59E0B] font-bold">{item.estimatedCarbs}g carbs</span>
+                            <span className="text-xs text-[#F59E0B] font-bold">{m.carbs}g carbs</span>
                             <span className="text-xs text-zinc-500">·</span>
-                            <span className="text-xs text-[#EF4444] font-bold">{item.estimatedFat}g fat</span>
+                            <span className="text-xs text-[#EF4444] font-bold">{m.fat}g fat</span>
                           </div>
                         </div>
 
-                        {/* Low confidence alternatives */}
                         {isLow && item.alternatives.length > 0 && (
-                          <div className="border-t border-[#F59E0B]/10 bg-[#2a2410] px-4 py-3">
+                          <div className="border-t border-[#F59E0B]/10 bg-[#2a2410] px-4 py-3 mt-3">
                             <p className="text-[11px] text-[#F59E0B] font-semibold mb-2">Did you mean...</p>
                             <div className="flex flex-wrap gap-2">
                               {item.alternatives.map((alt) => (
@@ -491,9 +523,8 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                           </div>
                         )}
 
-                        {/* Log single button */}
-                        {!loggedIds.has(item.id) && (
-                          <div className="px-4 pb-4 pt-2">
+                        {!loggedIds.has(item.id) ? (
+                          <div className="px-4 pb-4 pt-3">
                             <button
                               onClick={() => handleLogSingle(item)}
                               className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-white text-sm font-bold rounded-xl border border-white/10 transition active:scale-[0.99] cursor-pointer"
@@ -501,9 +532,8 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
                               Log Just This
                             </button>
                           </div>
-                        )}
-                        {loggedIds.has(item.id) && (
-                          <div className="px-4 pb-4 pt-1 flex items-center gap-2">
+                        ) : (
+                          <div className="px-4 pb-4 pt-3 flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1DB954" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             <span className="text-[#1DB954] text-xs font-bold">Logged</span>
                           </div>
@@ -515,8 +545,7 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
               )}
             </div>
 
-            {/* Bottom bar: Log All */}
-            {results.length > 0 && !error && (results.some((r) => !loggedIds.has(r.id))) && (
+            {results.length > 0 && !error && results.some((r) => !loggedIds.has(r.id)) && (
               <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-10 pt-4 bg-gradient-to-t from-black via-black/95 to-transparent">
                 <button
                   onClick={handleLogAll}
@@ -527,7 +556,6 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
               </div>
             )}
 
-            {/* Success state */}
             {allLogged && (
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90">
                 <div className="w-20 h-20 rounded-full bg-[#1DB954] flex items-center justify-center animate-bounce">
@@ -541,14 +569,4 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
       </div>
     </div>
   );
-}
-
-function formatPortionLabel(grams: number): { unit: string; value: number; label: string } {
-  if (grams <= 0) return { unit: "grams", value: grams, label: `${grams}g` };
-  if (grams < 60) return { unit: "small bowl", value: 1, label: `1 small bowl (${grams}g)` };
-  if (grams <= 200) return { unit: "katori", value: 1, label: `1 katori (${grams}g)` };
-  if (grams <= 350) return { unit: "plate", value: 1, label: `1 plate (${grams}g)` };
-  if (grams <= 600) return { unit: "full plate", value: 1, label: `1 full plate (${grams}g)` };
-  const plates = Math.round(grams / 300);
-  return { unit: "plates", value: plates, label: `${plates} plates (${grams}g)` };
 }
