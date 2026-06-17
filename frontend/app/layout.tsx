@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F3F4F6",
+  themeColor: "#1DB954",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -48,7 +48,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full hide-scrollbar`}>
       <head>
-        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body className="h-full bg-[#F3F4F6] text-[#111827] antialiased hide-scrollbar">

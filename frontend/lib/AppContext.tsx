@@ -55,20 +55,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [lastDeleted, setLastDeleted] = useState<FoodEntry | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [authResolved, setAuthResolved] = useState(false);
 
   const rehydrate = useCallback(async (triggerClaim = false) => {
     try {
       const deviceId = getOrCreateDeviceId();
 
       if (triggerClaim && deviceId) {
-        const claimed = localStorage.getItem(`calpro:claimed:${deviceId}`);
-        if (!claimed) {
-          try {
-            await apiClient.claimAnonymousData(deviceId);
-            localStorage.setItem(`calpro:claimed:${deviceId}`, "true");
-          } catch (err) {
-            console.error("Claim failed:", err);
-          }
+        try {
+          await apiClient.claimAnonymousData(deviceId);
+          localStorage.setItem(`calpro:claimed:${deviceId}`, "true");
+        } catch (err) {
+          console.error("Claim failed:", err);
         }
       }
 
@@ -85,13 +83,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Sync state on mount from API
+  // Resolve auth session FIRST, then rehydrate — prevents race condition
+  // where rehydrate() fires before authToken is set, fetching anonymous data
   useEffect(() => {
-    rehydrate();
-
     const supabase = createClient();
 
-    // Check current session immediately on mount
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
         setAuthToken(
@@ -102,6 +98,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         );
         setUserName(data.session.user.user_metadata?.full_name || data.session.user.email || null);
       }
+      setAuthResolved(true);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -117,6 +114,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } else if (event === "SIGNED_OUT") {
         clearAuthToken();
         setUserName(null);
+        // Reset all state to empty on sign out
+        setFoods([]);
+        setCustomFoods([]);
+        setMealTemplates([]);
+        setWaterLogs([]);
+        setSettings({
+          dailyCalorieTarget: 2000,
+          dailyProteinTarget: 120,
+          trackCarbsFat: false,
+          dailyWaterTarget: 2500,
+        });
         await rehydrate(false);
       }
     });
@@ -125,6 +133,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, [rehydrate]);
+
+  // Only rehydrate AFTER auth session is resolved — never before
+  useEffect(() => {
+    if (authResolved) {
+      rehydrate();
+    }
+  }, [authResolved, rehydrate]);
 
   const addFood = useCallback(
     (name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => {
