@@ -326,7 +326,7 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
           <>
             <img src={capturedDataUrl} alt="Preview" className="w-full h-full object-cover" />
             {/* Prompt input overlay */}
-            <div className="absolute bottom-32 left-0 right-0 z-10 px-4">
+            <div className="absolute bottom-32 left-0 right-0 z-20 px-4">
               <div className="relative">
                 <input
                   type="text"
