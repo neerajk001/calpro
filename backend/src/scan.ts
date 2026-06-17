@@ -187,7 +187,7 @@ function getGeminiClient() {
   return new GoogleGenerativeAI(apiKey);
 }
 
-async function identifyFoodsFromImage(base64Image: string): Promise<VisionFoodItem[]> {
+async function identifyFoodsFromImage(base64Image: string, userPrompt?: string): Promise<VisionFoodItem[]> {
   const genAI = getGeminiClient();
   const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const model = genAI.getGenerativeModel({
@@ -195,7 +195,11 @@ async function identifyFoodsFromImage(base64Image: string): Promise<VisionFoodIt
     generationConfig: { responseMimeType: "application/json" },
   });
 
-  const prompt = `Analyze this food photo and identify all visible food items with Indian cuisine knowledge.
+  const extraContext = userPrompt?.trim()
+    ? `\n\nAdditional context from the user: "${userPrompt.trim()}"`
+    : "";
+
+  const prompt = `Analyze this food photo and identify all visible food items with Indian cuisine knowledge.${extraContext}
 
 For each item, return this exact JSON shape:
 {
@@ -351,10 +355,10 @@ async function cacheAiFood(
   return created;
 }
 
-export async function scanFoodImage(base64Image: string): Promise<ScanResultItem[]> {
+export async function scanFoodImage(base64Image: string, userPrompt?: string): Promise<ScanResultItem[]> {
   if (!base64Image) throw new UserFacingError("No image data provided");
 
-  const foods = await identifyFoodsFromImage(base64Image);
+  const foods = await identifyFoodsFromImage(base64Image, userPrompt);
   if (!Array.isArray(foods) || foods.length === 0) return [];
 
   const results: ScanResultItem[] = [];

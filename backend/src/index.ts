@@ -1175,12 +1175,12 @@ app.post("/api/scan", async (req, res) => {
   try {
     await resolveUserId(req);
 
-    const { image } = req.body;
+    const { image, prompt } = req.body;
     if (!image || typeof image !== "string") {
       return res.status(400).json({ error: "Missing or invalid 'image' field. Provide a base64-encoded JPEG string." });
     }
 
-    const results = await scanFoodImage(image);
+    const results = await scanFoodImage(image, prompt);
     res.json({ items: results });
   } catch (error: any) {
     console.error("Scan failed:", error);

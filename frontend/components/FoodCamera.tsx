@@ -102,6 +102,7 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
 
   const [state, setState] = useState<CameraState>("camera");
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [userPrompt, setUserPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [torchOn, setTorchOn] = useState(false);
   const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
@@ -142,7 +143,7 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
     if (state === "loading" && capturedDataUrl) {
       compressImage(capturedDataUrl).then((base64) => {
         if (!base64) return;
-        apiClient.scanFoodImage(base64).then((res) => {
+        apiClient.scanFoodImage(base64, userPrompt.trim() || undefined).then((res) => {
           setResults(res.items);
           const gramMap: Record<string, number> = {};
           res.items.forEach((item) => { gramMap[item.id] = item.defaultGrams; });
@@ -324,6 +325,27 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
         {state === "preview" && capturedDataUrl && (
           <>
             <img src={capturedDataUrl} alt="Preview" className="w-full h-full object-cover" />
+            {/* Prompt input overlay */}
+            <div className="absolute bottom-32 left-0 right-0 z-10 px-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={userPrompt}
+                  onChange={(e) => setUserPrompt(e.target.value)}
+                  placeholder='Add a hint (e.g. "homemade dal", "restaurant thali")'
+                  className="w-full bg-black/60 backdrop-blur-sm border border-white/15 px-4 py-3 pr-10 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#1DB954] rounded-xl text-center"
+                  onKeyDown={(e) => { if (e.key === "Enter") confirmCapture && confirmCapture(); }}
+                />
+                {userPrompt && (
+                  <button
+                    onClick={() => setUserPrompt("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                )}
+              </div>
+            </div>
             <div className="absolute bottom-0 left-0 right-0 z-10 pb-10 pt-16 bg-gradient-to-t from-black/70 to-transparent">
               <div className="flex items-center justify-center gap-16">
                 <button onClick={retake} className="w-16 h-16 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-full text-white hover:bg-white/20 transition cursor-pointer">

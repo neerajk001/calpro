@@ -182,10 +182,10 @@ export const apiClient = {
   },
 
   // AI Food Scanning
-  scanFoodImage: (base64Image: string): Promise<ScanResponse> => {
+  scanFoodImage: (base64Image: string, prompt?: string): Promise<ScanResponse> => {
     return request<ScanResponse>("/api/scan", {
       method: "POST",
-      body: JSON.stringify({ image: base64Image }),
+      body: JSON.stringify({ image: base64Image, prompt: prompt || undefined }),
     });
   },
 
