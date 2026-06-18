@@ -1234,6 +1234,33 @@ app.post("/api/auth/claim", async (req, res) => {
 
     await prisma.user.delete({ where: { id: anonymousUser.id } });
 
+    // Also migrate any legacy "calpro-default-user" data on first auth
+    const legacyId = "calpro-default-user";
+    const legacyUser = await prisma.user.findUnique({ where: { id: legacyId } });
+    if (legacyUser) {
+      await prisma.$transaction([
+        prisma.foodLog.updateMany({ where: { userId: legacyId }, data: { userId } }),
+        prisma.customFood.updateMany({ where: { userId: legacyId }, data: { userId } }),
+        prisma.mealTemplate.updateMany({ where: { userId: legacyId }, data: { userId } }),
+        prisma.waterLog.updateMany({ where: { userId: legacyId }, data: { userId } }),
+      ]);
+      const legacySettings = await prisma.settings.findUnique({ where: { userId: legacyId } });
+      if (legacySettings) {
+        await prisma.settings.upsert({
+          where: { userId },
+          update: {
+            dailyCalorieTarget: legacySettings.dailyCalorieTarget,
+            dailyProteinTarget: legacySettings.dailyProteinTarget,
+            trackCarbsFat: legacySettings.trackCarbsFat,
+            twitterHandle: legacySettings.twitterHandle,
+            dailyWaterTarget: legacySettings.dailyWaterTarget,
+          },
+          create: { userId },
+        });
+      }
+      await prisma.user.delete({ where: { id: legacyId } });
+    }
+
     res.json({ merged: true });
   } catch (error: any) {
     logger.error("Error claiming anonymous data:", { err: String(error) });
