@@ -468,8 +468,55 @@ export const BUILT_IN_FOODS: FoodDbItem[] = [
     defaultQty: 100, quantityMode: "grams", emoji: "🌽",
   },
 
+  // ─── More Vegetables (IFCT 2017, raw per 100g) ──────────────────────────
+  { id: "potato-raw", name: "Potato (Raw)", category: "Vegetables", caloriesPer100g: 74, proteinPer100g: 1.9, carbsPer100g: 17.5, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🥔" },
+  { id: "sweet-potato-raw", name: "Sweet Potato (Raw)", category: "Vegetables", caloriesPer100g: 120, proteinPer100g: 1.6, carbsPer100g: 28, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🍠" },
+  { id: "yam", name: "Yam / Jimikand (Raw)", category: "Vegetables", caloriesPer100g: 118, proteinPer100g: 1.5, carbsPer100g: 28, fatPer100g: 0.2, defaultQty: 150, quantityMode: "grams", emoji: "🥔" },
+  { id: "taro-root", name: "Taro Root / Arbi (Raw)", category: "Vegetables", caloriesPer100g: 112, proteinPer100g: 1.5, carbsPer100g: 26, fatPer100g: 0.2, defaultQty: 150, quantityMode: "grams", emoji: "🥔" },
+  { id: "beetroot-raw", name: "Beetroot (Raw)", category: "Vegetables", caloriesPer100g: 43, proteinPer100g: 1.6, carbsPer100g: 10, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🫒" },
+  { id: "carrot-raw", name: "Carrot / Desi Gajar (Raw)", category: "Vegetables", caloriesPer100g: 41, proteinPer100g: 0.9, carbsPer100g: 10, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🥕" },
+  { id: "radish-raw", name: "Radish / Mooli (Raw)", category: "Vegetables", caloriesPer100g: 16, proteinPer100g: 0.7, carbsPer100g: 3.4, fatPer100g: 0.1, defaultQty: 100, quantityMode: "grams", emoji: "🥬" },
+  { id: "turnip", name: "Turnip / Shalgam (Raw)", category: "Vegetables", caloriesPer100g: 28, proteinPer100g: 0.9, carbsPer100g: 6.4, fatPer100g: 0.1, defaultQty: 100, quantityMode: "grams", emoji: "🍠" },
+  { id: "drumstick", name: "Drumstick / Sahjan", category: "Vegetables", caloriesPer100g: 37, proteinPer100g: 2.1, carbsPer100g: 8.5, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🌿" },
+  { id: "jackfruit-raw", name: "Raw Jackfruit / Kathal", category: "Vegetables", caloriesPer100g: 95, proteinPer100g: 2.5, carbsPer100g: 23, fatPer100g: 0.3, defaultQty: 150, quantityMode: "grams", emoji: "🍈" },
+  { id: "bottle-gourd", name: "Bottle Gourd / Lauki", category: "Vegetables", caloriesPer100g: 14, proteinPer100g: 0.6, carbsPer100g: 3.4, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🥒" },
+  { id: "bitter-gourd", name: "Bitter Gourd / Karela", category: "Vegetables", caloriesPer100g: 17, proteinPer100g: 1, carbsPer100g: 3.7, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🥒" },
+  { id: "ridge-gourd", name: "Ridge Gourd / Tori", category: "Vegetables", caloriesPer100g: 18, proteinPer100g: 0.5, carbsPer100g: 4, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🥒" },
+  { id: "ash-gourd", name: "Ash Gourd / Petha", category: "Vegetables", caloriesPer100g: 13, proteinPer100g: 0.4, carbsPer100g: 3, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🍈" },
+  { id: "ivy-gourd", name: "Ivy Gourd / Tindora", category: "Vegetables", caloriesPer100g: 24, proteinPer100g: 1.2, carbsPer100g: 4.5, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🥒" },
+  { id: "snake-gourd", name: "Snake Gourd / Chichinda", category: "Vegetables", caloriesPer100g: 18, proteinPer100g: 0.6, carbsPer100g: 3.8, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🥒" },
+  { id: "pointed-gourd", name: "Pointed Gourd / Parwal", category: "Vegetables", caloriesPer100g: 20, proteinPer100g: 2, carbsPer100g: 3.1, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🥒" },
+  { id: "pumpkin", name: "Pumpkin / Kaddu", category: "Vegetables", caloriesPer100g: 26, proteinPer100g: 1, carbsPer100g: 6.5, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🎃" },
+  { id: "brinjal", name: "Brinjal / Baingan (Raw)", category: "Vegetables", caloriesPer100g: 25, proteinPer100g: 1, carbsPer100g: 5.9, fatPer100g: 0.2, defaultQty: 150, quantityMode: "grams", emoji: "🍆" },
+  { id: "okra-raw", name: "Okra / Bhindi (Raw)", category: "Vegetables", caloriesPer100g: 33, proteinPer100g: 1.9, carbsPer100g: 7.5, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🌿" },
+  { id: "french-beans", name: "French Beans (Raw)", category: "Vegetables", caloriesPer100g: 31, proteinPer100g: 1.8, carbsPer100g: 7.1, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🌱" },
+  { id: "cluster-beans", name: "Cluster Beans / Gavar", category: "Vegetables", caloriesPer100g: 28, proteinPer100g: 2.5, carbsPer100g: 5, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🌿" },
+  { id: "broad-beans", name: "Broad Beans / Sem", category: "Vegetables", caloriesPer100g: 48, proteinPer100g: 5, carbsPer100g: 8, fatPer100g: 0.5, defaultQty: 100, quantityMode: "grams", emoji: "🫛" },
+  { id: "peas-raw", name: "Green Peas / Matar (Raw)", category: "Vegetables", caloriesPer100g: 81, proteinPer100g: 5.4, carbsPer100g: 14.5, fatPer100g: 0.4, defaultQty: 100, quantityMode: "grams", emoji: "🫛" },
+  { id: "corn-raw", name: "Sweet Corn (Raw)", category: "Vegetables", caloriesPer100g: 86, proteinPer100g: 3.3, carbsPer100g: 19, fatPer100g: 1.2, defaultQty: 100, quantityMode: "grams", emoji: "🌽" },
+  { id: "cauliflower-raw", name: "Cauliflower / Phool Gobi (Raw)", category: "Vegetables", caloriesPer100g: 25, proteinPer100g: 1.9, carbsPer100g: 5, fatPer100g: 0.3, defaultQty: 150, quantityMode: "grams", emoji: "🥦" },
+  { id: "cabbage-raw", name: "Cabbage / Patta Gobi (Raw)", category: "Vegetables", caloriesPer100g: 25, proteinPer100g: 1.3, carbsPer100g: 5.8, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🥬" },
+  { id: "broccoli-raw", name: "Broccoli (Raw)", category: "Vegetables", caloriesPer100g: 34, proteinPer100g: 2.8, carbsPer100g: 6.6, fatPer100g: 0.4, defaultQty: 150, quantityMode: "grams", emoji: "🥦" },
+  { id: "fenugreek-leaves", name: "Fenugreek Leaves / Methi", category: "Vegetables", caloriesPer100g: 23, proteinPer100g: 2.3, carbsPer100g: 4.4, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🌿" },
+  { id: "amaranth-leaves", name: "Amaranth Leaves / Chaulai", category: "Vegetables", caloriesPer100g: 23, proteinPer100g: 2.5, carbsPer100g: 4, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🌿" },
+  { id: "mustard-leaves", name: "Mustard Leaves / Sarson", category: "Vegetables", caloriesPer100g: 27, proteinPer100g: 2.7, carbsPer100g: 4.9, fatPer100g: 0.4, defaultQty: 100, quantityMode: "grams", emoji: "🌿" },
+  { id: "bathua", name: "Bathua (Pigweed Leaves)", category: "Vegetables", caloriesPer100g: 30, proteinPer100g: 3.2, carbsPer100g: 5.4, fatPer100g: 0.4, defaultQty: 100, quantityMode: "grams", emoji: "🌿" },
+  { id: "coriander-leaves", name: "Coriander Leaves / Dhania", category: "Vegetables", caloriesPer100g: 23, proteinPer100g: 2.1, carbsPer100g: 3.7, fatPer100g: 0.5, defaultQty: 30, quantityMode: "grams", emoji: "🌿" },
+  { id: "curry-leaves", name: "Curry Leaves / Kadi Patta", category: "Vegetables", caloriesPer100g: 108, proteinPer100g: 6.1, carbsPer100g: 18.7, fatPer100g: 1.8, defaultQty: 10, quantityMode: "grams", emoji: "🌿" },
+  { id: "green-chili", name: "Green Chili (Raw)", category: "Vegetables", caloriesPer100g: 40, proteinPer100g: 2, carbsPer100g: 9.5, fatPer100g: 0.2, defaultQty: 10, quantityMode: "grams", emoji: "🌶️" },
+  { id: "bell-pepper-red", name: "Red Bell Pepper", category: "Vegetables", caloriesPer100g: 31, proteinPer100g: 1, carbsPer100g: 6, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🫑" },
+  { id: "bell-pepper-yellow", name: "Yellow Bell Pepper", category: "Vegetables", caloriesPer100g: 27, proteinPer100g: 1, carbsPer100g: 5.2, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🫑" },
+  { id: "spring-onion", name: "Spring Onion / Hara Pyaz", category: "Vegetables", caloriesPer100g: 32, proteinPer100g: 1.8, carbsPer100g: 7.3, fatPer100g: 0.2, defaultQty: 50, quantityMode: "grams", emoji: "🧅" },
+  { id: "garlic-raw", name: "Garlic / Lehsun (Raw)", category: "Vegetables", caloriesPer100g: 149, proteinPer100g: 6.4, carbsPer100g: 33, fatPer100g: 0.5, defaultQty: 10, quantityMode: "grams", emoji: "🧄" },
+  { id: "ginger-raw", name: "Ginger / Adrak (Raw)", category: "Vegetables", caloriesPer100g: 80, proteinPer100g: 1.8, carbsPer100g: 17.8, fatPer100g: 0.8, defaultQty: 10, quantityMode: "grams", emoji: "🫚" },
+  { id: "mushroom-white", name: "White Button Mushroom", category: "Vegetables", caloriesPer100g: 22, proteinPer100g: 3.1, carbsPer100g: 3.3, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🍄" },
+  { id: "zucchini", name: "Zucchini (Raw)", category: "Vegetables", caloriesPer100g: 17, proteinPer100g: 1.2, carbsPer100g: 3.1, fatPer100g: 0.3, defaultQty: 150, quantityMode: "grams", emoji: "🥒" },
+  { id: "raw-banana", name: "Raw Banana / Kacha Kela", category: "Vegetables", caloriesPer100g: 89, proteinPer100g: 1.1, carbsPer100g: 23, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🍌" },
+  { id: "raw-papaya", name: "Raw Papaya", category: "Vegetables", caloriesPer100g: 43, proteinPer100g: 0.5, carbsPer100g: 11, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🍈" },
+  { id: "elephant-foot-yam", name: "Elephant Foot Yam / Jimikand", category: "Vegetables", caloriesPer100g: 120, proteinPer100g: 2, carbsPer100g: 27, fatPer100g: 0.5, defaultQty: 150, quantityMode: "grams", emoji: "🥔" },
+
   // ═══════════════════════════════════════════════════════════
-  // FRUITS
+  // FRUITS (additional, IFCT 2017)
   // ═══════════════════════════════════════════════════════════
   {
     id: "banana",
@@ -549,6 +596,66 @@ export const BUILT_IN_FOODS: FoodDbItem[] = [
     defaultQty: 100, quantityMode: "grams", emoji: "🍓",
   },
 
+  // ─── More Fruits (IFCT 2017) ────────────────────────────────────────────
+  { id: "mango-alphonso", name: "Mango (Alphonso)", category: "Fruits", caloriesPer100g: 60, proteinPer100g: 0.8, carbsPer100g: 15, fatPer100g: 0.4, defaultQty: 150, quantityMode: "grams", emoji: "🥭" },
+  { id: "mango-langda", name: "Mango (Langda)", category: "Fruits", caloriesPer100g: 62, proteinPer100g: 0.9, carbsPer100g: 15.5, fatPer100g: 0.4, defaultQty: 150, quantityMode: "grams", emoji: "🥭" },
+  { id: "mango-dussehri", name: "Mango (Dussehri)", category: "Fruits", caloriesPer100g: 58, proteinPer100g: 0.8, carbsPer100g: 14.5, fatPer100g: 0.3, defaultQty: 150, quantityMode: "grams", emoji: "🥭" },
+  { id: "chikoo", name: "Chikoo / Sapota", category: "Fruits", caloriesPer100g: 83, proteinPer100g: 0.4, carbsPer100g: 20, fatPer100g: 1.1, defaultQty: 100, quantityMode: "grams", emoji: "🟤" },
+  { id: "custard-apple", name: "Custard Apple / Sitaphal", category: "Fruits", caloriesPer100g: 94, proteinPer100g: 2.1, carbsPer100g: 23, fatPer100g: 0.3, defaultQty: 150, quantityMode: "grams", emoji: "🍏" },
+  { id: "pineapple", name: "Pineapple", category: "Fruits", caloriesPer100g: 50, proteinPer100g: 0.5, carbsPer100g: 13, fatPer100g: 0.1, defaultQty: 150, quantityMode: "grams", emoji: "🍍" },
+  { id: "litchi", name: "Litchi", category: "Fruits", caloriesPer100g: 66, proteinPer100g: 0.8, carbsPer100g: 16.5, fatPer100g: 0.4, defaultQty: 100, quantityMode: "grams", emoji: "🟤" },
+  { id: "jamun", name: "Jamun / Java Plum", category: "Fruits", caloriesPer100g: 62, proteinPer100g: 0.7, carbsPer100g: 14, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🫐" },
+  { id: "ber", name: "Ber / Indian Jujube", category: "Fruits", caloriesPer100g: 79, proteinPer100g: 1.2, carbsPer100g: 18.5, fatPer100g: 0.5, defaultQty: 100, quantityMode: "grams", emoji: "🍏" },
+  { id: "muskmelon", name: "Muskmelon / Kharbooja", category: "Fruits", caloriesPer100g: 34, proteinPer100g: 0.8, carbsPer100g: 8.2, fatPer100g: 0.2, defaultQty: 200, quantityMode: "grams", emoji: "🍈" },
+  { id: "kiwi", name: "Kiwi", category: "Fruits", caloriesPer100g: 61, proteinPer100g: 1.1, carbsPer100g: 14.7, fatPer100g: 0.5, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 75, emoji: "🥝" },
+  { id: "dragon-fruit", name: "Dragon Fruit", category: "Fruits", caloriesPer100g: 60, proteinPer100g: 1.2, carbsPer100g: 13, fatPer100g: 0.4, defaultQty: 150, quantityMode: "grams", emoji: "🐉" },
+  { id: "peach", name: "Peach / Aadu", category: "Fruits", caloriesPer100g: 39, proteinPer100g: 0.9, carbsPer100g: 9.5, fatPer100g: 0.3, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 150, emoji: "🍑" },
+  { id: "plum", name: "Plum / Aloo Bukhara", category: "Fruits", caloriesPer100g: 46, proteinPer100g: 0.7, carbsPer100g: 11.4, fatPer100g: 0.3, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 65, emoji: "🟣" },
+  { id: "apricot", name: "Apricot / Khubani", category: "Fruits", caloriesPer100g: 48, proteinPer100g: 1.4, carbsPer100g: 11.1, fatPer100g: 0.4, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 35, emoji: "🟠" },
+  { id: "cherry", name: "Cherry", category: "Fruits", caloriesPer100g: 63, proteinPer100g: 1.1, carbsPer100g: 16, fatPer100g: 0.2, defaultQty: 100, quantityMode: "grams", emoji: "🍒" },
+  { id: "blueberry", name: "Blueberry", category: "Fruits", caloriesPer100g: 57, proteinPer100g: 0.7, carbsPer100g: 14.5, fatPer100g: 0.3, defaultQty: 100, quantityMode: "grams", emoji: "🫐" },
+  { id: "raspberry", name: "Raspberry", category: "Fruits", caloriesPer100g: 52, proteinPer100g: 1.2, carbsPer100g: 12, fatPer100g: 0.7, defaultQty: 100, quantityMode: "grams", emoji: "🫐" },
+  { id: "blackberry", name: "Blackberry", category: "Fruits", caloriesPer100g: 43, proteinPer100g: 1.4, carbsPer100g: 9.6, fatPer100g: 0.5, defaultQty: 100, quantityMode: "grams", emoji: "🫐" },
+  { id: "amla", name: "Amla / Indian Gooseberry", category: "Fruits", caloriesPer100g: 44, proteinPer100g: 0.5, carbsPer100g: 10, fatPer100g: 0.2, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 30, emoji: "🟢" },
+  { id: "star-fruit", name: "Star Fruit / Kamrakh", category: "Fruits", caloriesPer100g: 31, proteinPer100g: 1, carbsPer100g: 6.7, fatPer100g: 0.3, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 100, emoji: "⭐" },
+  { id: "passion-fruit", name: "Passion Fruit", category: "Fruits", caloriesPer100g: 97, proteinPer100g: 2.2, carbsPer100g: 23, fatPer100g: 0.7, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 50, emoji: "🟣" },
+  { id: "fig-fresh", name: "Fig / Anjeer (Fresh)", category: "Fruits", caloriesPer100g: 74, proteinPer100g: 0.8, carbsPer100g: 19, fatPer100g: 0.3, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 50, emoji: "🟤" },
+  { id: "tender-coconut", name: "Tender Coconut Malai", category: "Fruits", caloriesPer100g: 150, proteinPer100g: 2, carbsPer100g: 8, fatPer100g: 13, defaultQty: 50, quantityMode: "grams", emoji: "🥥" },
+  { id: "sugarcane-juice", name: "Sugarcane Juice", category: "Beverages", caloriesPer100g: 73, proteinPer100g: 0.2, carbsPer100g: 18, fatPer100g: 0.1, defaultQty: 300, quantityMode: "ml", emoji: "🎋" },
+  { id: "sweet-lime", name: "Sweet Lime / Mosambi", category: "Fruits", caloriesPer100g: 43, proteinPer100g: 0.7, carbsPer100g: 9.3, fatPer100g: 0.2, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 150, emoji: "🍊" },
+
+  // ─── Dry Fruits & Nuts (IFCT 2017) ──────────────────────────────────────
+  { id: "dates-dried", name: "Dates / Khajoor (Dried)", category: "Healthy & Fitness", caloriesPer100g: 282, proteinPer100g: 2.5, carbsPer100g: 75, fatPer100g: 0.4, defaultQty: 30, quantityMode: "grams", emoji: "🟤" },
+  { id: "dried-fig", name: "Dried Fig / Anjeer", category: "Healthy & Fitness", caloriesPer100g: 249, proteinPer100g: 3.3, carbsPer100g: 64, fatPer100g: 0.9, defaultQty: 30, quantityMode: "grams", emoji: "🟤" },
+  { id: "raisins", name: "Raisins / Kishmish", category: "Healthy & Fitness", caloriesPer100g: 299, proteinPer100g: 3, carbsPer100g: 79, fatPer100g: 0.5, defaultQty: 30, quantityMode: "grams", emoji: "🍇" },
+  { id: "dried-apricot", name: "Dried Apricot", category: "Healthy & Fitness", caloriesPer100g: 241, proteinPer100g: 3.4, carbsPer100g: 62, fatPer100g: 0.5, defaultQty: 30, quantityMode: "grams", emoji: "🟠" },
+  { id: "prunes", name: "Prunes", category: "Healthy & Fitness", caloriesPer100g: 240, proteinPer100g: 2.2, carbsPer100g: 63, fatPer100g: 0.4, defaultQty: 30, quantityMode: "grams", emoji: "🟤" },
+  { id: "pistachio", name: "Pistachio / Pista", category: "Healthy & Fitness", caloriesPer100g: 560, proteinPer100g: 20, carbsPer100g: 28, fatPer100g: 45, defaultQty: 28, quantityMode: "grams", emoji: "💚" },
+  { id: "pine-nuts", name: "Pine Nuts / Chilgoza", category: "Healthy & Fitness", caloriesPer100g: 673, proteinPer100g: 13.7, carbsPer100g: 13, fatPer100g: 68, defaultQty: 15, quantityMode: "grams", emoji: "🌰" },
+  { id: "macadamia", name: "Macadamia Nuts", category: "Healthy & Fitness", caloriesPer100g: 718, proteinPer100g: 8, carbsPer100g: 14, fatPer100g: 76, defaultQty: 28, quantityMode: "grams", emoji: "🌰" },
+  { id: "hazelnuts", name: "Hazelnuts", category: "Healthy & Fitness", caloriesPer100g: 628, proteinPer100g: 15, carbsPer100g: 17, fatPer100g: 61, defaultQty: 28, quantityMode: "grams", emoji: "🌰" },
+  { id: "chestnuts", name: "Chestnuts (Roasted)", category: "Healthy & Fitness", caloriesPer100g: 245, proteinPer100g: 3.2, carbsPer100g: 53, fatPer100g: 2.2, defaultQty: 50, quantityMode: "grams", emoji: "🌰" },
+  { id: "pecan", name: "Pecan Nuts", category: "Healthy & Fitness", caloriesPer100g: 691, proteinPer100g: 9, carbsPer100g: 14, fatPer100g: 72, defaultQty: 28, quantityMode: "grams", emoji: "🌰" },
+  { id: "fox-nuts", name: "Fox Nuts / Makhana", category: "Healthy & Fitness", caloriesPer100g: 347, proteinPer100g: 9.7, carbsPer100g: 77, fatPer100g: 0.1, defaultQty: 30, quantityMode: "grams", emoji: "🪷" },
+  { id: "coconut-dry", name: "Dry Coconut / Khopra", category: "Healthy & Fitness", caloriesPer100g: 650, proteinPer100g: 7, carbsPer100g: 21, fatPer100g: 62, defaultQty: 25, quantityMode: "grams", emoji: "🥥" },
+  { id: "coconut-fresh", name: "Fresh Coconut (Grated)", category: "Healthy & Fitness", caloriesPer100g: 250, proteinPer100g: 2.8, carbsPer100g: 6, fatPer100g: 24, defaultQty: 50, quantityMode: "grams", emoji: "🥥" },
+
+  // ─── Seeds (IFCT 2017) ──────────────────────────────────────────────────
+  { id: "pumpkin-seeds", name: "Pumpkin Seeds", category: "Healthy & Fitness", caloriesPer100g: 559, proteinPer100g: 30, carbsPer100g: 10.7, fatPer100g: 49, defaultQty: 15, quantityMode: "grams", emoji: "🎃" },
+  { id: "sunflower-seeds", name: "Sunflower Seeds", category: "Healthy & Fitness", caloriesPer100g: 584, proteinPer100g: 21, carbsPer100g: 20, fatPer100g: 51, defaultQty: 15, quantityMode: "grams", emoji: "🌻" },
+  { id: "sesame-white", name: "Sesame Seeds / Til (White)", category: "Healthy & Fitness", caloriesPer100g: 573, proteinPer100g: 17.7, carbsPer100g: 23, fatPer100g: 50, defaultQty: 15, quantityMode: "grams", emoji: "🤍" },
+  { id: "sesame-black", name: "Black Sesame Seeds", category: "Healthy & Fitness", caloriesPer100g: 573, proteinPer100g: 18, carbsPer100g: 23, fatPer100g: 50, defaultQty: 15, quantityMode: "grams", emoji: "🖤" },
+  { id: "watermelon-seeds", name: "Watermelon Seeds / Magaz", category: "Healthy & Fitness", caloriesPer100g: 557, proteinPer100g: 28, carbsPer100g: 15, fatPer100g: 47, defaultQty: 15, quantityMode: "grams", emoji: "🍉" },
+  { id: "poppy-seeds", name: "Poppy Seeds / Khas Khas", category: "Healthy & Fitness", caloriesPer100g: 525, proteinPer100g: 18, carbsPer100g: 28, fatPer100g: 41, defaultQty: 10, quantityMode: "grams", emoji: "⚪" },
+  { id: "mustard-seeds", name: "Mustard Seeds / Rai", category: "Vegetables", caloriesPer100g: 508, proteinPer100g: 26, carbsPer100g: 28, fatPer100g: 36, defaultQty: 5, quantityMode: "grams", emoji: "🟡" },
+  { id: "cumin-seeds", name: "Cumin Seeds / Jeera", category: "Vegetables", caloriesPer100g: 375, proteinPer100g: 18, carbsPer100g: 44, fatPer100g: 22, defaultQty: 5, quantityMode: "grams", emoji: "🟤" },
+  { id: "coriander-seeds", name: "Coriander Seeds / Dhania", category: "Vegetables", caloriesPer100g: 298, proteinPer100g: 12.4, carbsPer100g: 55, fatPer100g: 17.8, defaultQty: 5, quantityMode: "grams", emoji: "🟤" },
+  { id: "fennel-seeds", name: "Fennel Seeds / Saunf", category: "Vegetables", caloriesPer100g: 345, proteinPer100g: 15.8, carbsPer100g: 52, fatPer100g: 14.9, defaultQty: 10, quantityMode: "grams", emoji: "🟢" },
+  { id: "fenugreek-seeds", name: "Fenugreek Seeds / Methi Dana", category: "Vegetables", caloriesPer100g: 323, proteinPer100g: 23, carbsPer100g: 58, fatPer100g: 6.4, defaultQty: 5, quantityMode: "grams", emoji: "🟡" },
+  { id: "basil-seeds", name: "Basil Seeds / Sabja", category: "Healthy & Fitness", caloriesPer100g: 320, proteinPer100g: 15, carbsPer100g: 45, fatPer100g: 12, defaultQty: 10, quantityMode: "grams", emoji: "🟢" },
+  { id: "carom-seeds", name: "Carom Seeds / Ajwain", category: "Vegetables", caloriesPer100g: 305, proteinPer100g: 17, carbsPer100g: 48, fatPer100g: 9, defaultQty: 5, quantityMode: "grams", emoji: "🟤" },
+  { id: "niger-seeds", name: "Niger Seeds / Ramtil", category: "Healthy & Fitness", caloriesPer100g: 545, proteinPer100g: 18, carbsPer100g: 18, fatPer100g: 46, defaultQty: 15, quantityMode: "grams", emoji: "⚫" },
+
   // ═══════════════════════════════════════════════════════════
   // INDIAN DISHES
   // ═══════════════════════════════════════════════════════════
@@ -559,6 +666,65 @@ export const BUILT_IN_FOODS: FoodDbItem[] = [
     caloriesPer100g: 200, proteinPer100g: 7.7, carbsPer100g: 40.0, fatPer100g: 0.7,
     defaultQty: 3, quantityMode: "piece", gramsPerPiece: 30, emoji: "🍽️",
   },
+
+  // ─── South Indian Breakfast (IFCT 2017) ──────────────────────────────────
+  {
+    id: "medu-vada",
+    name: "Medu Vada",
+    category: "Indian Dishes",
+    caloriesPer100g: 198, proteinPer100g: 8.5, carbsPer100g: 26.0, fatPer100g: 7.5,
+    defaultQty: 2, quantityMode: "piece", gramsPerPiece: 50, emoji: "🍩",
+  },
+  {
+    id: "pesarattu",
+    name: "Pesarattu (Green Gram Dosa)",
+    category: "Indian Dishes",
+    caloriesPer100g: 145, proteinPer100g: 7.0, carbsPer100g: 24.0, fatPer100g: 3.0,
+    defaultQty: 1, quantityMode: "piece", gramsPerPiece: 80, emoji: "🫓",
+  },
+  {
+    id: "appam",
+    name: "Appam (Fermented Rice Pancake)",
+    category: "Indian Dishes",
+    caloriesPer100g: 135, proteinPer100g: 2.5, carbsPer100g: 28.0, fatPer100g: 2.0,
+    defaultQty: 2, quantityMode: "piece", gramsPerPiece: 60, emoji: "🥞",
+  },
+  {
+    id: "ven-pongal",
+    name: "Ven Pongal (Rice & Lentil)",
+    category: "Indian Dishes",
+    caloriesPer100g: 120, proteinPer100g: 4.0, carbsPer100g: 20.0, fatPer100g: 3.0,
+    defaultQty: 250, quantityMode: "grams", emoji: "🍛",
+  },
+  {
+    id: "lemon-rice",
+    name: "Lemon Rice / Chitranna",
+    category: "Indian Dishes",
+    caloriesPer100g: 145, proteinPer100g: 3.0, carbsPer100g: 26.0, fatPer100g: 3.5,
+    defaultQty: 200, quantityMode: "grams", emoji: "🍚",
+  },
+  {
+    id: "curd-rice",
+    name: "Curd Rice / Thayir Sadam",
+    category: "Indian Dishes",
+    caloriesPer100g: 95, proteinPer100g: 3.0, carbsPer100g: 16.0, fatPer100g: 2.0,
+    defaultQty: 200, quantityMode: "grams", emoji: "🍚",
+  },
+  {
+    id: "set-dosa",
+    name: "Set Dosa (Thick & Soft)",
+    category: "Indian Dishes",
+    caloriesPer100g: 165, proteinPer100g: 4.0, carbsPer100g: 32.0, fatPer100g: 2.5,
+    defaultQty: 2, quantityMode: "piece", gramsPerPiece: 60, emoji: "🫓",
+  },
+  {
+    id: "rava-dosa",
+    name: "Rava Dosa (Semolina Crispy)",
+    category: "Indian Dishes",
+    caloriesPer100g: 175, proteinPer100g: 4.5, carbsPer100g: 28.0, fatPer100g: 5.0,
+    defaultQty: 1, quantityMode: "piece", gramsPerPiece: 80, emoji: "🫓",
+  },
+
   {
     id: "dosa-plain",
     name: "Plain Dosa",
@@ -580,6 +746,15 @@ export const BUILT_IN_FOODS: FoodDbItem[] = [
     caloriesPer100g: 50, proteinPer100g: 3, carbsPer100g: 8, fatPer100g: 1,
     defaultQty: 200, quantityMode: "ml", emoji: "🍲",
   },
+
+  // ─── North Indian Curries (IFCT 2017) ───────────────────────────────────
+  { id: "aloo-gobi", name: "Aloo Gobi (Potato & Cauliflower)", category: "Indian Dishes", caloriesPer100g: 85, proteinPer100g: 2.5, carbsPer100g: 14.0, fatPer100g: 2.5, defaultQty: 200, quantityMode: "grams", emoji: "🥔" },
+  { id: "baingan-bharta", name: "Baingan Bharta (Roasted Eggplant)", category: "Indian Dishes", caloriesPer100g: 65, proteinPer100g: 2.0, carbsPer100g: 8.0, fatPer100g: 3.0, defaultQty: 200, quantityMode: "grams", emoji: "🍆" },
+  { id: "bhindi-masala", name: "Bhindi Masala (Okra Stir-fry)", category: "Indian Dishes", caloriesPer100g: 80, proteinPer100g: 2.5, carbsPer100g: 8.0, fatPer100g: 4.5, defaultQty: 150, quantityMode: "grams", emoji: "🌿" },
+  { id: "dum-aloo", name: "Dum Aloo (Baby Potatoes in Gravy)", category: "Indian Dishes", caloriesPer100g: 105, proteinPer100g: 3.0, carbsPer100g: 16.0, fatPer100g: 3.5, defaultQty: 200, quantityMode: "grams", emoji: "🥔" },
+  { id: "malai-kofta", name: "Malai Kofta (Creamy Veg Balls)", category: "Indian Dishes", caloriesPer100g: 185, proteinPer100g: 7.0, carbsPer100g: 14.0, fatPer100g: 12.0, defaultQty: 200, quantityMode: "grams", emoji: "🧆" },
+  { id: "methi-malai-matar", name: "Methi Malai Matar (Fenugreek Peas)", category: "Indian Dishes", caloriesPer100g: 110, proteinPer100g: 5.0, carbsPer100g: 10.0, fatPer100g: 6.0, defaultQty: 200, quantityMode: "grams", emoji: "🌿" },
+
   {
     id: "chicken-curry",
     name: "Chicken Curry (home style)",
@@ -748,6 +923,82 @@ export const BUILT_IN_FOODS: FoodDbItem[] = [
     caloriesPer100g: 40, proteinPer100g: 3.3, carbsPer100g: 5, fatPer100g: 1,
     defaultQty: 300, quantityMode: "ml", emoji: "🥛",
   },
+
+  // ─── Paneer Dishes (IFCT 2017) ──────────────────────────────────────────
+  { id: "paneer-butter-masala", name: "Paneer Butter Masala", category: "Indian Dishes", caloriesPer100g: 195, proteinPer100g: 8, carbsPer100g: 10, fatPer100g: 14, defaultQty: 200, quantityMode: "grams", emoji: "🧀" },
+  { id: "kadai-paneer", name: "Kadai Paneer", category: "Indian Dishes", caloriesPer100g: 180, proteinPer100g: 9, carbsPer100g: 8, fatPer100g: 13, defaultQty: 200, quantityMode: "grams", emoji: "🧀" },
+  { id: "paneer-tikka-dish", name: "Paneer Tikka", category: "Indian Dishes", caloriesPer100g: 220, proteinPer100g: 16, carbsPer100g: 5, fatPer100g: 15, defaultQty: 150, quantityMode: "grams", emoji: "🧀" },
+  { id: "paneer-bhurji-dish", name: "Paneer Bhurji", category: "Indian Dishes", caloriesPer100g: 175, proteinPer100g: 11, carbsPer100g: 5, fatPer100g: 12, defaultQty: 150, quantityMode: "grams", emoji: "🍳" },
+
+  // ─── Tandoori Items (IFCT 2017) ─────────────────────────────────────────
+  { id: "tandoori-chicken", name: "Tandoori Chicken", category: "Indian Dishes", caloriesPer100g: 165, proteinPer100g: 25, carbsPer100g: 2, fatPer100g: 6, defaultQty: 200, quantityMode: "grams", emoji: "🍗" },
+  { id: "chicken-tikka-dish", name: "Chicken Tikka", category: "Indian Dishes", caloriesPer100g: 155, proteinPer100g: 24, carbsPer100g: 3, fatPer100g: 5, defaultQty: 150, quantityMode: "grams", emoji: "🍗" },
+  { id: "seekh-kebab", name: "Seekh Kebab", category: "Indian Dishes", caloriesPer100g: 200, proteinPer100g: 18, carbsPer100g: 6, fatPer100g: 12, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 60, emoji: "🍢" },
+  { id: "tandoori-paneer-tikka", name: "Tandoori Paneer Tikka", category: "Indian Dishes", caloriesPer100g: 230, proteinPer100g: 17, carbsPer100g: 5, fatPer100g: 16, defaultQty: 150, quantityMode: "grams", emoji: "🧀" },
+
+  // ─── Street Food (IFCT 2017) ────────────────────────────────────────────
+  { id: "dabeli", name: "Dabeli", category: "Snacks & Street Food", caloriesPer100g: 190, proteinPer100g: 5, carbsPer100g: 30, fatPer100g: 6, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 100, emoji: "🍔" },
+  { id: "sev-puri", name: "Sev Puri", category: "Snacks & Street Food", caloriesPer100g: 180, proteinPer100g: 4, carbsPer100g: 28, fatPer100g: 6, defaultQty: 4, quantityMode: "piece", gramsPerPiece: 25, emoji: "🍽️" },
+  { id: "ragda-pattice", name: "Ragda Pattice", category: "Snacks & Street Food", caloriesPer100g: 160, proteinPer100g: 5, carbsPer100g: 22, fatPer100g: 6, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 80, emoji: "🥔" },
+  { id: "kanda-bhaji", name: "Kanda Bhaji (Onion Fritters)", category: "Snacks & Street Food", caloriesPer100g: 250, proteinPer100g: 4, carbsPer100g: 28, fatPer100g: 13, defaultQty: 100, quantityMode: "grams", emoji: "🧅" },
+  { id: "dahi-puri", name: "Dahi Puri", category: "Snacks & Street Food", caloriesPer100g: 140, proteinPer100g: 4, carbsPer100g: 22, fatPer100g: 4, defaultQty: 6, quantityMode: "piece", gramsPerPiece: 20, emoji: "🍽️" },
+
+  // ─── Raita & Chutney (IFCT 2017) ────────────────────────────────────────
+  { id: "boondi-raita", name: "Boondi Raita", category: "Indian Dishes", caloriesPer100g: 85, proteinPer100g: 3.5, carbsPer100g: 8, fatPer100g: 4.5, defaultQty: 100, quantityMode: "grams", emoji: "🥣" },
+  { id: "cucumber-raita", name: "Cucumber Raita", category: "Indian Dishes", caloriesPer100g: 45, proteinPer100g: 2.5, carbsPer100g: 5, fatPer100g: 2, defaultQty: 100, quantityMode: "grams", emoji: "🥒" },
+  { id: "mint-chutney", name: "Mint Chutney", category: "Indian Dishes", caloriesPer100g: 60, proteinPer100g: 2, carbsPer100g: 10, fatPer100g: 1, defaultQty: 30, quantityMode: "grams", emoji: "🌿" },
+  { id: "coconut-chutney", name: "Coconut Chutney", category: "Indian Dishes", caloriesPer100g: 130, proteinPer100g: 2, carbsPer100g: 8, fatPer100g: 10, defaultQty: 50, quantityMode: "grams", emoji: "🥥" },
+  { id: "tamarind-chutney", name: "Tamarind Chutney (Imli)", category: "Indian Dishes", caloriesPer100g: 140, proteinPer100g: 1, carbsPer100g: 34, fatPer100g: 0.5, defaultQty: 30, quantityMode: "grams", emoji: "🍯" },
+
+  // ─── Rice Varieties (IFCT 2017) ─────────────────────────────────────────
+  { id: "jeera-rice", name: "Jeera Rice", category: "Rice & Grains", caloriesPer100g: 150, proteinPer100g: 3, carbsPer100g: 26, fatPer100g: 4, defaultQty: 200, quantityMode: "grams", emoji: "🍚" },
+  { id: "tamarind-rice", name: "Tamarind Rice / Puliyogare", category: "Rice & Grains", caloriesPer100g: 155, proteinPer100g: 3, carbsPer100g: 28, fatPer100g: 4, defaultQty: 200, quantityMode: "grams", emoji: "🍚" },
+  { id: "ghee-rice", name: "Ghee Rice", category: "Rice & Grains", caloriesPer100g: 170, proteinPer100g: 3, carbsPer100g: 26, fatPer100g: 6, defaultQty: 200, quantityMode: "grams", emoji: "🍚" },
+
+  // ─── Breads (IFCT 2017) ─────────────────────────────────────────────────
+  { id: "missi-roti", name: "Missi Roti (Gram Flour)", category: "Bread & Roti", caloriesPer100g: 310, proteinPer100g: 12, carbsPer100g: 50, fatPer100g: 7, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 40, emoji: "🫓" },
+  { id: "makki-roti", name: "Makki di Roti (Corn Flour)", category: "Bread & Roti", caloriesPer100g: 270, proteinPer100g: 8, carbsPer100g: 48, fatPer100g: 6, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 50, emoji: "🫓" },
+  { id: "kulcha", name: "Kulcha (Leavened Flatbread)", category: "Bread & Roti", caloriesPer100g: 290, proteinPer100g: 8, carbsPer100g: 52, fatPer100g: 6, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 80, emoji: "🫓" },
+  { id: "thepla", name: "Thepla (Fenugreek Flatbread)", category: "Bread & Roti", caloriesPer100g: 320, proteinPer100g: 10, carbsPer100g: 50, fatPer100g: 9, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 35, emoji: "🫓" },
+  { id: "puran-poli", name: "Puran Poli (Sweet Lentil Bread)", category: "Bread & Roti", caloriesPer100g: 300, proteinPer100g: 8, carbsPer100g: 55, fatPer100g: 6, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 80, emoji: "🫓" },
+
+  // ─── Desserts (IFCT 2017) ───────────────────────────────────────────────
+  { id: "kaju-katli", name: "Kaju Katli (Cashew Fudge)", category: "Sweets & Desserts", caloriesPer100g: 510, proteinPer100g: 9, carbsPer100g: 48, fatPer100g: 32, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 20, emoji: "🍬" },
+  { id: "soan-papdi", name: "Soan Papdi", category: "Sweets & Desserts", caloriesPer100g: 490, proteinPer100g: 6, carbsPer100g: 58, fatPer100g: 26, defaultQty: 50, quantityMode: "grams", emoji: "🍬" },
+  { id: "malpua", name: "Malpua (Sweet Pancake)", category: "Sweets & Desserts", caloriesPer100g: 330, proteinPer100g: 5, carbsPer100g: 42, fatPer100g: 16, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 60, emoji: "🥞" },
+  { id: "phirni", name: "Phirni (Rice Pudding)", category: "Sweets & Desserts", caloriesPer100g: 145, proteinPer100g: 4, carbsPer100g: 22, fatPer100g: 5, defaultQty: 150, quantityMode: "grams", emoji: "🍮" },
+  { id: "sandesh", name: "Sandesh (Bengali Sweet)", category: "Sweets & Desserts", caloriesPer100g: 320, proteinPer100g: 12, carbsPer100g: 38, fatPer100g: 14, defaultQty: 2, quantityMode: "piece", gramsPerPiece: 40, emoji: "🍬" },
+  { id: "mysore-pak", name: "Mysore Pak", category: "Sweets & Desserts", caloriesPer100g: 500, proteinPer100g: 6, carbsPer100g: 42, fatPer100g: 35, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 30, emoji: "🟨" },
+  { id: "peda", name: "Peda (Milk Fudge)", category: "Sweets & Desserts", caloriesPer100g: 415, proteinPer100g: 8, carbsPer100g: 48, fatPer100g: 21, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 30, emoji: "🍬" },
+
+  // ─── Regional Dishes (IFCT 2017) ────────────────────────────────────────
+  { id: "litti-chokha", name: "Litti Chokha (Bihari)", category: "Indian Dishes", caloriesPer100g: 180, proteinPer100g: 7, carbsPer100g: 28, fatPer100g: 5, defaultQty: 3, quantityMode: "piece", gramsPerPiece: 70, emoji: "🍛" },
+  { id: "undhiyu", name: "Undhiyu (Gujarati Mixed Veg)", category: "Indian Dishes", caloriesPer100g: 95, proteinPer100g: 4, carbsPer100g: 14, fatPer100g: 3, defaultQty: 200, quantityMode: "grams", emoji: "🥬" },
+  { id: "puttu-kadala", name: "Puttu & Kadala (Kerala)", category: "Indian Dishes", caloriesPer100g: 160, proteinPer100g: 6, carbsPer100g: 26, fatPer100g: 3.5, defaultQty: 250, quantityMode: "grams", emoji: "🍛" },
+
+  // ─── Paratha Varieties (IFCT 2017) ──────────────────────────────────────
+  { id: "gobi-paratha", name: "Gobi Paratha", category: "Bread & Roti", caloriesPer100g: 240, proteinPer100g: 7, carbsPer100g: 38, fatPer100g: 7, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 100, emoji: "🫓" },
+  { id: "mooli-paratha", name: "Mooli Paratha (Radish)", category: "Bread & Roti", caloriesPer100g: 230, proteinPer100g: 7, carbsPer100g: 38, fatPer100g: 6.5, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 100, emoji: "🫓" },
+  { id: "paneer-paratha", name: "Paneer Paratha", category: "Bread & Roti", caloriesPer100g: 270, proteinPer100g: 10, carbsPer100g: 36, fatPer100g: 10, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 120, emoji: "🫓" },
+  { id: "methi-paratha", name: "Methi Paratha", category: "Bread & Roti", caloriesPer100g: 250, proteinPer100g: 8, carbsPer100g: 40, fatPer100g: 7, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 80, emoji: "🫓" },
+  { id: "onion-paratha", name: "Onion Paratha", category: "Bread & Roti", caloriesPer100g: 245, proteinPer100g: 7, carbsPer100g: 39, fatPer100g: 7.5, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 100, emoji: "🫓" },
+
+  // ─── Tea & Coffee (IFCT 2017) ───────────────────────────────────────────
+  { id: "masala-chai", name: "Masala Chai (with Milk & Sugar)", category: "Beverages", caloriesPer100g: 45, proteinPer100g: 1.5, carbsPer100g: 7.5, fatPer100g: 1.2, defaultQty: 200, quantityMode: "ml", emoji: "☕" },
+  { id: "ginger-tea", name: "Ginger Tea (Adrak Chai)", category: "Beverages", caloriesPer100g: 40, proteinPer100g: 1, carbsPer100g: 7, fatPer100g: 1, defaultQty: 200, quantityMode: "ml", emoji: "☕" },
+  { id: "filter-coffee", name: "Filter Coffee", category: "Beverages", caloriesPer100g: 35, proteinPer100g: 1.5, carbsPer100g: 5, fatPer100g: 1, defaultQty: 150, quantityMode: "ml", emoji: "☕" },
+
+  // ─── Non-Veg More (IFCT 2017) ───────────────────────────────────────────
+  { id: "mutton-curry", name: "Mutton Curry", category: "Chicken & Meat", caloriesPer100g: 175, proteinPer100g: 16, carbsPer100g: 5, fatPer100g: 10, defaultQty: 200, quantityMode: "grams", emoji: "🥩" },
+  { id: "keema-matar", name: "Keema Matar (Minced Meat & Peas)", category: "Chicken & Meat", caloriesPer100g: 190, proteinPer100g: 15, carbsPer100g: 8, fatPer100g: 11, defaultQty: 200, quantityMode: "grams", emoji: "🥩" },
+  { id: "chicken-65", name: "Chicken 65 (Spicy Fried)", category: "Chicken & Meat", caloriesPer100g: 220, proteinPer100g: 18, carbsPer100g: 10, fatPer100g: 12, defaultQty: 150, quantityMode: "grams", emoji: "🍗" },
+  { id: "fish-fry", name: "Fish Fry (Indian Style)", category: "Fish & Seafood", caloriesPer100g: 200, proteinPer100g: 18, carbsPer100g: 10, fatPer100g: 10, defaultQty: 150, quantityMode: "grams", emoji: "🐟" },
+  { id: "egg-curry", name: "Egg Curry", category: "Eggs & Dairy", caloriesPer100g: 130, proteinPer100g: 8, carbsPer100g: 5, fatPer100g: 9, defaultQty: 200, quantityMode: "grams", emoji: "🍛" },
+
+  // ─── Pickles & Condiments (IFCT 2017) ───────────────────────────────────
+  { id: "mango-pickle", name: "Mango Pickle (Aam ka Achar)", category: "Indian Dishes", caloriesPer100g: 50, proteinPer100g: 1, carbsPer100g: 8, fatPer100g: 2, defaultQty: 15, quantityMode: "grams", emoji: "🥭" },
+  { id: "papad-roasted", name: "Papad (Roasted)", category: "Snacks & Street Food", caloriesPer100g: 290, proteinPer100g: 12, carbsPer100g: 45, fatPer100g: 7, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 10, emoji: "🍘" },
+  { id: "papad-fried", name: "Papad (Fried)", category: "Snacks & Street Food", caloriesPer100g: 340, proteinPer100g: 10, carbsPer100g: 42, fatPer100g: 15, defaultQty: 1, quantityMode: "piece", gramsPerPiece: 12, emoji: "🍘" },
 
   // ═══════════════════════════════════════════════════════════
   // SNACKS & STREET FOOD
@@ -2394,66 +2645,5 @@ export const BUILT_IN_FOODS: FoodDbItem[] = [
   },
 ];
 
-// ─── Search Helper ─────────────────────────────────────────────────────────────
-
-export function searchFoodDb(query: string, customFoods: FoodDbItem[] = []): FoodDbItem[] {
-  const allFoods = [...BUILT_IN_FOODS, ...customFoods];
-  if (!query.trim()) return allFoods;
-  const q = query.toLowerCase().trim();
-  return allFoods.filter(
-    (f) =>
-      f.name.toLowerCase().includes(q) ||
-      f.category.toLowerCase().includes(q) ||
-      (f.emoji && f.emoji.includes(q))
-  );
-}
-
-export function getFoodById(id: string, customFoods: FoodDbItem[] = []): FoodDbItem | undefined {
-  return [...BUILT_IN_FOODS, ...customFoods].find((f) => f.id === id);
-}
-
-export function getFoodsByCategory(category: string, customFoods: FoodDbItem[] = []): FoodDbItem[] {
-  return [...BUILT_IN_FOODS, ...customFoods].filter((f) => f.category === category);
-}
-
-export const ALL_CATEGORIES = [
-  "Indian Dishes",
-  "Dal & Legumes",
-  "Rice & Grains",
-  "Bread & Roti",
-  "Eggs & Dairy",
-  "Chicken & Meat",
-  "Fish & Seafood",
-  "Vegetables",
-  "Fruits",
-  "Snacks & Street Food",
-  "Chinese",
-  "Sandwiches",
-  "Junk Food",
-  "Healthy & Fitness",
-  "Beverages",
-  "Sweets & Desserts",
-  "Custom",
-] as const;
-
-// ─── Macro Calculator ─────────────────────────────────────────────────────────
-
-export function calculateMacros(item: FoodDbItem, quantityGrams: number) {
-  const ratio = quantityGrams / 100;
-  return {
-    calories: Math.round(item.caloriesPer100g * ratio),
-    protein: Math.round(item.proteinPer100g * ratio * 10) / 10,
-    carbs: Math.round(item.carbsPer100g * ratio * 10) / 10,
-    fat: Math.round(item.fatPer100g * ratio * 10) / 10,
-  };
-}
-
-export function displayQtyToGrams(item: FoodDbItem, displayQty: number): number {
-  if (item.quantityMode === "piece" && item.gramsPerPiece) {
-    return displayQty * item.gramsPerPiece;
-  }
-  if (item.quantityMode === "serving" && item.mlPerServing) {
-    return displayQty * item.mlPerServing;
-  }
-  return displayQty; // grams or ml — treat as 1:1
-}
+// Note: BUILT_IN_FOODS is used by seed.ts for DB population.
+// Search/calculator utilities live in the frontend's lib/foodDatabase.ts.
