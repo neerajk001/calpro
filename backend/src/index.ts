@@ -604,7 +604,7 @@ let foodCache: Array<{
   carbsPer100g: number; fatPer100g: number;
   defaultQty: number; quantityMode: string;
   gramsPerPiece: number | null; mlPerServing: number | null;
-  emoji: string | null; barcode: string | null;
+  emoji: string | null; barcode: string | null; isIndian: boolean;
 }> = [];
 
 async function refreshFoodCache() {
@@ -613,7 +613,7 @@ async function refreshFoodCache() {
       `SELECT id, name, category,
               "caloriesPer100g", "proteinPer100g", "carbsPer100g", "fatPer100g",
               "defaultQty", "quantityMode",
-              "gramsPerPiece", "mlPerServing", emoji, barcode
+              "gramsPerPiece", "mlPerServing", emoji, barcode, "isIndian"
        FROM "Food"`
     );
     foodCache = rows;
@@ -630,9 +630,11 @@ function searchFoodCache(q: string): typeof foodCache {
       const aExact = aLower === lower ? 3 : aLower.startsWith(lower) ? 2 : 1;
       const bExact = bLower === lower ? 3 : bLower.startsWith(lower) ? 2 : 1;
       if (aExact !== bExact) return bExact - aExact;
-      const aIsIndian = a.barcode?.startsWith("890") ? 1 : 0;
-      const bIsIndian = b.barcode?.startsWith("890") ? 1 : 0;
-      return bIsIndian - aIsIndian;
+      // Indian foods first, then by barcode priority
+      const aRank = (a.isIndian ? 2 : 0) + (a.barcode?.startsWith("890") ? 1 : 0);
+      const bRank = (b.isIndian ? 2 : 0) + (b.barcode?.startsWith("890") ? 1 : 0);
+      if (aRank !== bRank) return bRank - aRank;
+      return 0;
     })
     .slice(0, 50);
 }

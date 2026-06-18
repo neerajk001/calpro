@@ -111,12 +111,14 @@ model Food {
   barcode         String?      @unique
   source          FoodSource   @default(IFCT)
   sourceRef       String?
+  isIndian        Boolean      @default(true)
   createdAt       DateTime     @default(now())
   aliases         FoodAlias[]
   portions        FoodPortion[]
   scanFeedbacks   ScanFeedback[]
 
   @@index([name])
+  @@index([isIndian])
 }
 
 model FoodAlias {
