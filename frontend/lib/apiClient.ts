@@ -12,9 +12,13 @@ let activeSearchController: AbortController | null = null;
 const inFlight = new Map<string, Promise<unknown>>();
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const key = `${options?.method || "GET"}:${path}`;
-  const existing = inFlight.get(key);
-  if (existing) return existing as Promise<T>;
+  const method = options?.method || "GET";
+  // Only deduplicate GET requests — POSTs are mutations and must not be cached
+  const key = `${method}:${path}`;
+  if (method === "GET") {
+    const existing = inFlight.get(key);
+    if (existing) return existing as Promise<T>;
+  }
 
   const authHeaders = getAuthHeaders();
   const url = `${BACKEND_URL}${path}`;
@@ -49,7 +53,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     inFlight.delete(key);
   });
 
-  inFlight.set(key, promise);
+  if (method === "GET") {
+    inFlight.set(key, promise);
+  }
   return promise as Promise<T>;
 }
 
