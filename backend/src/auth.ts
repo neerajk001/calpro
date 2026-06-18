@@ -88,8 +88,10 @@ export function authenticateRequest(req: Request): { userId: string } | null {
 export async function resolveUserId(req: Request): Promise<string> {
   const authHeader = req.headers.authorization;
   let userId: string | null = null;
+  let triedAuth = false;
 
   if (authHeader && authHeader.startsWith("Bearer ")) {
+    triedAuth = true;
     const token = authHeader.slice(7);
     const verified = await verifySupabaseToken(token);
     if (verified) {
@@ -99,7 +101,8 @@ export async function resolveUserId(req: Request): Promise<string> {
     }
   }
 
-  if (!userId) {
+  // Only fall back to deviceId if NO Bearer header was sent
+  if (!userId && !triedAuth) {
     const deviceId = req.headers["x-device-id"] as string | undefined;
     if (deviceId && typeof deviceId === "string" && deviceId.length > 0) {
       userId = await findOrCreateByAnonymousId(deviceId);
@@ -107,6 +110,9 @@ export async function resolveUserId(req: Request): Promise<string> {
   }
 
   if (!userId) {
+    if (triedAuth) {
+      throw Object.assign(new Error("Invalid or expired authentication token"), { statusCode: 401 });
+    }
     throw Object.assign(new Error("Authentication or device ID required"), { statusCode: 401 });
   }
 
