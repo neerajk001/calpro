@@ -10,6 +10,7 @@ export interface FoodEntry {
   date: string; // "YYYY-MM-DD"
   createdAt: number; // Unix timestamp ms
   tag: FoodTag;
+  consumedWeightG?: number;
 }
 
 export interface UserSettings {
@@ -99,6 +100,7 @@ export interface MealBuilderItem {
   fatPer100g?: number;
   gramsPerPiece?: number;
   mlPerServing?: number;
+  consumedWeightG?: number;
 }
 
 export interface MealTemplateItem {

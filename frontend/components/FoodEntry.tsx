@@ -17,6 +17,9 @@ export function FoodEntryItem({ entry, onDelete }: FoodEntryItemProps) {
         </p>
         <p className="mt-0.5 text-xs font-semibold text-[#4B5563]">
           {entry.calories} kcal <span className="mx-1 text-[#E5E7EB]">·</span> {entry.protein}g protein
+          {entry.consumedWeightG && (
+            <span className="ml-1 text-[#2563EB]">· {entry.consumedWeightG}g</span>
+          )}
         </p>
       </Link>
       <button

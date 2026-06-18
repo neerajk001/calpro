@@ -1,4 +1,5 @@
 import { prisma } from "../prisma.js";
+import { logger } from "../logger.js";
 
 export async function recordCorrection(
   userId: string,
@@ -46,5 +47,5 @@ export async function recordCorrection(
     });
   }
 
-  console.log(`[feedback] Correction: "${originalName}" → "${correctedName}" (count: ${count})`);
+  logger.info("Correction recorded", { originalName, correctedName, count });
 }

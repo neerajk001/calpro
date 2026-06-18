@@ -1,8 +1,7 @@
 import type { Request } from "express";
 import * as jose from "jose";
 import { prisma } from "./prisma.js";
-
-const DEFAULT_USER_ID = "calpro-default-user";
+import { logger } from "./logger.js";
 
 function getJwtSecret(): Uint8Array {
   const secret = process.env.SUPABASE_JWT_SECRET;
@@ -20,7 +19,8 @@ async function verifySupabaseToken(token: string): Promise<{ sub: string; email?
     });
     if (!payload.sub) return null;
     return { sub: payload.sub, email: payload.email as string | undefined };
-  } catch {
+  } catch (err) {
+    logger.warn("JWT verification failed", { err: (err as Error).message });
     return null;
   }
 }
@@ -66,44 +66,52 @@ async function findOrCreateByAnonymousId(anonymousId: string): Promise<string> {
   return user.id;
 }
 
-async function getLegacyUserId(): Promise<string> {
-  const user = await prisma.user.upsert({
-    where: { id: DEFAULT_USER_ID },
-    update: {},
-    create: {
-      id: DEFAULT_USER_ID,
-      settings: { create: {} },
-    },
-  });
-  return user.id;
-}
-
 /**
  * Resolves the effective userId from the incoming request.
  *
  * Priority:
  * 1. Valid Authorization: Bearer <supabase-jwt> → extract sub, find-or-create User by supabaseId
  * 2. X-Device-Id header → find-or-create anonymous User by anonymousId
- * 3. Neither → legacy "calpro-default-user" fallback
+ * 3. Neither → throws 401 error (no shared default user)
  */
+export { findOrCreateBySupabaseId, findOrCreateByAnonymousId };
+
+export function authenticateRequest(req: Request): { userId: string } | null {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    // Don't resolve here — let the async path handle it
+    return { userId: "__authenticated__" };
+  }
+  return null;
+}
+
 export async function resolveUserId(req: Request): Promise<string> {
   const authHeader = req.headers.authorization;
+  let userId: string | null = null;
+
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.slice(7);
     const verified = await verifySupabaseToken(token);
     if (verified) {
       const name = req.headers["x-user-name"] as string | undefined;
       const image = req.headers["x-user-image"] as string | undefined;
-      return findOrCreateBySupabaseId(verified.sub, verified.email, name, image);
+      userId = await findOrCreateBySupabaseId(verified.sub, verified.email, name, image);
     }
   }
 
-  const deviceId = req.headers["x-device-id"] as string | undefined;
-  if (deviceId && typeof deviceId === "string" && deviceId.length > 0) {
-    return findOrCreateByAnonymousId(deviceId);
+  if (!userId) {
+    const deviceId = req.headers["x-device-id"] as string | undefined;
+    if (deviceId && typeof deviceId === "string" && deviceId.length > 0) {
+      userId = await findOrCreateByAnonymousId(deviceId);
+    }
   }
 
-  return getLegacyUserId();
-}
+  if (!userId) {
+    throw Object.assign(new Error("Authentication or device ID required"), { statusCode: 401 });
+  }
 
-export { verifySupabaseToken, findOrCreateBySupabaseId, findOrCreateByAnonymousId };
+  // Set RLS session variable for defense-in-depth
+  await prisma.$executeRawUnsafe(`SET LOCAL app.current_user_id = '${userId}'`);
+
+  return userId;
+}

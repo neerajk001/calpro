@@ -43,15 +43,15 @@ export class UserFacingError extends Error {
   }
 }
 
-export async function scanFoodImage(base64Image: string, userPrompt?: string): Promise<ScanResultItem[]> {
+export async function scanFoodImage(base64Image: string, userId: string, userPrompt?: string): Promise<ScanResultItem[]> {
   if (!base64Image) throw new UserFacingError("No image data provided");
 
-  // Cache check: same image hash → return cached
+  // Cache check: same image hash + user → return cached
   const imgHash = hashImage(base64Image);
-  const cached = await prisma.scanCache.findUnique({ where: { imageHash: imgHash } });
+  const cached = await prisma.scanCache.findUnique({ where: { userId_imageHash: { userId, imageHash: imgHash } } });
   if (cached) {
     await prisma.scanCache.update({
-      where: { imageHash: imgHash },
+      where: { userId_imageHash: { userId, imageHash: imgHash } },
       data: { hitCount: { increment: 1 } },
     });
     return (cached.result as any).items as ScanResultItem[];
@@ -62,6 +62,7 @@ export async function scanFoodImage(base64Image: string, userPrompt?: string): P
   if (!Array.isArray(classified) || classified.length === 0) return [];
 
   const results: ScanResultItem[] = [];
+  const ts = Date.now();
 
   for (const item of classified) {
     // Step 2: Map AI name → database food
@@ -69,8 +70,12 @@ export async function scanFoodImage(base64Image: string, userPrompt?: string): P
     const mappingConfidence = mapped?.confidence ?? 0;
     const foodId = mapped?.id ?? null;
 
-    // Step 3: Look up nutrition (from DB or category fallback)
-    const nutrition = await lookupNutrition(foodId, item.portionType);
+    // Step 3+4: Look up nutrition and portion presets in parallel
+    const [nutrition, { presets, defaultGrams }] = await Promise.all([
+      lookupNutrition(foodId, item.portionType),
+      getPortionPresets(foodId, item.portionType, item.servingCount ?? 1),
+    ]);
+
     const baseMacros = {
       caloriesPer100g: nutrition.caloriesPer100g,
       proteinPer100g: nutrition.proteinPer100g,
@@ -78,11 +83,7 @@ export async function scanFoodImage(base64Image: string, userPrompt?: string): P
       fatPer100g: nutrition.fatPer100g,
     };
 
-    // Apply cooking modifiers
     const macros = applyCookingModifiers(baseMacros, item.cookingMethod || "normal");
-
-    // Step 4: Resolve portion presets + effective grams
-    const { presets, defaultGrams } = await getPortionPresets(foodId, item.portionType, item.servingCount ?? 1);
     const factor = defaultGrams / 100;
 
     // Step 5: Multi-factor confidence
@@ -100,7 +101,7 @@ export async function scanFoodImage(base64Image: string, userPrompt?: string): P
     }
 
     results.push({
-      id: `scan-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+      id: `scan-${ts}-${Math.random().toString(36).substring(2, 8)}`,
       name: mapped?.name ?? item.name,
       caloriesPer100g: macros.caloriesPer100g,
       proteinPer100g: macros.proteinPer100g,
@@ -123,9 +124,10 @@ export async function scanFoodImage(base64Image: string, userPrompt?: string): P
     });
   }
 
-  // Cache the result
+  // Cache the result per user
   await prisma.scanCache.create({
     data: {
+      userId,
       imageHash: imgHash,
       result: { items: results } as any,
     },

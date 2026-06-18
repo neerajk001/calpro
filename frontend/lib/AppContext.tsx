@@ -6,20 +6,22 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
+  useRef,
   type ReactNode,
 } from "react";
 import type { FoodEntry, UserSettings, DaySummary, FoodTag, FoodDbItem, FoodDbCategory, QuantityMode, MealTemplate, MealTemplateItem, MealBuilderItem, WaterLog } from "./types";
 import { apiClient } from "./apiClient";
 import { createClient } from "./supabase/client";
 import { setAuthToken, clearAuthToken } from "./authStore";
-import { getOrCreateDeviceId } from "./deviceId";
+import { getOrCreateDeviceId, clearDeviceId } from "./deviceId";
 
 interface AppContextValue {
   foods: FoodEntry[];
   settings: UserSettings;
   customFoods: FoodDbItem[];
   hydrated: boolean;
-  addFood: (name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => void;
+  addFood: (name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number, consumedWeightG?: number) => void;
   deleteFood: (id: string) => void;
   updateFood: (id: string, name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => void;
   undoDeleteFood: () => void;
@@ -56,8 +58,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [lastDeleted, setLastDeleted] = useState<FoodEntry | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [authResolved, setAuthResolved] = useState(false);
+  const rehydratingRef = useRef(false);
+
+  const foodsByDate = useMemo(() => {
+    const index = new Map<string, FoodEntry[]>();
+    for (const f of foods) {
+      const list = index.get(f.date);
+      if (list) list.push(f);
+      else index.set(f.date, [f]);
+    }
+    return index;
+  }, [foods]);
 
   const rehydrate = useCallback(async (triggerClaim = false) => {
+    if (rehydratingRef.current) return;
+    rehydratingRef.current = true;
     try {
       const deviceId = getOrCreateDeviceId();
 
@@ -80,6 +95,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Failed to hydrate state:", err);
       setHydrated(true);
+    } finally {
+      rehydratingRef.current = false;
     }
   }, []);
 
@@ -113,8 +130,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await rehydrate(true);
       } else if (event === "SIGNED_OUT") {
         clearAuthToken();
+        clearDeviceId();
         setUserName(null);
-        // Reset all state to empty on sign out
+        // Clear all state + localStorage
         setFoods([]);
         setCustomFoods([]);
         setMealTemplates([]);
@@ -125,7 +143,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           trackCarbsFat: false,
           dailyWaterTarget: 2500,
         });
-        await rehydrate(false);
+        setLastDeleted(null);
+        // Remove device ID so next anonymous session gets a fresh identity
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("calpro:deviceId");
+          localStorage.removeItem("calpro:foods");
+          localStorage.removeItem("calpro:settings");
+        }
+        setHydrated(true);
       }
     });
 
@@ -142,7 +167,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [authResolved, rehydrate]);
 
   const addFood = useCallback(
-    (name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number) => {
+    (name: string, calories: number, protein: number, date: string, tag: FoodTag, carbs?: number, fat?: number, consumedWeightG?: number) => {
       const tempId = "temp-" + Math.random().toString(36).substring(2) + Date.now().toString(36);
       const entry: FoodEntry = {
         id: tempId,
@@ -154,6 +179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         date,
         createdAt: Date.now(),
         tag,
+        consumedWeightG,
       };
 
       setFoods((prev) => [...prev, entry]);
@@ -385,18 +411,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [waterLogs]);
 
   const getDayFoods = useCallback(
-    (date: string) => foods.filter((f) => f.date === date),
-    [foods],
+    (date: string) => foodsByDate.get(date) || [],
+    [foodsByDate],
   );
 
   const getDaySummary = useCallback(
     (date: string): DaySummary => {
-      const entries = foods.filter((f) => f.date === date);
-      const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0);
-      const rawProtein = entries.reduce((sum, e) => sum + e.protein, 0);
-      const totalProtein = Math.round(rawProtein * 10) / 10;
-      const totalCarbs = Math.round(entries.reduce((sum, e) => sum + (e.carbs ?? 0), 0) * 10) / 10;
-      const totalFat = Math.round(entries.reduce((sum, e) => sum + (e.fat ?? 0), 0) * 10) / 10;
+      const entries = foodsByDate.get(date) || [];
+      let totalCalories = 0;
+      let totalProtein = 0;
+      let totalCarbs = 0;
+      let totalFat = 0;
+      for (const e of entries) {
+        totalCalories += e.calories;
+        totalProtein += e.protein;
+        totalCarbs += e.carbs ?? 0;
+        totalFat += e.fat ?? 0;
+      }
+      totalProtein = Math.round(totalProtein * 10) / 10;
+      totalCarbs = Math.round(totalCarbs * 10) / 10;
+      totalFat = Math.round(totalFat * 10) / 10;
 
       return {
         date,
@@ -413,34 +447,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : 0,
       };
     },
-    [foods, settings],
+    [foodsByDate, settings],
   );
 
-  const getDistinctFoods = useCallback(
-    (limit = 50) => {
-      const seen = new Map<string, { calories: number; protein: number; count: number }>();
-      for (let i = foods.length - 1; i >= 0; i--) {
-        const f = foods[i];
-        const key = f.name.trim().toLowerCase();
-        const existing = seen.get(key);
-        if (existing) {
-          existing.count++;
-          existing.calories = f.calories;
-          existing.protein = f.protein;
-        } else {
-          seen.set(key, { calories: f.calories, protein: f.protein, count: 1 });
-        }
+  const distinctFoods = useMemo(() => {
+    const seen = new Map<string, { calories: number; protein: number; count: number }>();
+    for (let i = foods.length - 1; i >= 0; i--) {
+      const f = foods[i];
+      const key = f.name.trim().toLowerCase();
+      const existing = seen.get(key);
+      if (existing) {
+        existing.count++;
+        existing.calories = f.calories;
+        existing.protein = f.protein;
+      } else {
+        seen.set(key, { calories: f.calories, protein: f.protein, count: 1 });
       }
-      return Array.from(seen.entries())
-        .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, limit)
-        .map(([name, data]) => ({
-          name: name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-          calories: data.calories,
-          protein: data.protein,
-        }));
-    },
-    [foods],
+    }
+    return Array.from(seen.entries())
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([name, data]) => ({
+        name: name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+        calories: data.calories,
+        protein: data.protein,
+      }));
+  }, [foods]);
+
+  const getDistinctFoods = useCallback(
+    (limit = 50) => distinctFoods.slice(0, limit),
+    [distinctFoods],
   );
 
   const getStreak = useCallback(() => {
@@ -474,33 +509,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return streak;
   }, [foods]);
 
+  const value = useMemo(() => ({
+    foods,
+    settings,
+    customFoods,
+    hydrated,
+    addFood,
+    deleteFood,
+    updateFood,
+    undoDeleteFood,
+    hasLastDeleted: lastDeleted !== null,
+    updateSettings,
+    addCustomFood,
+    deleteCustomFood,
+    mealTemplates,
+    addMealTemplate,
+    deleteMealTemplate,
+    waterLogs,
+    saveWaterLog,
+    getDayFoods,
+    getDaySummary,
+    getDistinctFoods,
+    getStreak,
+    userName,
+  }), [
+    foods, settings, customFoods, hydrated,
+    addFood, deleteFood, updateFood, undoDeleteFood,
+    lastDeleted, updateSettings, addCustomFood, deleteCustomFood,
+    mealTemplates, addMealTemplate, deleteMealTemplate,
+    waterLogs, saveWaterLog, getDayFoods, getDaySummary,
+    getDistinctFoods, getStreak, userName,
+  ]);
+
   return (
-    <AppContext.Provider
-      value={{
-        foods,
-        settings,
-        customFoods,
-        hydrated,
-        addFood,
-        deleteFood,
-        updateFood,
-        undoDeleteFood,
-        hasLastDeleted: lastDeleted !== null,
-        updateSettings,
-        addCustomFood,
-        deleteCustomFood,
-        mealTemplates,
-        addMealTemplate,
-        deleteMealTemplate,
-        waterLogs,
-        saveWaterLog,
-        getDayFoods,
-        getDaySummary,
-        getDistinctFoods,
-        getStreak,
-        userName,
-      }}
-    >
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );

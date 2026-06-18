@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useApp } from "@/lib/AppContext";
 import { DualProgressRing, ProgressSkeleton } from "@/components/ProgressRing";
 import { FoodEntryItem } from "@/components/FoodEntry";
@@ -29,6 +29,12 @@ function offsetDate(dateStr: string, days: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+const STARTER_FOODS = [
+  { name: "2 Scrambled Eggs", calories: 140, protein: 12, tag: "breakfast" as FoodTag },
+  { name: "Whey Protein Shake", calories: 130, protein: 25, tag: "snack" as FoodTag },
+  { name: "Greek Yogurt Cup", calories: 120, protein: 15, tag: "snack" as FoodTag },
+];
+
 function isToday(dateStr: string): boolean {
   return dateStr === todayStr();
 }
@@ -55,8 +61,8 @@ export default function DashboardPage() {
     userName,
   } = useApp();
 
-  const summary = getDaySummary(selectedDate);
-  const distinct = getDistinctFoods(4);
+  const summary = useMemo(() => getDaySummary(selectedDate), [getDaySummary, selectedDate]);
+  const distinct = useMemo(() => getDistinctFoods(4), [getDistinctFoods]);
   const today = todayStr();
   const canGoForward = selectedDate < today;
   const calorieExceeded = summary.totalCalories > settings.dailyCalorieTarget;
@@ -82,16 +88,18 @@ export default function DashboardPage() {
 
   // Day of the week greetings (0 is Sunday, 6 is Saturday)
   const dayOfWeek = new Date().getDay();
-  const dayGreetings = [
-    displayName ? `Recharge and refuel today, ${displayName}.` : "Recharge and refuel today.", // Sunday
-    displayName ? `Set the tone for the week, ${displayName}.` : "Set the tone for the week.", // Monday
-    displayName ? `Stay consistent today, ${displayName}.` : "Stay consistent today.", // Tuesday
-    displayName ? `Halfway through, keep it up ${displayName}!` : "Halfway through, keep it up!", // Wednesday
-    displayName ? `Stay disciplined today, ${displayName}.` : "Stay disciplined today.", // Thursday
-    displayName ? `Finish the week strong, ${displayName}!` : "Finish the week strong!", // Friday
-    displayName ? `Balance is key today, ${displayName}.` : "Balance is key today.", // Saturday
-  ];
-  const currentGreeting = dayGreetings[dayOfWeek];
+  const currentGreeting = useMemo(() => {
+    const greetings = [
+      displayName ? `Recharge and refuel today, ${displayName}.` : "Recharge and refuel today.",
+      displayName ? `Set the tone for the week, ${displayName}.` : "Set the tone for the week.",
+      displayName ? `Stay consistent today, ${displayName}.` : "Stay consistent today.",
+      displayName ? `Halfway through, keep it up ${displayName}!` : "Halfway through, keep it up!",
+      displayName ? `Stay disciplined today, ${displayName}.` : "Stay disciplined today.",
+      displayName ? `Finish the week strong, ${displayName}!` : "Finish the week strong!",
+      displayName ? `Balance is key today, ${displayName}.` : "Balance is key today.",
+    ];
+    return greetings[dayOfWeek];
+  }, [displayName, dayOfWeek]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -162,12 +170,6 @@ export default function DashboardPage() {
     },
     [addFood, selectedDate],
   );
-
-  const starterFoods = [
-    { name: "2 Scrambled Eggs", calories: 140, protein: 12, tag: "breakfast" as FoodTag },
-    { name: "Whey Protein Shake", calories: 130, protein: 25, tag: "snack" as FoodTag },
-    { name: "Greek Yogurt Cup", calories: 120, protein: 15, tag: "snack" as FoodTag },
-  ];
 
   const tagsOrder: FoodTag[] = ["breakfast", "lunch", "dinner", "snack", "junk"];
   const groupedEntries = summary.entries.reduce((acc, entry) => {
@@ -455,7 +457,7 @@ export default function DashboardPage() {
                 <p className="text-base font-semibold text-[#111827]">No entries logged for this date.</p>
                 <p className="mt-2 text-xs font-bold text-[#6B7280] uppercase tracking-wider">Quick log recommendations:</p>
                 <div className="mt-4 flex flex-col gap-2">
-                  {starterFoods.map((food) => (
+                  {STARTER_FOODS.map((food) => (
                     <button
                       key={food.name}
                       onClick={() => handleQuickAdd(food.name, food.calories, food.protein, food.tag)}

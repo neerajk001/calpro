@@ -50,19 +50,21 @@ model Settings {
 }
 
 model FoodLog {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  calories  Int
-  protein   Float
-  carbs     Float?
-  fat       Float?
-  date      String   // "YYYY-MM-DD" — KEEP AS STRING (streak/summary rely on local-date equality)
-  createdAt DateTime @default(now())
-  tag       FoodTag
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  calories         Int
+  protein          Float
+  carbs            Float?
+  fat              Float?
+  date             String   // "YYYY-MM-DD" — KEEP AS STRING (streak/summary rely on local-date equality)
+  createdAt        DateTime @default(now())
+  tag              FoodTag
+  consumedWeightG  Float?
 
   @@index([userId, date])
+  @@index([userId, createdAt])
 }
 
 model CustomFood {
@@ -144,12 +146,14 @@ model FoodPortion {
 
 model ScanCache {
   id        String   @id @default(cuid())
-  imageHash String   @unique
+  userId    String?
+  imageHash String
   result    Json
   hitCount  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, imageHash])
   @@index([imageHash])
 }
 
@@ -182,6 +186,7 @@ model MealTemplate {                  // Roadmap 3.3 "My Meals"
 
 model MealTemplateItem {
   id           String       @id @default(cuid())
+  userId       String
   templateId   String
   template     MealTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   name         String
@@ -193,6 +198,8 @@ model MealTemplateItem {
   carbs        Float
   fat          Float
   emoji        String?
+
+  @@index([userId])
 }
 
 model WaterLog {                       // Roadmap 3.8
@@ -202,5 +209,5 @@ model WaterLog {                       // Roadmap 3.8
   date   String // "YYYY-MM-DD"
   amount Int    // ml
 
-  @@index([userId, date])
+  @@unique([userId, date])
 }

@@ -16,17 +16,18 @@ export interface MappedFood {
 }
 
 export async function mapFood(aiName: string): Promise<MappedFood | null> {
-  // Layer 1: Exact match
-  const exactMatch = await prisma.food.findFirst({
-    where: { name: { equals: aiName, mode: "insensitive" } },
-  });
-  if (exactMatch) return { ...toMapped(exactMatch), confidence: 1.0, matchLayer: "exact" };
+  // Layer 1+2: Run exact and alias queries in parallel
+  const [exactMatch, aliasMatch] = await Promise.all([
+    prisma.food.findFirst({
+      where: { name: { equals: aiName, mode: "insensitive" } },
+    }),
+    prisma.foodAlias.findFirst({
+      where: { alias: { equals: aiName, mode: "insensitive" } },
+      include: { food: true },
+    }),
+  ]);
 
-  // Layer 2: Alias match
-  const aliasMatch = await prisma.foodAlias.findFirst({
-    where: { alias: { equals: aiName, mode: "insensitive" } },
-    include: { food: true },
-  });
+  if (exactMatch) return { ...toMapped(exactMatch), confidence: 1.0, matchLayer: "exact" };
   if (aliasMatch?.food) return { ...toMapped(aliasMatch.food), confidence: 0.9, matchLayer: "alias" };
 
   // Layer 3: Fuzzy match via pg_trgm

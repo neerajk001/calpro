@@ -10,11 +10,9 @@ interface FoodDBSearchProps {
   onAddToMeal: (item: MealBuilderItem) => void;
   trackCarbsFat: boolean;
   initialFoodId?: string;
-  scannedFood?: FoodDbItem;
-  onScanClick?: () => void;
 }
 
-export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialFoodId, scannedFood, onScanClick }: FoodDBSearchProps) {
+export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialFoodId }: FoodDBSearchProps) {
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedFood, setSelectedFood] = useState<FoodDbItem | null>(null);
@@ -24,12 +22,22 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
   const [loading, setLoading] = useState(false);
   const [cookingMethod, setCookingMethod] = useState<"normal" | "boiled" | "fried" | "ghee">("normal");
   const [showModifierInfo, setShowModifierInfo] = useState(false);
+  const [customWeightG, setCustomWeightG] = useState<number | null>(null);
+  const [editingWeight, setEditingWeight] = useState(false);
+
+  const setQty = useCallback((qty: number) => {
+    setDisplayQty(qty);
+    setCustomWeightG(null);
+    setEditingWeight(false);
+  }, []);
 
   const selectFood = useCallback((food: FoodDbItem) => {
     setSelectedFood(food);
     setQuantityMode(food.quantityMode);
     setDisplayQty(food.defaultQty);
     setCookingMethod("normal");
+    setCustomWeightG(null);
+    setEditingWeight(false);
   }, []);
 
   function highlightMatch(text: string, q: string) {
@@ -67,13 +75,14 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
           setResults(filtered);
         })
         .catch((err) => {
+          if (err instanceof DOMException && err.name === "AbortError") return;
           console.error("Search query failed:", err);
           setResults([]);
         })
         .finally(() => {
           setLoading(false);
         });
-    }, 150);
+    }, 600);
 
     return () => clearTimeout(handler);
   }, [query, selectedCategory, customFoods]);
@@ -94,11 +103,8 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
     }
   }, [initialFoodId, customFoods, selectFood]);
 
-  useEffect(() => {
-    if (scannedFood) selectFood(scannedFood);
-  }, [scannedFood, selectFood]);
-
-  const quantityGrams = selectedFood ? displayQtyToGrams(selectedFood, displayQty) : 0;
+  const quantityGrams = customWeightG ?? (selectedFood ? displayQtyToGrams(selectedFood, displayQty) : 0);
+  const isCustomWeight = customWeightG !== null && selectedFood ? customWeightG !== displayQtyToGrams(selectedFood, displayQty) : false;
   const rawMacros = selectedFood ? calculateMacros(selectedFood, quantityGrams) : null;
 
   const macros = useMemo(() => {
@@ -194,6 +200,7 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
       fatPer100g: selectedFood.fatPer100g,
       gramsPerPiece: selectedFood.gramsPerPiece,
       mlPerServing: selectedFood.mlPerServing,
+      consumedWeightG: isCustomWeight ? quantityGrams : undefined,
     };
     onAddToMeal(item);
     setSelectedFood(null);
@@ -214,7 +221,7 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
           placeholder="Search foods..."
           className="input-field !pl-12 !pr-12 text-[15px]"
         />
-        {query ? (
+        {query && (
           <button
             onClick={() => { setQuery(""); setSelectedFood(null); }}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#111827] transition cursor-pointer"
@@ -223,20 +230,6 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
               <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
             </svg>
           </button>
-        ) : (
-          onScanClick && (
-            <button onClick={onScanClick} type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#2563EB] transition cursor-pointer" title="Scan Barcode">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-                <line x1="9" y1="8" x2="9" y2="16" />
-                <line x1="12" y1="8" x2="12" y2="16" />
-                <line x1="15" y1="8" x2="15" y2="16" />
-              </svg>
-            </button>
-          )
         )}
       </div>
 
@@ -276,22 +269,19 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Quantity</span>
               <div className="flex items-center gap-2">
-                <button onClick={() => setDisplayQty(q => Math.max(stepQty, q - stepQty))} className="w-7 h-7 flex items-center justify-center bg-[#E5E7EB] rounded-full text-[#111827] text-xs hover:bg-[#EFF6FF] hover:text-[#2563EB] transition cursor-pointer font-bold">−</button>
+                <button onClick={() => setQty(Math.max(stepQty, displayQty - stepQty))} className="w-7 h-7 flex items-center justify-center bg-[#E5E7EB] rounded-full text-[#111827] text-xs hover:bg-[#EFF6FF] hover:text-[#2563EB] transition cursor-pointer font-bold">−</button>
                 <span className="text-sm font-extrabold text-[#2563EB] tabular-nums min-w-[75px] text-center">{displayQty} {unitLabel(quantityMode, selectedFood)}</span>
-                <button onClick={() => setDisplayQty(q => Math.min(maxQty, q + stepQty))} className="w-7 h-7 flex items-center justify-center bg-[#E5E7EB] rounded-full text-[#111827] text-xs hover:bg-[#EFF6FF] hover:text-[#2563EB] transition cursor-pointer font-bold">+</button>
+                <button onClick={() => setQty(Math.min(maxQty, displayQty + stepQty))} className="w-7 h-7 flex items-center justify-center bg-[#E5E7EB] rounded-full text-[#111827] text-xs hover:bg-[#EFF6FF] hover:text-[#2563EB] transition cursor-pointer font-bold">+</button>
               </div>
             </div>
-            <input type="range" min={stepQty} max={maxQty} step={stepQty} value={displayQty} onChange={(e) => setDisplayQty(Number(e.target.value))} className="w-full accent-[#2563EB] cursor-pointer" />
-            {selectedFood.quantityMode === "piece" && selectedFood.gramsPerPiece && (
-              <p className="text-xs text-[#6B7280] mt-1 font-semibold">≈ {quantityGrams}g total ({selectedFood.gramsPerPiece}g per piece)</p>
-            )}
+            <input type="range" min={stepQty} max={maxQty} step={stepQty} value={displayQty} onChange={(e) => setQty(Number(e.target.value))} className="w-full accent-[#2563EB] cursor-pointer" />
 
             <div className="flex gap-1.5 mt-2 flex-wrap">
               {getPresets(selectedFood).map((preset) => (
                 <button
                   key={preset.label}
                   type="button"
-                  onClick={() => setDisplayQty(preset.qty)}
+                  onClick={() => setQty(preset.qty)}
                   className={`px-2.5 py-1.5 text-xs font-semibold rounded-full border transition active:scale-95 cursor-pointer ${
                     displayQty === preset.qty
                       ? "bg-[#2563EB] border-[#2563EB] text-white"
@@ -302,6 +292,78 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Weight Override Row */}
+          <div className="border-t border-black/5 pt-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Approx Weight</span>
+            </div>
+            {selectedFood && (
+              <>
+                {editingWeight ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={1}
+                      max={5000}
+                      value={customWeightG ?? quantityGrams}
+                      onChange={(e) => {
+                        const v = Math.max(1, Math.min(5000, Math.round(Number(e.target.value) || 0)));
+                        setCustomWeightG(v);
+                      }}
+                      onBlur={() => {
+                        if (customWeightG && selectedFood && customWeightG === displayQtyToGrams(selectedFood, displayQty)) {
+                          setCustomWeightG(null);
+                        }
+                        setEditingWeight(false);
+                      }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { (e.target as HTMLInputElement).blur(); } }}
+                      autoFocus
+                      className="w-24 bg-[#FFFFFF] border border-[#2563EB]/40 px-2.5 py-1.5 text-sm font-bold text-[#2563EB] outline-none rounded-lg tabular-nums"
+                    />
+                    <span className="text-sm font-semibold text-[#4B5563]">g</span>
+                    <button
+                      onClick={() => {
+                        setCustomWeightG(null);
+                        setEditingWeight(false);
+                      }}
+                      className="text-xs text-[#6B7280] hover:text-[#EF4444] font-semibold cursor-pointer"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-[#111827] tabular-nums">
+                      {isCustomWeight ? customWeightG : quantityGrams}g
+                    </span>
+                    {isCustomWeight && (
+                      <span className="text-[10px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
+                        Custom weight
+                      </span>
+                    )}
+                    <button
+                      onClick={() => {
+                        setCustomWeightG(customWeightG ?? quantityGrams);
+                        setEditingWeight(true);
+                      }}
+                      className="text-[#6B7280] hover:text-[#2563EB] transition cursor-pointer ml-1"
+                      title="Edit weight"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                {selectedFood.quantityMode === "piece" && selectedFood.gramsPerPiece && (
+                  <p className="text-[10px] text-[#6B7280] font-medium mt-0.5">
+                    Default: {selectedFood.gramsPerPiece}g per piece
+                  </p>
+                )}
+              </>
+            )}
           </div>
 
           {/* Cooking Method */}

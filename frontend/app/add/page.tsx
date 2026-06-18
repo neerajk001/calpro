@@ -6,7 +6,6 @@ import { useApp } from "@/lib/AppContext";
 import type { FoodTag, MealBuilderItem, FoodDbItem, MealTemplate, FoodDbCategory, QuantityMode } from "@/lib/types";
 import { FoodDBSearch } from "@/components/FoodDBSearch";
 import { MealBuilder } from "@/components/MealBuilder";
-import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { apiClient } from "@/lib/apiClient";
 import { ALL_CATEGORIES } from "@/lib/foodDatabase";
 
@@ -77,8 +76,6 @@ export default function AddFoodPage() {
     setCustomForm({ name: "", category: "Custom", caloriesPer100g: "", proteinPer100g: "", carbsPer100g: "", fatPer100g: "", quantityMode: "grams", defaultQty: 100, gramsPerPiece: "", emoji: "🍽️" });
   }
 
-  const [showScanner, setShowScanner] = useState(false);
-  const [scannedFood, setScannedFood] = useState<FoodDbItem | undefined>(undefined);
   const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
   const [naturalText, setNaturalText] = useState("");
   const [name, setName] = useState("");
@@ -92,12 +89,6 @@ export default function AddFoodPage() {
   const [hasPrefilled, setHasPrefilled] = useState(false);
   const [mealItems, setMealItems] = useState<MealBuilderItem[]>([]);
   const [initialFoodId, setInitialFoodId] = useState<string | undefined>(undefined);
-
-  const handleBarcodeScan = useCallback(async (code: string) => {
-    setShowScanner(false);
-    try { const food = await apiClient.lookupBarcode(code); setScannedFood(food); }
-    catch (err: any) { console.error("Barcode lookup failed:", err); alert(err.message || "Failed to find barcode."); }
-  }, []);
 
   const handleLogTemplate = useCallback((template: MealTemplate) => {
     setSelectedTemplate(null);
@@ -185,7 +176,7 @@ export default function AddFoodPage() {
   const handleLogMeal = useCallback((mode: "combined" | "individual", tag: FoodTag) => {
     if (mealItems.length === 0) return;
     if (mode === "individual") {
-      mealItems.forEach((item) => addFood(item.name, item.calories, item.protein, today, tag, settings.trackCarbsFat ? item.carbs : undefined, settings.trackCarbsFat ? item.fat : undefined));
+      mealItems.forEach((item) => addFood(item.name, item.calories, item.protein, today, tag, settings.trackCarbsFat ? item.carbs : undefined, settings.trackCarbsFat ? item.fat : undefined, item.consumedWeightG));
     } else {
       const totalCal = mealItems.reduce((s, i) => s + i.calories, 0);
       const totalProt = Math.round(mealItems.reduce((s, i) => s + i.protein, 0) * 10) / 10;
@@ -252,7 +243,7 @@ export default function AddFoodPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-7 space-y-6">
             <div className="card p-4 md:p-5">
-              <FoodDBSearch customFoods={customFoods} onAddToMeal={handleAddToMeal} trackCarbsFat={settings.trackCarbsFat} initialFoodId={initialFoodId} scannedFood={scannedFood} onScanClick={() => setShowScanner(true)} />
+              <FoodDBSearch customFoods={customFoods} onAddToMeal={handleAddToMeal} trackCarbsFat={settings.trackCarbsFat} initialFoodId={initialFoodId} />
             </div>
 
             <div className="card p-3 md:p-4 space-y-3">
@@ -415,8 +406,6 @@ export default function AddFoodPage() {
           </div>
         </div>
       )}
-
-      {showScanner && <BarcodeScanner onScan={handleBarcodeScan} onClose={() => setShowScanner(false)} />}
 
       {selectedTemplate && (
         <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-fade-in">

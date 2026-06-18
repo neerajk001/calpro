@@ -28,7 +28,12 @@ function compressImage(dataUrl: string): Promise<string> {
       const ctx = canvas.getContext("2d");
       if (!ctx) { resolve(dataUrl.split(",")[1] || ""); return; }
       ctx.drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL("image/jpeg", 0.7).split(",")[1]);
+      canvas.toBlob((blob) => {
+        if (!blob) { resolve(dataUrl.split(",")[1] || ""); return; }
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(",")[1] || "");
+        reader.readAsDataURL(blob);
+      }, "image/jpeg", 0.7);
     };
     img.src = dataUrl;
   });
@@ -168,8 +173,11 @@ export function FoodCamera({ onLogItem, onClose }: FoodCameraProps) {
       if (editNameTimer.current) clearTimeout(editNameTimer.current);
       setEditNameLoading(true);
       editNameTimer.current = setTimeout(() => {
-        apiClient.searchFoods(editNameQuery).then(setEditNameResults).finally(() => setEditNameLoading(false));
-      }, 200);
+        apiClient.searchFoods(editNameQuery).then(setEditNameResults).catch((err) => {
+          if (err instanceof DOMException && err.name === "AbortError") return;
+          setEditNameResults([]);
+        }).finally(() => setEditNameLoading(false));
+      }, 600);
     } else { setEditNameResults([]); setEditNameLoading(false); }
     return () => { if (editNameTimer.current) clearTimeout(editNameTimer.current); };
   }, [editNameQuery, editingItemId]);

@@ -29,16 +29,16 @@ export function isAuthenticated(): boolean {
 
 export function getAuthHeaders(): Record<string, string> {
   const headers: Record<string, string> = {};
+  const deviceId = getOrCreateDeviceId();
 
   if (authToken) {
     headers["Authorization"] = `Bearer ${authToken}`;
     if (userName) headers["X-User-Name"] = userName;
     if (userImage) headers["X-User-Image"] = userImage;
-  } else {
-    const deviceId = getOrCreateDeviceId();
-    if (deviceId) {
-      headers["X-Device-Id"] = deviceId;
-    }
+  }
+
+  if (deviceId) {
+    headers["X-Device-Id"] = deviceId;
   }
 
   return headers;

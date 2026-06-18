@@ -15,3 +15,20 @@ export function getOrCreateDeviceId(): string {
   localStorage.setItem("calpro:deviceId", deviceId);
   return deviceId;
 }
+
+export function clearDeviceId(): void {
+  deviceId = null;
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("calpro:deviceId");
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("calpro:claimed:")) {
+        keysToRemove.push(key);
+      }
+    }
+    for (const key of keysToRemove) {
+      localStorage.removeItem(key);
+    }
+  }
+}

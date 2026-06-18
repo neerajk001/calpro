@@ -3,37 +3,54 @@ import { getAuthHeaders, clearAuthToken } from "./authStore";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
+const searchCache = new Map<string, { data: FoodDbItem[]; timestamp: number }>();
+const SEARCH_CACHE_MAX = 50;
+const SEARCH_CACHE_TTL = 60_000;
+
+let activeSearchController: AbortController | null = null;
+
+const inFlight = new Map<string, Promise<unknown>>();
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const key = `${options?.method || "GET"}:${path}`;
+  const existing = inFlight.get(key);
+  if (existing) return existing as Promise<T>;
+
   const authHeaders = getAuthHeaders();
   const url = `${BACKEND_URL}${path}`;
-  const response = await fetch(url, {
+  const promise = fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...authHeaders,
       ...(options?.headers || {}),
     },
+    signal: options?.signal,
+  }).then(async (response) => {
+    if (response.status === 401) {
+      clearAuthToken();
+    }
+
+    if (!response.ok) {
+      let errorMsg = `HTTP error! status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.error) {
+          errorMsg = errorData.error;
+        }
+      } catch {
+        // ignore JSON parse failure on error response
+      }
+      throw new Error(errorMsg);
+    }
+
+    return response.json();
+  }).finally(() => {
+    inFlight.delete(key);
   });
 
-  if (response.status === 401) {
-    clearAuthToken();
-  }
-
-  if (!response.ok) {
-    let errorMsg = `HTTP error! status: ${response.status}`;
-    try {
-      const errorData = await response.json();
-      if (errorData && errorData.error) {
-        errorMsg = errorData.error;
-      }
-    } catch {
-      // ignore JSON parse failure on error response
-    }
-    throw new Error(errorMsg);
-  }
-
-  return response.json() as Promise<T>;
-}
+  inFlight.set(key, promise);
+  return promise as Promise<T>;
 
 export interface HydratedState {
   foods: FoodEntry[];
@@ -62,7 +79,8 @@ export const apiClient = {
     tag: string;
     carbs?: number;
     fat?: number;
-    createdAt?: number; // optional, for optimistic recovery
+    createdAt?: number;
+    consumedWeightG?: number;
   }): Promise<FoodEntry> => {
     return request<FoodEntry>("/api/foods", {
       method: "POST",
@@ -138,12 +156,37 @@ export const apiClient = {
 
   // Food Search & Barcode Lookup
   searchFoods: (query: string): Promise<FoodDbItem[]> => {
-    return request<FoodDbItem[]>(`/api/foods/search?q=${encodeURIComponent(query)}`);
+    const key = query.toLowerCase().trim();
+    if (!key) return Promise.resolve([]);
+
+    const cached = searchCache.get(key);
+    if (cached && Date.now() - cached.timestamp < SEARCH_CACHE_TTL) {
+      return Promise.resolve(cached.data);
+    }
+
+    if (activeSearchController) {
+      activeSearchController.abort();
+    }
+    activeSearchController = new AbortController();
+    const { signal } = activeSearchController;
+
+    return request<FoodDbItem[]>(`/api/foods/search?q=${encodeURIComponent(query)}`, { signal })
+      .then((results) => {
+        searchCache.set(key, { data: results, timestamp: Date.now() });
+        if (searchCache.size > SEARCH_CACHE_MAX) {
+          const firstKey = searchCache.keys().next().value;
+          if (firstKey) searchCache.delete(firstKey);
+        }
+        return results;
+      })
+      .finally(() => {
+        if (activeSearchController?.signal === signal) {
+          activeSearchController = null;
+        }
+      });
   },
 
-  lookupBarcode: (code: string): Promise<FoodDbItem> => {
-    return request<FoodDbItem>(`/api/foods/barcode/${encodeURIComponent(code)}`);
-  },
+
 
   // Meal Templates CRUD
   fetchMealTemplates: (): Promise<MealTemplate[]> => {
