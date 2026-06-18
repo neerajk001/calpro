@@ -51,6 +51,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
   inFlight.set(key, promise);
   return promise as Promise<T>;
+}
 
 export interface HydratedState {
   foods: FoodEntry[];
