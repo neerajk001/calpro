@@ -52,7 +52,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className="h-full bg-[#F3F4F6] text-[#111827] antialiased hide-scrollbar">
+      <body className="h-full bg-[#F3F4F6] text-[#111827] antialiased hide-scrollbar" suppressHydrationWarning>
         <AppProvider>
           <LayoutShell>{children}</LayoutShell>
         </AppProvider>

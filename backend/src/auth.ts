@@ -56,23 +56,17 @@ async function verifySupabaseToken(token: string): Promise<{ sub: string; email?
 }
 
 async function findOrCreateBySupabaseId(supabaseId: string, email?: string, name?: string, image?: string): Promise<string> {
-  let user = await prisma.user.findUnique({ where: { supabaseId } });
-  if (user) {
-    if (email || name || image) {
-      user = await prisma.user.update({
-        where: { supabaseId },
-        data: {
-          email: email ?? undefined,
-          name: name ?? undefined,
-          image: image ?? undefined,
-        },
-      });
-    }
-    return user.id;
-  }
-
-  user = await prisma.user.create({
-    data: {
+  // Use upsert to avoid race condition: getSession() + onAuthStateChange() fire
+  // simultaneously on login — both see no user, both try create → unique constraint crash.
+  // upsert is atomic: create if not exists, update if exists.
+  const user = await prisma.user.upsert({
+    where: { supabaseId },
+    update: {
+      email: email ?? undefined,
+      name: name ?? undefined,
+      image: image ?? undefined,
+    },
+    create: {
       supabaseId,
       email,
       name,
