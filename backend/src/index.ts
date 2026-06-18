@@ -230,7 +230,7 @@ app.get("/api/foods", async (req, res) => {
     }));
 
     res.json(foodsMapped);
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error fetching food logs", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -273,7 +273,7 @@ app.post("/api/foods", async (req, res) => {
       tag: newLog.tag,
       consumedWeightG: newLog.consumedWeightG ?? undefined,
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error logging food", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -312,7 +312,7 @@ app.patch("/api/foods/:id", async (req, res) => {
       tag: updated.tag,
       consumedWeightG: updated.consumedWeightG ?? undefined,
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error updating food log:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -329,7 +329,7 @@ app.delete("/api/foods/:id", async (req, res) => {
     });
 
     res.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error deleting food log:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -349,7 +349,7 @@ app.get("/api/settings", async (req, res) => {
       trackCarbsFat: settings?.trackCarbsFat ?? false,
       twitterHandle: settings?.twitterHandle ?? "",
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error fetching settings:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -379,7 +379,7 @@ app.patch("/api/settings", async (req, res) => {
       twitterHandle: updated.twitterHandle ?? "",
       dailyWaterTarget: updated.dailyWaterTarget,
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error updating settings:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -411,7 +411,7 @@ app.get("/api/custom-foods", async (req, res) => {
     }));
 
     res.json(mapped);
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error fetching custom foods:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -474,7 +474,7 @@ app.post("/api/custom-foods", async (req, res) => {
       emoji: newCustom.emoji ?? undefined,
       barcode: newCustom.barcode ?? undefined,
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error creating custom food:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -491,7 +491,7 @@ app.delete("/api/custom-foods/:id", async (req, res) => {
     });
 
     res.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error deleting custom food:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -591,7 +591,7 @@ app.post("/api/migrate", async (req, res) => {
       migratedCustomFoodsCount,
       settings: migratedSettings,
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error migrating data:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -1013,7 +1013,7 @@ app.get("/api/foods/search", searchLimiter, async (req, res) => {
     setExternalCache(localCacheKey, merged);
     res.set("Cache-Control", "private, max-age=300");
     res.json(merged);
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Search query failed:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -1051,7 +1051,7 @@ app.get("/api/meal-templates", async (req, res) => {
     }));
 
     res.json(mapped);
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error fetching meal templates:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -1112,7 +1112,7 @@ app.post("/api/meal-templates", async (req, res) => {
         emoji: item.emoji ?? undefined,
       })),
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error creating meal template:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -1129,7 +1129,7 @@ app.delete("/api/meal-templates/:id", async (req, res) => {
     });
 
     res.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error deleting meal template:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -1158,7 +1158,7 @@ app.post("/api/water-logs", async (req, res) => {
       date: log.date,
       amount: log.amount,
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Failed to save water log:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
@@ -1235,7 +1235,7 @@ app.post("/api/auth/claim", async (req, res) => {
     await prisma.user.delete({ where: { id: anonymousUser.id } });
 
     res.json({ merged: true });
-  } catch (error) {
+  } catch (error: any) {
     logger.error("Error claiming anonymous data:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }

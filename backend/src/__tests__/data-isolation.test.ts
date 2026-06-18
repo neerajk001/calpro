@@ -4,6 +4,34 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+interface FoodItem {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  tag: string;
+}
+
+interface CustomFoodItem {
+  id: string;
+  name: string;
+  caloriesPer100g: number;
+  proteinPer100g: number;
+}
+
+interface WaterLogItem {
+  id: string;
+  amount: number;
+  date: string;
+}
+
+interface StateResponse {
+  foods: FoodItem[];
+  settings: { dailyCalorieTarget: number };
+  customFoods: CustomFoodItem[];
+  waterLogs: WaterLogItem[];
+}
+
 const BASE_URL = `http://localhost:${process.env.PORT || 5000}`;
 
 async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
@@ -33,13 +61,14 @@ async function createCustomFood(deviceId: string, food: { name: string; calories
   });
 }
 
-async function getState(deviceId: string) {
-  return apiFetch("/api/state", {
+async function getState(deviceId: string): Promise<StateResponse> {
+  const res = await apiFetch("/api/state", {
     headers: { "X-Device-Id": deviceId },
   });
+  return res.json() as Promise<StateResponse>;
 }
 
-async function getStateAuth(token: string) {
+async function getStateAuth(token: string): Promise<Response> {
   return apiFetch("/api/state", {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -69,10 +98,7 @@ describe("Data Isolation", () => {
 
       // User B fetches state
       const stateB = await getState(deviceB);
-      const dataB = await stateB.json();
-
-      // User B should NOT see User A's food
-      const hasAFood = dataB.foods.some((f: any) => f.name === "Test Dal A");
+      const hasAFood = stateB.foods.some((f) => f.name === "Test Dal A");
       expect(hasAFood).toBe(false);
     });
 
@@ -80,9 +106,7 @@ describe("Data Isolation", () => {
       await createCustomFood(deviceA, { name: "Custom Paneer A", caloriesPer100g: 265, proteinPer100g: 18, category: "Eggs & Dairy", quantityMode: "grams" });
 
       const stateB = await getState(deviceB);
-      const dataB = await stateB.json();
-
-      const hasACustom = dataB.customFoods.some((f: any) => f.name === "Custom Paneer A");
+      const hasACustom = stateB.customFoods.some((f) => f.name === "Custom Paneer A");
       expect(hasACustom).toBe(false);
     });
 
@@ -91,14 +115,12 @@ describe("Data Isolation", () => {
       await createFood(deviceB, { name: "Unique Food B", calories: 400, protein: 20, tag: "dinner" });
 
       const stateA = await getState(deviceA);
-      const dataA = await stateA.json();
       const stateB = await getState(deviceB);
-      const dataB = await stateB.json();
 
-      expect(dataA.foods.some((f: any) => f.name === "Unique Food A")).toBe(true);
-      expect(dataA.foods.some((f: any) => f.name === "Unique Food B")).toBe(false);
-      expect(dataB.foods.some((f: any) => f.name === "Unique Food B")).toBe(true);
-      expect(dataB.foods.some((f: any) => f.name === "Unique Food A")).toBe(false);
+      expect(stateA.foods.some((f) => f.name === "Unique Food A")).toBe(true);
+      expect(stateA.foods.some((f) => f.name === "Unique Food B")).toBe(false);
+      expect(stateB.foods.some((f) => f.name === "Unique Food B")).toBe(true);
+      expect(stateB.foods.some((f) => f.name === "Unique Food A")).toBe(false);
     });
   });
 
@@ -127,13 +149,10 @@ describe("Data Isolation", () => {
 
       // Device B should still have default settings
       const stateB = await getState(deviceB);
-      const dataB = await stateB.json();
-      expect(dataB.settings.dailyCalorieTarget).toBe(2000);
+      expect(stateB.settings.dailyCalorieTarget).toBe(2000);
 
-      // Device A should have updated settings
       const stateA = await getState(deviceA);
-      const dataA = await stateA.json();
-      expect(dataA.settings.dailyCalorieTarget).toBe(2500);
+      expect(stateA.settings.dailyCalorieTarget).toBe(2500);
     });
   });
 
@@ -148,13 +167,10 @@ describe("Data Isolation", () => {
       });
 
       const stateB = await getState(deviceB);
-      const dataB = await stateB.json();
-
-      expect(dataB.waterLogs.some((w: any) => w.amount === 2000)).toBe(false);
+      expect(stateB.waterLogs.some((w) => w.amount === 2000)).toBe(false);
 
       const stateA = await getState(deviceA);
-      const dataA = await stateA.json();
-      expect(dataA.waterLogs.some((w: any) => w.amount === 2000)).toBe(true);
+      expect(stateA.waterLogs.some((w) => w.amount === 2000)).toBe(true);
     });
   });
 });
