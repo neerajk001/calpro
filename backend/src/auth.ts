@@ -3,26 +3,56 @@ import * as jose from "jose";
 import { prisma } from "./prisma.js";
 import { logger } from "./logger.js";
 
-function getJwtSecret(): Uint8Array {
+// ─── JWKS-based verification (ES256 / ECC P-256) ─────────────────────────────
+// Supabase migrated from HS256 shared secret → ES256 signing keys.
+// We use createRemoteJWKSet so the public key is fetched once and cached,
+// and key rotations are handled automatically.
+const SUPABASE_JWKS_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL || `https://${process.env.DATABASE_URL?.match(/postgres\.([\w]+)\./)?.[1]}.supabase.co`}/auth/v1/.well-known/jwks.json`;
+
+// Hardcode the project ref since we know it
+const SUPABASE_PROJECT_REF = "haggcvevjjyhoytydyvs";
+const JWKS = jose.createRemoteJWKSet(
+  new URL(`https://${SUPABASE_PROJECT_REF}.supabase.co/auth/v1/.well-known/jwks.json`)
+);
+
+// ─── Legacy HS256 secret (fallback for tokens issued before key rotation) ─────
+function getLegacySecret(): Uint8Array | null {
   const secret = process.env.SUPABASE_JWT_SECRET;
-  if (!secret) {
-    throw new Error("SUPABASE_JWT_SECRET environment variable is not set");
-  }
+  if (!secret) return null;
   return new TextEncoder().encode(secret);
 }
 
 async function verifySupabaseToken(token: string): Promise<{ sub: string; email?: string } | null> {
+  // 1. Try ES256 via JWKS (current signing method)
   try {
-    const secret = getJwtSecret();
-    const { payload } = await jose.jwtVerify(token, secret, {
-      algorithms: ["HS256"],
+    const { payload } = await jose.jwtVerify(token, JWKS, {
+      algorithms: ["ES256"],
     });
     if (!payload.sub) return null;
     return { sub: payload.sub, email: payload.email as string | undefined };
-  } catch (err) {
-    logger.warn("JWT verification failed", { err: (err as Error).message });
-    return null;
+  } catch (eccErr) {
+    // Not an ES256 token — try legacy HS256
   }
+
+  // 2. Fallback: try legacy HS256 shared secret (tokens issued before key rotation)
+  const legacySecret = getLegacySecret();
+  if (legacySecret) {
+    try {
+      const { payload } = await jose.jwtVerify(token, legacySecret, {
+        algorithms: ["HS256"],
+      });
+      if (!payload.sub) return null;
+      return { sub: payload.sub, email: payload.email as string | undefined };
+    } catch (hsErr) {
+      logger.warn("JWT verification failed (both ES256 and HS256)", {
+        err: (hsErr as Error).message,
+      });
+    }
+  } else {
+    logger.warn("JWT ES256 verification failed and no SUPABASE_JWT_SECRET set for HS256 fallback");
+  }
+
+  return null;
 }
 
 async function findOrCreateBySupabaseId(supabaseId: string, email?: string, name?: string, image?: string): Promise<string> {
