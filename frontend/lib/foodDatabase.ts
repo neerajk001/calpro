@@ -2647,3 +2647,27 @@ export const BUILT_IN_FOODS: FoodDbItem[] = [
 
 // Note: BUILT_IN_FOODS is used by seed.ts for DB population.
 // Search/calculator utilities live in the frontend's lib/foodDatabase.ts.
+
+export const ALL_CATEGORIES = [
+  "Indian Dishes", "Dal & Legumes", "Rice & Grains", "Bread & Roti",
+  "Eggs & Dairy", "Chicken & Meat", "Fish & Seafood", "Vegetables",
+  "Fruits", "Snacks & Street Food", "Chinese", "Sandwiches",
+  "Junk Food", "Healthy & Fitness", "Beverages", "Sweets & Desserts",
+  "Custom",
+] as const;
+
+export function calculateMacros(item: { caloriesPer100g: number; proteinPer100g: number; carbsPer100g: number; fatPer100g: number }, quantityGrams: number) {
+  const ratio = quantityGrams / 100;
+  return {
+    calories: Math.round(item.caloriesPer100g * ratio),
+    protein: Math.round(item.proteinPer100g * ratio * 10) / 10,
+    carbs: Math.round(item.carbsPer100g * ratio * 10) / 10,
+    fat: Math.round(item.fatPer100g * ratio * 10) / 10,
+  };
+}
+
+export function displayQtyToGrams(item: { quantityMode: string; gramsPerPiece?: number; mlPerServing?: number }, displayQty: number): number {
+  if (item.quantityMode === "piece" && item.gramsPerPiece) return displayQty * item.gramsPerPiece;
+  if (item.quantityMode === "serving" && item.mlPerServing) return displayQty * item.mlPerServing;
+  return displayQty;
+}
