@@ -218,8 +218,8 @@ export const apiClient = {
     });
   },
 
-  claimAnonymousData: (deviceId: string): Promise<{ merged: boolean; reason?: string }> => {
-    return request<{ merged: boolean; reason?: string }>("/api/auth/claim", {
+  claimAnonymousData: (deviceId: string): Promise<{ merged: boolean; mergedAnonymous?: boolean; mergedLegacy?: boolean }> => {
+    return request<{ merged: boolean; mergedAnonymous?: boolean; mergedLegacy?: boolean }>("/api/auth/claim", {
       method: "POST",
       body: JSON.stringify({ deviceId }),
     });

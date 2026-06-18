@@ -1164,7 +1164,7 @@ app.post("/api/water-logs", async (req, res) => {
   }
 });
 
-// 17. POST /api/auth/claim - Claim anonymous data on first sign-in
+// 17. POST /api/auth/claim - Claim anonymous + legacy data on first sign-in
 app.post("/api/auth/claim", async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -1173,71 +1173,13 @@ app.post("/api/auth/claim", async (req, res) => {
     }
 
     const userId = await resolveUserId(req);
-    const { deviceId } = req.body;
+    let mergedAnonymous = false;
+    let mergedLegacy = false;
 
-    if (!deviceId || typeof deviceId !== "string") {
-      return res.status(400).json({ error: "deviceId is required" });
-    }
-
-    const anonymousUser = await prisma.user.findUnique({ where: { anonymousId: deviceId } });
-    if (!anonymousUser) {
-      return res.json({ merged: false, reason: "no_anonymous_data" });
-    }
-
-    if (anonymousUser.id === userId) {
-      return res.json({ merged: false, reason: "already_claimed" });
-    }
-
-    await prisma.$transaction([
-      prisma.foodLog.updateMany({
-        where: { userId: anonymousUser.id },
-        data: { userId },
-      }),
-      prisma.customFood.updateMany({
-        where: { userId: anonymousUser.id },
-        data: { userId },
-      }),
-      prisma.mealTemplate.updateMany({
-        where: { userId: anonymousUser.id },
-        data: { userId },
-      }),
-      prisma.waterLog.updateMany({
-        where: { userId: anonymousUser.id },
-        data: { userId },
-      }),
-    ]);
-
-    const anonSettings = await prisma.settings.findUnique({ where: { userId: anonymousUser.id } });
-    const userSettings = await prisma.settings.findUnique({ where: { userId } });
-
-    if (anonSettings) {
-      const isUserSettingsDefault = !userSettings
-        || (userSettings.dailyCalorieTarget === 2000
-          && userSettings.dailyProteinTarget === 120
-          && userSettings.trackCarbsFat === false
-          && userSettings.dailyWaterTarget === 2500
-          && !userSettings.twitterHandle);
-
-      if (isUserSettingsDefault) {
-        await prisma.settings.update({
-          where: { userId },
-          data: {
-            dailyCalorieTarget: anonSettings.dailyCalorieTarget,
-            dailyProteinTarget: anonSettings.dailyProteinTarget,
-            trackCarbsFat: anonSettings.trackCarbsFat,
-            twitterHandle: anonSettings.twitterHandle,
-            dailyWaterTarget: anonSettings.dailyWaterTarget,
-          },
-        });
-      }
-    }
-
-    await prisma.user.delete({ where: { id: anonymousUser.id } });
-
-    // Also migrate any legacy "calpro-default-user" data on first auth
+    // 1. ALWAYS migrate legacy "calpro-default-user" data on authenticated request
     const legacyId = "calpro-default-user";
     const legacyUser = await prisma.user.findUnique({ where: { id: legacyId } });
-    if (legacyUser) {
+    if (legacyUser && legacyUser.id !== userId) {
       await prisma.$transaction([
         prisma.foodLog.updateMany({ where: { userId: legacyId }, data: { userId } }),
         prisma.customFood.updateMany({ where: { userId: legacyId }, data: { userId } }),
@@ -1246,22 +1188,69 @@ app.post("/api/auth/claim", async (req, res) => {
       ]);
       const legacySettings = await prisma.settings.findUnique({ where: { userId: legacyId } });
       if (legacySettings) {
-        await prisma.settings.upsert({
-          where: { userId },
-          update: {
-            dailyCalorieTarget: legacySettings.dailyCalorieTarget,
-            dailyProteinTarget: legacySettings.dailyProteinTarget,
-            trackCarbsFat: legacySettings.trackCarbsFat,
-            twitterHandle: legacySettings.twitterHandle,
-            dailyWaterTarget: legacySettings.dailyWaterTarget,
-          },
-          create: { userId },
-        });
+        const userSettings = await prisma.settings.findUnique({ where: { userId } });
+        const isDefault = !userSettings
+          || (userSettings.dailyCalorieTarget === 2000
+            && userSettings.dailyProteinTarget === 120
+            && userSettings.trackCarbsFat === false
+            && userSettings.dailyWaterTarget === 2500
+            && !userSettings.twitterHandle);
+        if (isDefault) {
+          await prisma.settings.update({
+            where: { userId },
+            data: {
+              dailyCalorieTarget: legacySettings.dailyCalorieTarget,
+              dailyProteinTarget: legacySettings.dailyProteinTarget,
+              trackCarbsFat: legacySettings.trackCarbsFat,
+              twitterHandle: legacySettings.twitterHandle,
+              dailyWaterTarget: legacySettings.dailyWaterTarget,
+            },
+          });
+        }
       }
       await prisma.user.delete({ where: { id: legacyId } });
+      mergedLegacy = true;
     }
 
-    res.json({ merged: true });
+    // 2. Claim anonymous data by deviceId (if provided)
+    const { deviceId } = req.body;
+    if (deviceId && typeof deviceId === "string") {
+      const anonymousUser = await prisma.user.findUnique({ where: { anonymousId: deviceId } });
+      if (anonymousUser && anonymousUser.id !== userId) {
+        await prisma.$transaction([
+          prisma.foodLog.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
+          prisma.customFood.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
+          prisma.mealTemplate.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
+          prisma.waterLog.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
+        ]);
+        const anonSettings = await prisma.settings.findUnique({ where: { userId: anonymousUser.id } });
+        const userSettings = await prisma.settings.findUnique({ where: { userId } });
+        if (anonSettings) {
+          const isDefault = !userSettings
+            || (userSettings.dailyCalorieTarget === 2000
+              && userSettings.dailyProteinTarget === 120
+              && userSettings.trackCarbsFat === false
+              && userSettings.dailyWaterTarget === 2500
+              && !userSettings.twitterHandle);
+          if (isDefault) {
+            await prisma.settings.update({
+              where: { userId },
+              data: {
+                dailyCalorieTarget: anonSettings.dailyCalorieTarget,
+                dailyProteinTarget: anonSettings.dailyProteinTarget,
+                trackCarbsFat: anonSettings.trackCarbsFat,
+                twitterHandle: anonSettings.twitterHandle,
+                dailyWaterTarget: anonSettings.dailyWaterTarget,
+              },
+            });
+          }
+        }
+        await prisma.user.delete({ where: { id: anonymousUser.id } });
+        mergedAnonymous = true;
+      }
+    }
+
+    res.json({ merged: mergedAnonymous || mergedLegacy, mergedAnonymous, mergedLegacy });
   } catch (error: any) {
     logger.error("Error claiming anonymous data:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
