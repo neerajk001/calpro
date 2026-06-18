@@ -1182,12 +1182,10 @@ app.post("/api/auth/claim", async (req, res) => {
     const legacyId = "calpro-default-user";
     const legacyUser = await prisma.user.findUnique({ where: { id: legacyId } });
     if (legacyUser && legacyUser.id !== userId) {
-      await prisma.$transaction([
-        prisma.foodLog.updateMany({ where: { userId: legacyId }, data: { userId } }),
-        prisma.customFood.updateMany({ where: { userId: legacyId }, data: { userId } }),
-        prisma.mealTemplate.updateMany({ where: { userId: legacyId }, data: { userId } }),
-        prisma.waterLog.updateMany({ where: { userId: legacyId }, data: { userId } }),
-      ]);
+      await prisma.$executeRawUnsafe(`UPDATE "FoodLog" SET "userId" = '${userId}' WHERE "userId" = '${legacyId}'`);
+      await prisma.$executeRawUnsafe(`UPDATE "CustomFood" SET "userId" = '${userId}' WHERE "userId" = '${legacyId}'`);
+      await prisma.$executeRawUnsafe(`UPDATE "MealTemplate" SET "userId" = '${userId}' WHERE "userId" = '${legacyId}'`);
+      await prisma.$executeRawUnsafe(`UPDATE "WaterLog" SET "userId" = '${userId}' WHERE "userId" = '${legacyId}'`);
       const legacySettings = await prisma.settings.findUnique({ where: { userId: legacyId } });
       if (legacySettings) {
         const userSettings = await prisma.settings.findUnique({ where: { userId } });
@@ -1219,12 +1217,11 @@ app.post("/api/auth/claim", async (req, res) => {
     if (deviceId && typeof deviceId === "string") {
       const anonymousUser = await prisma.user.findUnique({ where: { anonymousId: deviceId } });
       if (anonymousUser && anonymousUser.id !== userId) {
-        await prisma.$transaction([
-          prisma.foodLog.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
-          prisma.customFood.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
-          prisma.mealTemplate.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
-          prisma.waterLog.updateMany({ where: { userId: anonymousUser.id }, data: { userId } }),
-        ]);
+        // Use raw SQL to bypass RLS — UPDATE policy blocks cross-user migration
+        await prisma.$executeRawUnsafe(`UPDATE "FoodLog" SET "userId" = '${userId}' WHERE "userId" = '${anonymousUser.id}'`);
+        await prisma.$executeRawUnsafe(`UPDATE "CustomFood" SET "userId" = '${userId}' WHERE "userId" = '${anonymousUser.id}'`);
+        await prisma.$executeRawUnsafe(`UPDATE "MealTemplate" SET "userId" = '${userId}' WHERE "userId" = '${anonymousUser.id}'`);
+        await prisma.$executeRawUnsafe(`UPDATE "WaterLog" SET "userId" = '${userId}' WHERE "userId" = '${anonymousUser.id}'`);
         const anonSettings = await prisma.settings.findUnique({ where: { userId: anonymousUser.id } });
         const userSettings = await prisma.settings.findUnique({ where: { userId } });
         if (anonSettings) {
