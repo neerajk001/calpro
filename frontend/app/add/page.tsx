@@ -78,6 +78,18 @@ export default function AddFoodPage() {
       gramsPerPiece: customForm.quantityMode === "piece" ? Number(customForm.gramsPerPiece) || 50 : undefined,
       emoji: customForm.emoji,
     });
+    // Also submit to public DB so others can find it
+    apiClient.addPublicFood({
+      name: customForm.name.trim(),
+      category: customForm.category,
+      calories: Number(customForm.caloriesPer100g),
+      protein: Number(customForm.proteinPer100g),
+      carbs: Number(customForm.carbsPer100g) || 0,
+      fat: Number(customForm.fatPer100g) || 0,
+      servingSize: weight,
+      servingUnit: customForm.quantityMode === "piece" ? "piece" : customForm.quantityMode === "ml" ? "ml" : "g",
+      emoji: customForm.emoji,
+    }).catch(() => {}); // fire-and-forget, don't block save
     setShowAddCustomForm(false);
     setCustomForm({ name: "", category: "Custom", caloriesPer100g: "", proteinPer100g: "", carbsPer100g: "", fatPer100g: "", quantityMode: "grams", defaultQty: 100, gramsPerPiece: "", emoji: "🍽️", customWeightG: "" });
   }
