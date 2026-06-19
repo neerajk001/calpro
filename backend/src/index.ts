@@ -891,6 +891,7 @@ app.get("/api/foods/search", searchLimiter, async (req, res) => {
     }));
 
     const publicMapped = publicMatches.map((food) => {
+      const isPiece = food.servingUnit === "piece";
       const scale = 100 / food.servingSize;
       return {
         id: food.id,
@@ -900,8 +901,11 @@ app.get("/api/foods/search", searchLimiter, async (req, res) => {
         proteinPer100g: Math.round(food.protein * scale * 10) / 10,
         carbsPer100g: Math.round(food.carbs * scale * 10) / 10,
         fatPer100g: Math.round(food.fat * scale * 10) / 10,
-        defaultQty: food.servingSize,
-        quantityMode: food.servingUnit === "piece" ? "piece" : food.servingUnit === "ml" ? "ml" : "grams",
+        // For piece mode: servingSize = gramsPerPiece, default is 1 piece
+        // For grams/ml: defaultQty = servingSize
+        defaultQty: isPiece ? 1 : food.servingSize,
+        quantityMode: isPiece ? "piece" : food.servingUnit === "ml" ? "ml" : "grams",
+        gramsPerPiece: isPiece ? food.servingSize : undefined,
         isPublic: true,
         servingSize: food.servingSize,
         servingUnit: food.servingUnit,
@@ -1239,6 +1243,7 @@ app.get("/api/public-foods/search", async (req, res) => {
         });
 
     const mapped = foods.map((f) => {
+      const isPiece = f.servingUnit === "piece";
       const scale = 100 / f.servingSize;
       return {
         id: f.id,
@@ -1248,8 +1253,10 @@ app.get("/api/public-foods/search", async (req, res) => {
         proteinPer100g: Math.round(f.protein * scale * 10) / 10,
         carbsPer100g: Math.round(f.carbs * scale * 10) / 10,
         fatPer100g: Math.round(f.fat * scale * 10) / 10,
-        defaultQty: f.servingSize,
-        quantityMode: f.servingUnit === "piece" ? "piece" : f.servingUnit === "ml" ? "ml" : "grams",
+        // For piece mode: servingSize = gramsPerPiece, default is 1 piece
+        defaultQty: isPiece ? 1 : f.servingSize,
+        quantityMode: isPiece ? "piece" : f.servingUnit === "ml" ? "ml" : "grams",
+        gramsPerPiece: isPiece ? f.servingSize : undefined,
         emoji: f.emoji,
         isPublic: true,
         servingSize: f.servingSize,
