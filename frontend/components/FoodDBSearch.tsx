@@ -468,6 +468,9 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
           <p className="text-[11px] text-[#6B7280] font-semibold text-center mt-1">
             Per 100g: {selectedFood.caloriesPer100g} kcal · {selectedFood.proteinPer100g}g protein
             {trackCarbsFat && ` · ${selectedFood.carbsPer100g}g carbs · ${selectedFood.fatPer100g}g fat`}
+            {selectedFood.isPublic && selectedFood.servingSize && (
+              <span className="ml-2 text-[#3B82F6]">🌍 Original: {selectedFood.servingSize}{selectedFood.servingUnit || "g"} serving</span>
+            )}
           </p>
 
           <button onClick={handleAddToMeal} className="btn-primary w-full text-sm cursor-pointer mt-2">
@@ -477,7 +480,11 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
       )}
 
       {/* Results List */}
-      {!selectedFood && (
+      {!selectedFood && (() => {
+        const verified = results.filter((f) => !f.isPublic);
+        const community = results.filter((f) => f.isPublic);
+
+        return (
         <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto pr-1 hide-scrollbar">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 space-y-3">
@@ -491,30 +498,65 @@ export function FoodDBSearch({ customFoods, onAddToMeal, trackCarbsFat, initialF
               <p className="text-xs mt-1 text-[#6B7280]">Try searching by category or add a custom food</p>
             </div>
           ) : (
-            results.map((food) => (
-              <button
-                key={food.id}
-                onClick={() => selectFood(food)}
-                className="flex items-center justify-between px-4 py-3.5 text-left transition hover:bg-[#EFF6FF] active:scale-[0.99] rounded-xl group cursor-pointer"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-lg shrink-0">{food.emoji || "🍽️"}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[#111827] truncate">{highlightMatch(food.name, query)}</p>
-                    <p className="text-xs text-[#6B7280] font-medium">{food.category}</p>
+            <>
+              {verified.map((food) => (
+                <button
+                  key={food.id}
+                  onClick={() => selectFood(food)}
+                  className="flex items-center justify-between px-4 py-3.5 text-left transition hover:bg-[#EFF6FF] active:scale-[0.99] rounded-xl group cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-lg shrink-0">{food.emoji || "🍽️"}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#111827] truncate">{highlightMatch(food.name, query)}</p>
+                      <p className="text-xs text-[#6B7280] font-medium">{food.category}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="shrink-0 text-right ml-2">
-                  <p className="text-xs font-semibold text-[#111827]">
-                    <span className="text-[#2563EB]">{food.caloriesPer100g}</span> kcal
-                  </p>
-                  <p className="text-[10px] text-[#6B7280] font-medium">per 100g</p>
-                </div>
-              </button>
-            ))
+                  <div className="shrink-0 text-right ml-2">
+                    <p className="text-xs font-semibold text-[#111827]">
+                      <span className="text-[#2563EB]">{food.caloriesPer100g}</span> kcal
+                    </p>
+                    <p className="text-[10px] text-[#6B7280] font-medium">per 100g</p>
+                  </div>
+                </button>
+              ))}
+
+              {community.length > 0 && (
+                <>
+                  <div className="flex items-center gap-2 pt-3 pb-1 px-2">
+                    <span className="text-sm">🌍</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#F59E0B]">Community Contributed</span>
+                    <div className="h-px flex-1 bg-[#F59E0B]/20" />
+                  </div>
+                  <p className="text-[10px] text-[#6B7280] px-2 pb-2">These foods are added by other users. Values may not be verified.</p>
+                  {community.map((food) => (
+                    <button
+                      key={food.id}
+                      onClick={() => selectFood(food)}
+                      className="flex items-center justify-between px-4 py-3.5 text-left transition hover:bg-amber-50 active:scale-[0.99] rounded-xl group cursor-pointer border border-amber-200/50"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-lg shrink-0">{food.emoji || "🍽️"}</span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-[#111827] truncate">{highlightMatch(food.name, query)}</p>
+                          <p className="text-xs text-[#6B7280] font-medium">{food.category}</p>
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right ml-2">
+                        <p className="text-xs font-semibold text-[#111827]">
+                          <span className="text-[#2563EB]">{food.caloriesPer100g}</span> kcal
+                        </p>
+                        <p className="text-[10px] text-[#F59E0B] font-medium">user seeded</p>
+                      </div>
+                    </button>
+                  ))}
+                </>
+              )}
+            </>
           )}
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

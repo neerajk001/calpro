@@ -158,6 +158,29 @@ export const apiClient = {
     return request<{ success: boolean; migratedLogsCount: number; migratedCustomFoodsCount: number }>("/api/migrate", {
       method: "POST",
       body: JSON.stringify(data),
+      });
+  },
+
+  // Public Food Database
+  searchPublicFoods: (query?: string): Promise<FoodDbItem[]> => {
+    const q = query ? `?q=${encodeURIComponent(query)}` : "";
+    return request<FoodDbItem[]>(`/api/public-foods/search${q}`);
+  },
+
+  addPublicFood: (food: {
+    name: string;
+    category: string;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    servingSize: number;
+    servingUnit: string;
+    emoji?: string;
+  }): Promise<FoodDbItem> => {
+    return request<FoodDbItem>("/api/public-foods", {
+      method: "POST",
+      body: JSON.stringify(food),
     });
   },
 

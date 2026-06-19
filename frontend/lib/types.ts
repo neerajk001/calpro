@@ -78,7 +78,10 @@ export interface FoodDbItem {
   quantityMode: QuantityMode; // primary input mode
   gramsPerPiece?: number;  // if mode=piece: how many grams is 1 piece
   mlPerServing?: number;   // if mode=ml/serving
-  isCustom?: boolean;      // user-added
+  isCustom?: boolean;      // user-added custom food
+  isPublic?: boolean;      // user-contributed public food
+  servingSize?: number;    // original serving size for public foods
+  servingUnit?: string;    // "g" | "ml" | "piece"
   emoji?: string;          // optional emoji for display
 }
 

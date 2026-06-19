@@ -6,6 +6,7 @@ import { useApp } from "@/lib/AppContext";
 import type { FoodTag, MealBuilderItem, FoodDbItem, MealTemplate, FoodDbCategory, QuantityMode } from "@/lib/types";
 import { FoodDBSearch } from "@/components/FoodDBSearch";
 import { MealBuilder } from "@/components/MealBuilder";
+import { PublicFoodDB } from "@/components/PublicFoodDB";
 import { apiClient } from "@/lib/apiClient";
 import { ALL_CATEGORIES } from "@/lib/foodDatabase";
 
@@ -45,7 +46,7 @@ function parseNaturalLanguage(text: string): { name: string; calories: number; p
   return { name: formattedName, calories: calories ?? 0, protein: protein ?? 0, tag };
 }
 
-type Tab = "db" | "manual";
+type Tab = "db" | "public" | "manual";
 
 export default function AddFoodPage() {
   const router = useRouter();
@@ -225,10 +226,15 @@ export default function AddFoodPage() {
       )}
 
       {!editId && (
-        <div className="mb-6 flex gap-1 card p-1 rounded-2xl max-w-sm bg-white">
+        <div className="mb-6 flex gap-1 card p-1 rounded-2xl max-w-md bg-white">
           <button onClick={() => setActiveTab("db")} className={`flex-1 py-2.5 text-xs font-bold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "db" ? "bg-[#2563EB] text-white" : "text-[#6B7280] hover:text-[#111827] hover:bg-[#EFF6FF]"}`}>
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
             Food DB
+            {mealItems.length > 0 && <span className="ml-1 bg-white/20 text-white px-1.5 py-0.5 rounded-full text-[10px] font-black">{mealItems.length}</span>}
+          </button>
+          <button onClick={() => setActiveTab("public")} className={`flex-1 py-2.5 text-xs font-bold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "public" ? "bg-[#2563EB] text-white" : "text-[#6B7280] hover:text-[#111827] hover:bg-[#EFF6FF]"}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Public DB
             {mealItems.length > 0 && <span className="ml-1 bg-white/20 text-white px-1.5 py-0.5 rounded-full text-[10px] font-black">{mealItems.length}</span>}
           </button>
           <button onClick={() => setActiveTab("manual")} className={`flex-1 py-2.5 text-xs font-bold transition rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === "manual" ? "bg-[#2563EB] text-white" : "text-[#6B7280] hover:text-[#111827] hover:bg-[#EFF6FF]"}`}>
@@ -297,6 +303,20 @@ export default function AddFoodPage() {
             </div>
           </div>
 
+          <div className="lg:col-span-5 lg:sticky lg:top-24">
+            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] lg:block hidden">Meal Composition</h2>
+            <MealBuilder items={mealItems} onRemoveItem={handleRemoveItem} onUpdateItem={handleUpdateItem} onClearAll={handleClearAll} onLogMeal={handleLogMeal} trackCarbsFat={settings.trackCarbsFat} />
+          </div>
+        </div>
+      )}
+
+      {activeTab === "public" && !editId && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="card p-4 md:p-5">
+              <PublicFoodDB onAddToMeal={handleAddToMeal} />
+            </div>
+          </div>
           <div className="lg:col-span-5 lg:sticky lg:top-24">
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#6B7280] lg:block hidden">Meal Composition</h2>
             <MealBuilder items={mealItems} onRemoveItem={handleRemoveItem} onUpdateItem={handleUpdateItem} onClearAll={handleClearAll} onLogMeal={handleLogMeal} trackCarbsFat={settings.trackCarbsFat} />
