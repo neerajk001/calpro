@@ -61,20 +61,25 @@ export default function AddFoodPage() {
     proteinPer100g: "" as string | number, carbsPer100g: "" as string | number,
     fatPer100g: "" as string | number, quantityMode: "grams" as QuantityMode,
     defaultQty: 100 as number, gramsPerPiece: "" as string | number, emoji: "🍽️",
+    customWeightG: "" as string | number,
   });
 
   function handleAddCustomFood() {
     if (!customForm.name.trim() || !customForm.caloriesPer100g || !customForm.proteinPer100g) return;
+    const weight = Number(customForm.customWeightG) || 100;
+    const scale = weight > 0 ? 100 / weight : 1;
     addCustomFood({
       name: customForm.name.trim(), category: customForm.category,
-      caloriesPer100g: Number(customForm.caloriesPer100g), proteinPer100g: Number(customForm.proteinPer100g),
-      carbsPer100g: Number(customForm.carbsPer100g) || 0, fatPer100g: Number(customForm.fatPer100g) || 0,
-      quantityMode: customForm.quantityMode, defaultQty: customForm.defaultQty,
+      caloriesPer100g: Math.round(Number(customForm.caloriesPer100g) * scale),
+      proteinPer100g: Math.round(Number(customForm.proteinPer100g) * scale * 10) / 10,
+      carbsPer100g: Math.round((Number(customForm.carbsPer100g) || 0) * scale * 10) / 10,
+      fatPer100g: Math.round((Number(customForm.fatPer100g) || 0) * scale * 10) / 10,
+      quantityMode: customForm.quantityMode, defaultQty: Number(customForm.customWeightG) || customForm.defaultQty,
       gramsPerPiece: customForm.quantityMode === "piece" ? Number(customForm.gramsPerPiece) || 50 : undefined,
       emoji: customForm.emoji,
     });
     setShowAddCustomForm(false);
-    setCustomForm({ name: "", category: "Custom", caloriesPer100g: "", proteinPer100g: "", carbsPer100g: "", fatPer100g: "", quantityMode: "grams", defaultQty: 100, gramsPerPiece: "", emoji: "🍽️" });
+    setCustomForm({ name: "", category: "Custom", caloriesPer100g: "", proteinPer100g: "", carbsPer100g: "", fatPer100g: "", quantityMode: "grams", defaultQty: 100, gramsPerPiece: "", emoji: "🍽️", customWeightG: "" });
   }
 
   const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
@@ -261,15 +266,69 @@ export default function AddFoodPage() {
                 <button onClick={() => { setShowAddCustomForm(!showAddCustomForm); setShowCustomFoods(true); }} className="flex items-center gap-1 btn-primary h-auto py-1.5 px-3 text-xs font-bold cursor-pointer">+ Add</button>
               </div>
 
-              {showAddCustomForm && (
+              {showAddCustomForm && (() => {
+                const weight = Number(customForm.customWeightG) || 100;
+                const scale = weight > 0 ? 100 / weight : 1;
+                const previewCal = customForm.caloriesPer100g ? Math.round(Number(customForm.caloriesPer100g) * scale) : null;
+                const previewProt = customForm.proteinPer100g ? Math.round(Number(customForm.proteinPer100g) * scale * 10) / 10 : null;
+                const hasWeight = Number(customForm.customWeightG) > 0;
+
+                return (
                 <div className="bg-[#F3F4F6] p-4 rounded-xl space-y-3 border border-black/5 animate-fade-in">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="col-span-2">
-                      <input type="text" value={customForm.name} onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })} placeholder="Food name" className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#6B7280] outline-none rounded-lg" />
+                      <input type="text" value={customForm.name} onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })} placeholder="Food name (e.g. 2 eggs half fry)" className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#6B7280] outline-none rounded-lg" />
                     </div>
-                    <div><input type="number" min="0" step="0.1" placeholder="Kcal/100g" value={customForm.caloriesPer100g} onChange={(e) => setCustomForm({ ...customForm, caloriesPer100g: e.target.value })} className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#2563EB] placeholder-[#6B7280] outline-none rounded-lg" /></div>
-                    <div><input type="number" min="0" step="0.1" placeholder="Protein/100g" value={customForm.proteinPer100g} onChange={(e) => setCustomForm({ ...customForm, proteinPer100g: e.target.value })} className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#10B981] placeholder-[#6B7280] outline-none rounded-lg" /></div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Weight (g)</label>
+                      <input
+                        type="number" min="1" placeholder="e.g. 80"
+                        value={customForm.customWeightG}
+                        onChange={(e) => setCustomForm({ ...customForm, customWeightG: e.target.value })}
+                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#9CA3AF] outline-none rounded-lg"
+                      />
+                      <p className="text-[9px] text-[#6B7280] mt-0.5">How much does it weigh?</p>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Default Qty</label>
+                      <input
+                        type="number" min="1" value={customForm.defaultQty}
+                        onChange={(e) => setCustomForm({ ...customForm, defaultQty: Number(e.target.value) || 100 })}
+                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] outline-none rounded-lg"
+                      />
+                    </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">
+                        Calories {hasWeight ? `(total for ${weight}g)` : "(per 100g)"}
+                      </label>
+                      <input type="number" min="0" step="0.1"
+                        placeholder={hasWeight ? "Total kcal" : "Kcal/100g"}
+                        value={customForm.caloriesPer100g}
+                        onChange={(e) => setCustomForm({ ...customForm, caloriesPer100g: e.target.value })}
+                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#2563EB] placeholder-[#6B7280] outline-none rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">
+                        Protein {hasWeight ? `(total for ${weight}g)` : "(per 100g)"}
+                      </label>
+                      <input type="number" min="0" step="0.1"
+                        placeholder={hasWeight ? "Total g" : "g/100g"}
+                        value={customForm.proteinPer100g}
+                        onChange={(e) => setCustomForm({ ...customForm, proteinPer100g: e.target.value })}
+                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#10B981] placeholder-[#6B7280] outline-none rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  {hasWeight && (previewCal !== null || previewProt !== null) && (
+                    <div className="bg-[#EFF6FF] border border-blue-100 rounded-lg p-2.5 text-[10px]">
+                      <p className="font-bold text-[#2563EB] uppercase tracking-wider mb-1">Per 100g (auto-calculated)</p>
+                      <span className="text-[#111827] font-semibold">{previewCal} kcal</span>
+                      {previewProt !== null && <span className="text-[#111827] font-semibold ml-2">· {previewProt}g protein</span>}
+                    </div>
+                  )}
                   <div className="flex gap-1.5">
                     {(["grams", "piece", "ml"] as QuantityMode[]).map((mode) => (
                       <button key={mode} type="button" onClick={() => setCustomForm({ ...customForm, quantityMode: mode })} className={`px-2.5 py-1 text-xs font-semibold rounded-full border transition cursor-pointer ${customForm.quantityMode === mode ? "bg-[#2563EB] border-[#2563EB] text-white" : "bg-[#E5E7EB] border-transparent text-[#4B5563] hover:text-[#111827]"}`}>{mode}</button>
@@ -280,7 +339,8 @@ export default function AddFoodPage() {
                     <button onClick={() => setShowAddCustomForm(false)} className="px-4 py-2 bg-[#E5E7EB] text-[#4B5563] text-xs font-semibold rounded-xl cursor-pointer">Cancel</button>
                   </div>
                 </div>
-              )}
+              );
+            })()}
 
               {showCustomFoods && (
                 <div className="space-y-1 max-h-[200px] overflow-y-auto hide-scrollbar">
