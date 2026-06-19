@@ -25,7 +25,8 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: "", category: "Custom", calories: "", protein: "",
-    carbs: "0", fat: "0", servingSize: "100", servingUnit: "g", emoji: "🍽️",
+    carbs: "0", fat: "0", servingSize: "100", servingUnit: "g",
+    gramsPerPiece: "60", emoji: "🍽️",
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -90,7 +91,14 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
   };
 
   const handleSubmit = async () => {
-    if (!form.name.trim() || !form.calories || !form.protein || !form.servingSize) return;
+    if (!form.name.trim() || !form.calories || !form.protein) return;
+    const isPiece = form.servingUnit === "piece";
+    // For piece mode: servingSize = gramsPerPiece (grams per 1 piece)
+    // Nutrition entered = per 1 piece
+    const effectiveServingSize = isPiece
+      ? Math.max(1, Number(form.gramsPerPiece) || 60)
+      : Math.max(1, Number(form.servingSize) || 100);
+    if (!effectiveServingSize) return;
     setSubmitting(true);
     try {
       await apiClient.addPublicFood({
@@ -100,12 +108,12 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
         protein: Number(form.protein),
         carbs: Number(form.carbs) || 0,
         fat: Number(form.fat) || 0,
-        servingSize: Number(form.servingSize),
+        servingSize: effectiveServingSize,
         servingUnit: form.servingUnit,
         emoji: form.emoji,
       });
       setSubmitted(true);
-      setForm({ name: "", category: "Custom", calories: "", protein: "", carbs: "0", fat: "0", servingSize: "100", servingUnit: "g", emoji: "🍽️" });
+      setForm({ name: "", category: "Custom", calories: "", protein: "", carbs: "0", fat: "0", servingSize: "100", servingUnit: "g", gramsPerPiece: "60", emoji: "🍽️" });
       // Refresh recent foods so the new entry is immediately visible
       loadRecent();
       setTimeout(() => { setSubmitted(false); setShowForm(false); }, 2000);
@@ -214,38 +222,66 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">
                   Serving Size & Unit
                 </label>
-                <p className="text-[10px] text-[#6B7280] mb-2">Enter nutrition values per this serving size. When others log with a different amount, values scale proportionally.</p>
-                <div className="flex gap-2">
-                  <input
-                    type="number" min="1" value={form.servingSize}
-                    onChange={(e) => setForm({ ...form, servingSize: e.target.value })}
-                    className="flex-1 bg-white border border-black/5 px-3 py-2.5 text-sm text-[#111827] font-semibold outline-none rounded-lg"
-                  />
-                  <div className="flex bg-[#E5E7EB] rounded-lg p-0.5 gap-0.5">
-                    {UNITS.map((u) => (
-                      <button
-                        key={u.value}
-                        type="button"
-                        onClick={() => setForm({ ...form, servingUnit: u.value })}
-                        className={`px-3 py-2.5 text-xs font-semibold rounded-md transition cursor-pointer whitespace-nowrap ${
-                          form.servingUnit === u.value
-                            ? "bg-[#2563EB] text-white"
-                            : "text-[#6B7280] hover:text-[#111827]"
-                        }`}
-                      >
-                        {u.label}
-                      </button>
-                    ))}
+                {form.servingUnit === "piece" ? (
+                  <div className="space-y-2">
+                    <div className="bg-[#FFF7ED] border border-orange-100 rounded-lg p-2 text-[10px] text-[#92400E]">
+                      <p className="font-bold mb-0.5">🥚 Piece Mode</p>
+                      <p>Enter nutrition for <strong>1 piece</strong>. Specify how many grams 1 piece weighs — this lets everyone&apos;s calorie count scale correctly when they log 2+ pieces.</p>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Grams per 1 piece</label>
+                      <input
+                        type="number" min="1" value={form.gramsPerPiece}
+                        onChange={(e) => setForm({ ...form, gramsPerPiece: e.target.value })}
+                        placeholder="e.g. 60"
+                        className="w-full bg-white border border-black/5 px-3 py-2.5 text-sm text-[#111827] font-semibold outline-none rounded-lg"
+                      />
+                      <p className="text-[10px] text-[#2563EB] font-semibold mt-1">
+                        Nutrition above = per 1 piece ({form.gramsPerPiece || "?"}g)
+                      </p>
+                    </div>
                   </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-[#6B7280] mb-2">Enter nutrition values per this serving size. When others log with a different amount, values scale proportionally.</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="number" min="1" value={form.servingSize}
+                        onChange={(e) => setForm({ ...form, servingSize: e.target.value })}
+                        className="flex-1 bg-white border border-black/5 px-3 py-2.5 text-sm text-[#111827] font-semibold outline-none rounded-lg"
+                      />
+                    </div>
+                    <p className="text-[10px] text-[#2563EB] font-semibold">
+                      Values entered above = nutrition per {form.servingSize}{form.servingUnit}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Unit selector always visible */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Unit</label>
+                <div className="flex bg-[#E5E7EB] rounded-lg p-0.5 gap-0.5">
+                  {UNITS.map((u) => (
+                    <button
+                      key={u.value}
+                      type="button"
+                      onClick={() => setForm({ ...form, servingUnit: u.value })}
+                      className={`flex-1 px-3 py-2.5 text-xs font-semibold rounded-md transition cursor-pointer whitespace-nowrap ${
+                        form.servingUnit === u.value
+                          ? "bg-[#2563EB] text-white"
+                          : "text-[#6B7280] hover:text-[#111827]"
+                      }`}
+                    >
+                      {u.label}
+                    </button>
+                  ))}
                 </div>
-                <p className="text-[10px] text-[#2563EB] font-semibold mt-1.5">
-                  Values entered above = nutrition per {form.servingSize}{form.servingUnit}
-                </p>
               </div>
 
               <button
                 onClick={handleSubmit}
-                disabled={!form.name.trim() || !form.calories || !form.protein || !form.servingSize || submitting}
+                disabled={!form.name.trim() || !form.calories || !form.protein || (form.servingUnit !== "piece" && !form.servingSize) || (form.servingUnit === "piece" && !form.gramsPerPiece) || submitting}
                 className="w-full btn-primary text-sm font-semibold py-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Submitting..." : "Submit to Public Database"}

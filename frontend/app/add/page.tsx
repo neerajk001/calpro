@@ -57,41 +57,109 @@ export default function AddFoodPage() {
   const [showCustomFoods, setShowCustomFoods] = useState(false);
   const [showAddCustomForm, setShowAddCustomForm] = useState(false);
   const [customForm, setCustomForm] = useState({
-    name: "", category: "Custom" as FoodDbCategory, caloriesPer100g: "" as string | number,
-    proteinPer100g: "" as string | number, carbsPer100g: "" as string | number,
-    fatPer100g: "" as string | number, quantityMode: "grams" as QuantityMode,
-    defaultQty: 100 as number, gramsPerPiece: "" as string | number, emoji: "🍽️",
+    name: "", category: "Custom" as FoodDbCategory,
+    // For grams/ml mode: these are per 100g/100ml
+    // For piece mode: these are per 1 piece
+    caloriesInput: "" as string | number,
+    proteinInput: "" as string | number,
+    carbsInput: "" as string | number,
+    fatInput: "" as string | number,
+    quantityMode: "grams" as QuantityMode,
+    // grams mode: total weight of serving
     customWeightG: "" as string | number,
+    // piece mode: grams per 1 piece, and default piece count
+    gramsPerPiece: "" as string | number,
+    pieceQty: 1 as number,
+    emoji: "🍽️",
   });
 
   function handleAddCustomFood() {
-    if (!customForm.name.trim() || !customForm.caloriesPer100g || !customForm.proteinPer100g) return;
-    const weight = Number(customForm.customWeightG) || 100;
-    const scale = weight > 0 ? 100 / weight : 1;
+    if (!customForm.name.trim() || !customForm.caloriesInput || !customForm.proteinInput) return;
+
+    const isPiece = customForm.quantityMode === "piece";
+    const isMl = customForm.quantityMode === "ml";
+
+    let caloriesPer100g: number;
+    let proteinPer100g: number;
+    let carbsPer100g: number;
+    let fatPer100g: number;
+    let defaultQty: number;
+    let gramsPerPiece: number | undefined;
+    let publicServingSize: number;
+    let publicServingUnit: string;
+    let publicCalories: number; // nutrition per 1 serving for public DB
+    let publicProtein: number;
+    let publicCarbs: number;
+    let publicFat: number;
+
+    if (isPiece) {
+      // Piece mode: user enters nutrition PER 1 PIECE + grams per piece
+      const gpp = Math.max(1, Number(customForm.gramsPerPiece) || 60); // grams per piece
+      const calPerPiece = Number(customForm.caloriesInput);
+      const protPerPiece = Number(customForm.proteinInput);
+      const carbsPerPiece = Number(customForm.carbsInput) || 0;
+      const fatPerPiece = Number(customForm.fatInput) || 0;
+      // Scale to per-100g for internal storage
+      const scale = 100 / gpp;
+      caloriesPer100g = Math.round(calPerPiece * scale);
+      proteinPer100g = Math.round(protPerPiece * scale * 10) / 10;
+      carbsPer100g = Math.round(carbsPerPiece * scale * 10) / 10;
+      fatPer100g = Math.round(fatPerPiece * scale * 10) / 10;
+      defaultQty = customForm.pieceQty || 1;
+      gramsPerPiece = gpp;
+      // Public DB: store calories/protein per 1 piece, servingSize = grams per piece
+      publicServingSize = gpp;
+      publicServingUnit = "piece";
+      publicCalories = calPerPiece;
+      publicProtein = protPerPiece;
+      publicCarbs = carbsPerPiece;
+      publicFat = fatPerPiece;
+    } else {
+      // Grams/ml mode: user enters nutrition for a custom weight OR per 100g
+      const weight = Number(customForm.customWeightG) || 100;
+      const scale = weight > 0 ? 100 / weight : 1;
+      caloriesPer100g = Math.round(Number(customForm.caloriesInput) * scale);
+      proteinPer100g = Math.round(Number(customForm.proteinInput) * scale * 10) / 10;
+      carbsPer100g = Math.round((Number(customForm.carbsInput) || 0) * scale * 10) / 10;
+      fatPer100g = Math.round((Number(customForm.fatInput) || 0) * scale * 10) / 10;
+      defaultQty = weight;
+      gramsPerPiece = undefined;
+      publicServingSize = weight;
+      publicServingUnit = isMl ? "ml" : "g";
+      publicCalories = Number(customForm.caloriesInput);
+      publicProtein = Number(customForm.proteinInput);
+      publicCarbs = Number(customForm.carbsInput) || 0;
+      publicFat = Number(customForm.fatInput) || 0;
+    }
+
     addCustomFood({
-      name: customForm.name.trim(), category: customForm.category,
-      caloriesPer100g: Math.round(Number(customForm.caloriesPer100g) * scale),
-      proteinPer100g: Math.round(Number(customForm.proteinPer100g) * scale * 10) / 10,
-      carbsPer100g: Math.round((Number(customForm.carbsPer100g) || 0) * scale * 10) / 10,
-      fatPer100g: Math.round((Number(customForm.fatPer100g) || 0) * scale * 10) / 10,
-      quantityMode: customForm.quantityMode, defaultQty: Number(customForm.customWeightG) || customForm.defaultQty,
-      gramsPerPiece: customForm.quantityMode === "piece" ? Number(customForm.gramsPerPiece) || 50 : undefined,
+      name: customForm.name.trim(),
+      category: customForm.category,
+      caloriesPer100g,
+      proteinPer100g,
+      carbsPer100g,
+      fatPer100g,
+      quantityMode: customForm.quantityMode,
+      defaultQty,
+      gramsPerPiece,
       emoji: customForm.emoji,
     });
-    // Also submit to public DB so others can find it
+
+    // Seed to public DB
     apiClient.addPublicFood({
       name: customForm.name.trim(),
       category: customForm.category,
-      calories: Number(customForm.caloriesPer100g),
-      protein: Number(customForm.proteinPer100g),
-      carbs: Number(customForm.carbsPer100g) || 0,
-      fat: Number(customForm.fatPer100g) || 0,
-      servingSize: weight,
-      servingUnit: customForm.quantityMode === "piece" ? "piece" : customForm.quantityMode === "ml" ? "ml" : "g",
+      calories: publicCalories,
+      protein: publicProtein,
+      carbs: publicCarbs,
+      fat: publicFat,
+      servingSize: publicServingSize,
+      servingUnit: publicServingUnit,
       emoji: customForm.emoji,
     }).catch((err) => { console.error("Failed to seed public food:", err); });
+
     setShowAddCustomForm(false);
-    setCustomForm({ name: "", category: "Custom", caloriesPer100g: "", proteinPer100g: "", carbsPer100g: "", fatPer100g: "", quantityMode: "grams", defaultQty: 100, gramsPerPiece: "", emoji: "🍽️", customWeightG: "" });
+    setCustomForm({ name: "", category: "Custom", caloriesInput: "", proteinInput: "", carbsInput: "", fatInput: "", quantityMode: "grams", customWeightG: "", gramsPerPiece: "", pieceQty: 1, emoji: "🍽️" });
   }
 
   const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
@@ -279,75 +347,157 @@ export default function AddFoodPage() {
               </div>
 
               {showAddCustomForm && (() => {
+                const isPiece = customForm.quantityMode === "piece";
+                const isMl = customForm.quantityMode === "ml";
                 const weight = Number(customForm.customWeightG) || 100;
-                const scale = weight > 0 ? 100 / weight : 1;
-                const previewCal = customForm.caloriesPer100g ? Math.round(Number(customForm.caloriesPer100g) * scale) : null;
-                const previewProt = customForm.proteinPer100g ? Math.round(Number(customForm.proteinPer100g) * scale * 10) / 10 : null;
-                const hasWeight = Number(customForm.customWeightG) > 0;
+                const hasWeight = !isPiece && Number(customForm.customWeightG) > 0;
+                const scale = hasWeight ? 100 / weight : 1;
+                const gpp = Number(customForm.gramsPerPiece) || 0;
+
+                // Live preview for piece mode
+                const pieceCalPreview = isPiece && customForm.caloriesInput ? Number(customForm.caloriesInput) : null;
+                const pieceProt2Preview = isPiece && customForm.proteinInput ? Number(customForm.proteinInput) : null;
+                const pieceWeightLabel = gpp > 0 ? `${gpp}g per piece` : "? g per piece";
+
+                // Live preview for grams mode (per-100g)
+                const gramsCalPreview = !isPiece && customForm.caloriesInput && hasWeight ? Math.round(Number(customForm.caloriesInput) * scale) : null;
+                const gramsProtPreview = !isPiece && customForm.proteinInput && hasWeight ? Math.round(Number(customForm.proteinInput) * scale * 10) / 10 : null;
+
+                const canSave = customForm.name.trim() && customForm.caloriesInput && customForm.proteinInput && (!isPiece || gpp > 0);
 
                 return (
                 <div className="bg-[#F3F4F6] p-4 rounded-xl space-y-3 border border-black/5 animate-fade-in">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="col-span-2">
-                      <input type="text" value={customForm.name} onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })} placeholder="Food name (e.g. 2 eggs half fry)" className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#6B7280] outline-none rounded-lg" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Weight (g)</label>
-                      <input
-                        type="number" min="1" placeholder="e.g. 80"
-                        value={customForm.customWeightG}
-                        onChange={(e) => setCustomForm({ ...customForm, customWeightG: e.target.value })}
-                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#9CA3AF] outline-none rounded-lg"
-                      />
-                      <p className="text-[9px] text-[#6B7280] mt-0.5">How much does it weigh?</p>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Default Qty</label>
-                      <input
-                        type="number" min="1" value={customForm.defaultQty}
-                        onChange={(e) => setCustomForm({ ...customForm, defaultQty: Number(e.target.value) || 100 })}
-                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] outline-none rounded-lg"
-                      />
+                  {/* Food Name */}
+                  <div className="col-span-2">
+                    <input type="text" value={customForm.name} onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })} placeholder="Food name (e.g. Poached Egg, Oats)" className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#6B7280] outline-none rounded-lg" />
+                  </div>
+
+                  {/* Mode selector */}
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Quantity Mode</label>
+                    <div className="flex gap-1.5">
+                      {(["grams", "piece", "ml"] as QuantityMode[]).map((mode) => (
+                        <button key={mode} type="button"
+                          onClick={() => setCustomForm({ ...customForm, quantityMode: mode })}
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition cursor-pointer ${
+                            customForm.quantityMode === mode
+                              ? "bg-[#2563EB] border-[#2563EB] text-white"
+                              : "bg-[#E5E7EB] border-transparent text-[#4B5563] hover:text-[#111827]"
+                          }`}>
+                          {mode === "grams" ? "⚖️ Grams" : mode === "piece" ? "🥚 Pieces" : "💧 ml"}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">
-                        Calories {hasWeight ? `(total for ${weight}g)` : "(per 100g)"}
-                      </label>
-                      <input type="number" min="0" step="0.1"
-                        placeholder={hasWeight ? "Total kcal" : "Kcal/100g"}
-                        value={customForm.caloriesPer100g}
-                        onChange={(e) => setCustomForm({ ...customForm, caloriesPer100g: e.target.value })}
-                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#2563EB] placeholder-[#6B7280] outline-none rounded-lg"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">
-                        Protein {hasWeight ? `(total for ${weight}g)` : "(per 100g)"}
-                      </label>
-                      <input type="number" min="0" step="0.1"
-                        placeholder={hasWeight ? "Total g" : "g/100g"}
-                        value={customForm.proteinPer100g}
-                        onChange={(e) => setCustomForm({ ...customForm, proteinPer100g: e.target.value })}
-                        className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#10B981] placeholder-[#6B7280] outline-none rounded-lg"
-                      />
-                    </div>
-                  </div>
-                  {hasWeight && (previewCal !== null || previewProt !== null) && (
-                    <div className="bg-[#EFF6FF] border border-blue-100 rounded-lg p-2.5 text-[10px]">
-                      <p className="font-bold text-[#2563EB] uppercase tracking-wider mb-1">Per 100g (auto-calculated)</p>
-                      <span className="text-[#111827] font-semibold">{previewCal} kcal</span>
-                      {previewProt !== null && <span className="text-[#111827] font-semibold ml-2">· {previewProt}g protein</span>}
-                    </div>
+
+                  {/* PIECE MODE inputs */}
+                  {isPiece && (
+                    <>
+                      <div className="bg-[#FFF7ED] border border-orange-100 rounded-lg p-2.5 text-[10px] text-[#92400E]">
+                        <p className="font-bold uppercase tracking-wider mb-0.5">📦 Piece Mode</p>
+                        <p>Enter the nutrition for <strong>1 piece</strong> and how many grams 1 piece weighs. Logging 2 pieces will double everything automatically.</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Grams per 1 piece</label>
+                          <input type="number" min="1" placeholder="e.g. 60"
+                            value={customForm.gramsPerPiece}
+                            onChange={(e) => setCustomForm({ ...customForm, gramsPerPiece: e.target.value })}
+                            className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#9CA3AF] outline-none rounded-lg"
+                          />
+                          <p className="text-[9px] text-[#6B7280] mt-0.5">Weight of 1 piece in grams</p>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Default pieces</label>
+                          <input type="number" min="1" max="20"
+                            value={customForm.pieceQty}
+                            onChange={(e) => setCustomForm({ ...customForm, pieceQty: Number(e.target.value) || 1 })}
+                            className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] outline-none rounded-lg"
+                          />
+                          <p className="text-[9px] text-[#6B7280] mt-0.5">Default when logging</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Calories (per 1 piece)</label>
+                          <input type="number" min="0" step="1"
+                            placeholder="e.g. 120"
+                            value={customForm.caloriesInput}
+                            onChange={(e) => setCustomForm({ ...customForm, caloriesInput: e.target.value })}
+                            className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#2563EB] font-semibold placeholder-[#6B7280] outline-none rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Protein g (per 1 piece)</label>
+                          <input type="number" min="0" step="0.1"
+                            placeholder="e.g. 6"
+                            value={customForm.proteinInput}
+                            onChange={(e) => setCustomForm({ ...customForm, proteinInput: e.target.value })}
+                            className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#10B981] font-semibold placeholder-[#6B7280] outline-none rounded-lg"
+                          />
+                        </div>
+                      </div>
+                      {/* Piece live preview */}
+                      {pieceCalPreview !== null && (
+                        <div className="bg-[#EFF6FF] border border-blue-100 rounded-lg p-2.5 text-[10px]">
+                          <p className="font-bold text-[#2563EB] uppercase tracking-wider mb-1">Preview ({pieceWeightLabel})</p>
+                          <div className="flex gap-3">
+                            <span className="text-[#111827] font-semibold">1 pc → {pieceCalPreview} kcal · {pieceProt2Preview ?? 0}g P</span>
+                          </div>
+                          {customForm.pieceQty > 1 && (
+                            <div className="flex gap-3 mt-1 text-[#4B5563]">
+                              <span>{customForm.pieceQty} pcs → {Math.round(pieceCalPreview * customForm.pieceQty)} kcal · {Math.round((pieceProt2Preview ?? 0) * customForm.pieceQty * 10) / 10}g P</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
-                  <div className="flex gap-1.5">
-                    {(["grams", "piece", "ml"] as QuantityMode[]).map((mode) => (
-                      <button key={mode} type="button" onClick={() => setCustomForm({ ...customForm, quantityMode: mode })} className={`px-2.5 py-1 text-xs font-semibold rounded-full border transition cursor-pointer ${customForm.quantityMode === mode ? "bg-[#2563EB] border-[#2563EB] text-white" : "bg-[#E5E7EB] border-transparent text-[#4B5563] hover:text-[#111827]"}`}>{mode}</button>
-                    ))}
-                  </div>
+
+                  {/* GRAMS / ML MODE inputs */}
+                  {!isPiece && (
+                    <>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">{isMl ? "Total ml" : "Weight (g)"}</label>
+                          <input type="number" min="1" placeholder="e.g. 100"
+                            value={customForm.customWeightG}
+                            onChange={(e) => setCustomForm({ ...customForm, customWeightG: e.target.value })}
+                            className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#111827] placeholder-[#9CA3AF] outline-none rounded-lg"
+                          />
+                          <p className="text-[9px] text-[#6B7280] mt-0.5">Leave blank for per-100{isMl ? "ml" : "g"}</p>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Calories {hasWeight ? `(for ${weight}${isMl ? "ml" : "g"})` : `(per 100${isMl ? "ml" : "g"})`}</label>
+                          <input type="number" min="0" step="0.1"
+                            placeholder={hasWeight ? "Total kcal" : `kcal/100${isMl ? "ml" : "g"}`}
+                            value={customForm.caloriesInput}
+                            onChange={(e) => setCustomForm({ ...customForm, caloriesInput: e.target.value })}
+                            className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#2563EB] font-semibold placeholder-[#6B7280] outline-none rounded-lg"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1">Protein g {hasWeight ? `(for ${weight}${isMl ? "ml" : "g"})` : `(per 100${isMl ? "ml" : "g"})`}</label>
+                        <input type="number" min="0" step="0.1"
+                          placeholder={hasWeight ? "Total g" : "g/100"}
+                          value={customForm.proteinInput}
+                          onChange={(e) => setCustomForm({ ...customForm, proteinInput: e.target.value })}
+                          className="w-full bg-[#FFFFFF] border border-black/5 px-3 py-2 text-xs text-[#10B981] font-semibold placeholder-[#6B7280] outline-none rounded-lg"
+                        />
+                      </div>
+                      {hasWeight && (gramsCalPreview !== null || gramsProtPreview !== null) && (
+                        <div className="bg-[#EFF6FF] border border-blue-100 rounded-lg p-2.5 text-[10px]">
+                          <p className="font-bold text-[#2563EB] uppercase tracking-wider mb-1">Per 100{isMl ? "ml" : "g"} (auto-calculated)</p>
+                          <span className="text-[#111827] font-semibold">{gramsCalPreview} kcal</span>
+                          {gramsProtPreview !== null && <span className="text-[#111827] font-semibold ml-2">· {gramsProtPreview}g protein</span>}
+                        </div>
+                      )}
+                    </>
+                  )}
+
                   <div className="flex gap-2">
-                    <button onClick={handleAddCustomFood} disabled={!customForm.name.trim() || !customForm.caloriesPer100g || !customForm.proteinPer100g} className="flex-1 btn-primary h-auto py-2 text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save</button>
+                    <button onClick={handleAddCustomFood} disabled={!canSave} className="flex-1 btn-primary h-auto py-2 text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save</button>
                     <button onClick={() => setShowAddCustomForm(false)} className="px-4 py-2 bg-[#E5E7EB] text-[#4B5563] text-xs font-semibold rounded-xl cursor-pointer">Cancel</button>
                   </div>
                 </div>
