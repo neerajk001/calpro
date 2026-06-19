@@ -17,7 +17,9 @@ const UNITS: { value: string; label: string }[] = [
 export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<FoodDbItem[]>([]);
+  const [recentFoods, setRecentFoods] = useState<FoodDbItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingRecent, setLoadingRecent] = useState(false);
 
   // Submit form state
   const [showForm, setShowForm] = useState(false);
@@ -27,6 +29,22 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Load recent public foods on mount
+  const loadRecent = useCallback(async () => {
+    setLoadingRecent(true);
+    try {
+      const data = await apiClient.searchPublicFoods("");
+      setRecentFoods(data);
+    } catch {
+      setRecentFoods([]);
+    }
+    setLoadingRecent(false);
+  }, []);
+
+  useEffect(() => {
+    loadRecent();
+  }, [loadRecent]);
 
   const search = useCallback(async (q: string) => {
     if (!q.trim()) {
@@ -88,6 +106,8 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
       });
       setSubmitted(true);
       setForm({ name: "", category: "Custom", calories: "", protein: "", carbs: "0", fat: "0", servingSize: "100", servingUnit: "g", emoji: "🍽️" });
+      // Refresh recent foods so the new entry is immediately visible
+      loadRecent();
       setTimeout(() => { setSubmitted(false); setShowForm(false); }, 2000);
     } catch (err) {
       console.error("Failed to submit public food:", err);
@@ -237,10 +257,49 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
 
       {/* Results */}
       {!searchQuery.trim() && !showForm && (
-        <div className="text-center py-8 text-[#6B7280] text-sm">
-          <p className="text-3xl mb-2">🌍</p>
-          <p className="font-semibold text-[#111827]">Public Food Database</p>
-          <p className="text-xs mt-1">Search for foods contributed by the community, or submit your own.</p>
+        <div className="space-y-3">
+          {loadingRecent && (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-5 h-5 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          {!loadingRecent && recentFoods.length === 0 && (
+            <div className="text-center py-8 text-[#6B7280] text-sm">
+              <p className="text-3xl mb-2">🌍</p>
+              <p className="font-semibold text-[#111827]">Public Food Database</p>
+              <p className="text-xs mt-1">Be the first to contribute a food to the community!</p>
+            </div>
+          )}
+          {!loadingRecent && recentFoods.length > 0 && (
+            <>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Recently Added by Community</p>
+              <div className="space-y-1 max-h-[350px] overflow-y-auto pr-1 hide-scrollbar">
+                {recentFoods.map((food) => (
+                  <button
+                    key={food.id}
+                    onClick={() => handleAddToMeal(food)}
+                    className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-[#EFF6FF] active:scale-[0.99] rounded-xl cursor-pointer transition"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-lg shrink-0">{food.emoji || "🍽️"}</span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[#111827] truncate">{food.name}</p>
+                        <p className="text-[10px] text-[#6B7280] font-medium">
+                          {food.caloriesPer100g} kcal · {food.proteinPer100g}g P / 100g
+                          {food.isPublic && food.servingSize && (
+                            <span className="ml-2 text-[10px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-1.5 py-0.5 rounded-full">
+                              {food.servingSize}{food.servingUnit}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="shrink-0 text-xs font-semibold text-[#3B82F6] bg-[#EFF6FF] px-2 py-1 rounded-full">+ Add</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
 
