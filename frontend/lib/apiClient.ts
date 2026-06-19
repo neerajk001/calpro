@@ -184,6 +184,12 @@ export const apiClient = {
     });
   },
 
+  deletePublicFood: (id: string): Promise<{ success: boolean }> => {
+    return request<{ success: boolean }>(`/api/public-foods/${id}`, {
+      method: "DELETE",
+    });
+  },
+
   // Food Search & Barcode Lookup
   searchFoods: (query: string): Promise<FoodDbItem[]> => {
     const key = query.toLowerCase().trim();

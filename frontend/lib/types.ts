@@ -80,6 +80,7 @@ export interface FoodDbItem {
   mlPerServing?: number;   // if mode=ml/serving
   isCustom?: boolean;      // user-added custom food
   isPublic?: boolean;      // user-contributed public food
+  isOwner?: boolean;       // true if the requesting user contributed this public food
   servingSize?: number;    // original serving size for public foods
   servingUnit?: string;    // "g" | "ml" | "piece"
   emoji?: string;          // optional emoji for display

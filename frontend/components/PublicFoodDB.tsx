@@ -14,6 +14,49 @@ const UNITS: { value: string; label: string }[] = [
   { value: "piece", label: "pc (pieces)" },
 ];
 
+function FoodRow({ food, onAdd, onDelete }: { food: FoodDbItem; onAdd: (f: FoodDbItem) => void; onDelete: (f: FoodDbItem) => void }) {
+  return (
+    <div className="flex items-center justify-between w-full px-4 py-3 hover:bg-[#EFF6FF] rounded-xl transition group">
+      <button
+        onClick={() => onAdd(food)}
+        className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer active:scale-[0.99]"
+      >
+        <span className="text-lg shrink-0">{food.emoji || "🍽️"}</span>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-[#111827] truncate">{food.name}</p>
+          <p className="text-[10px] text-[#6B7280] font-medium">
+            {food.caloriesPer100g} kcal · {food.proteinPer100g}g P / 100g
+            {food.isPublic && food.servingSize && (
+              <span className="ml-2 text-[10px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-1.5 py-0.5 rounded-full">
+                {food.quantityMode === "piece" ? `${food.gramsPerPiece}g/pc` : `${food.servingSize}${food.servingUnit}`}
+              </span>
+            )}
+          </p>
+        </div>
+      </button>
+      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+        {food.isOwner && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(food); }}
+            title="Delete your food"
+            className="w-7 h-7 flex items-center justify-center rounded-full text-[#6B7280] hover:bg-red-50 hover:text-[#EF4444] opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+            </svg>
+          </button>
+        )}
+        <button
+          onClick={() => onAdd(food)}
+          className="shrink-0 text-xs font-semibold text-[#3B82F6] bg-[#EFF6FF] px-2 py-1 rounded-full hover:bg-[#2563EB] hover:text-white transition cursor-pointer"
+        >
+          + Add
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<FoodDbItem[]>([]);
@@ -89,6 +132,20 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
     };
     onAddToMeal(item);
   };
+
+  const handleDeletePublicFood = useCallback(async (food: FoodDbItem) => {
+    if (!window.confirm(`Delete "${food.name}" from the public database?\nThis cannot be undone.`)) return;
+    // Optimistically remove from both lists
+    setRecentFoods((prev) => prev.filter((f) => f.id !== food.id));
+    setResults((prev) => prev.filter((f) => f.id !== food.id));
+    try {
+      await apiClient.deletePublicFood(food.id);
+    } catch (err) {
+      console.error("Failed to delete public food:", err);
+      // Restore if failed
+      loadRecent();
+    }
+  }, [loadRecent]);
 
   const handleSubmit = async () => {
     if (!form.name.trim() || !form.calories || !form.protein) return;
@@ -311,27 +368,7 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
               <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Recently Added by Community</p>
               <div className="space-y-1 max-h-[350px] overflow-y-auto pr-1 hide-scrollbar">
                 {recentFoods.map((food) => (
-                  <button
-                    key={food.id}
-                    onClick={() => handleAddToMeal(food)}
-                    className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-[#EFF6FF] active:scale-[0.99] rounded-xl cursor-pointer transition"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-lg shrink-0">{food.emoji || "🍽️"}</span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#111827] truncate">{food.name}</p>
-                        <p className="text-[10px] text-[#6B7280] font-medium">
-                          {food.caloriesPer100g} kcal · {food.proteinPer100g}g P / 100g
-                          {food.isPublic && food.servingSize && (
-                            <span className="ml-2 text-[10px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-1.5 py-0.5 rounded-full">
-                              {food.servingSize}{food.servingUnit}
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="shrink-0 text-xs font-semibold text-[#3B82F6] bg-[#EFF6FF] px-2 py-1 rounded-full">+ Add</span>
-                  </button>
+                  <FoodRow key={food.id} food={food} onAdd={handleAddToMeal} onDelete={handleDeletePublicFood} />
                 ))}
               </div>
             </>
@@ -348,27 +385,7 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
       {searchQuery.trim() && !loading && results.length > 0 && (
         <div className="space-y-1 max-h-[350px] overflow-y-auto pr-1 hide-scrollbar">
           {results.map((food) => (
-            <button
-              key={food.id}
-              onClick={() => handleAddToMeal(food)}
-              className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-[#EFF6FF] active:scale-[0.99] rounded-xl cursor-pointer transition"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="text-lg shrink-0">{food.emoji || "🍽️"}</span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[#111827] truncate">{food.name}</p>
-                  <p className="text-[10px] text-[#6B7280] font-medium">
-                    {food.caloriesPer100g} kcal · {food.proteinPer100g}g P / 100g
-                    {food.isPublic && food.servingSize && (
-                      <span className="ml-2 text-[10px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-1.5 py-0.5 rounded-full">
-                        {food.servingSize}{food.servingUnit}
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              <span className="shrink-0 text-xs font-semibold text-[#3B82F6] bg-[#EFF6FF] px-2 py-1 rounded-full">+ Add</span>
-            </button>
+            <FoodRow key={food.id} food={food} onAdd={handleAddToMeal} onDelete={handleDeletePublicFood} />
           ))}
         </div>
       )}
