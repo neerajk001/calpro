@@ -303,13 +303,13 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
         </div>
       )}
 
-      {loading && (
+      {searchQuery.trim() && loading && (
         <div className="flex items-center justify-center py-8">
           <div className="w-5 h-5 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
-      {!loading && results.length > 0 && (
+      {searchQuery.trim() && !loading && results.length > 0 && (
         <div className="space-y-1 max-h-[350px] overflow-y-auto pr-1 hide-scrollbar">
           {results.map((food) => (
             <button
@@ -337,7 +337,7 @@ export function PublicFoodDB({ onAddToMeal }: PublicFoodProps) {
         </div>
       )}
 
-      {!loading && searchQuery && results.length === 0 && (
+      {searchQuery.trim() && !loading && searchQuery && results.length === 0 && (
         <div className="text-center py-8 text-[#6B7280] text-sm">
           <p className="text-2xl mb-2">🔍</p>
           <p>No public foods found for "{searchQuery}"</p>
