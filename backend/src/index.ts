@@ -846,6 +846,15 @@ app.get("/api/foods/search", searchLimiter, async (req, res) => {
     // B. Query global Food table from in-memory cache (zero DB connections)
     const globalMatches = searchFoodCache(q);
 
+    // B2. Query PublicFood table (global, user-contributed)
+    const publicMatches = q
+      ? await prisma.publicFood.findMany({
+          where: { name: { contains: q, mode: "insensitive" } },
+          orderBy: { createdAt: "desc" },
+          take: 20,
+        })
+      : [];
+
     // C. Map results
     const customMapped = customMatches.map((food) => ({
       id: food.id,
@@ -881,11 +890,38 @@ app.get("/api/foods/search", searchLimiter, async (req, res) => {
       barcode: food.barcode ?? undefined,
     }));
 
+    const publicMapped = publicMatches.map((food) => {
+      const scale = 100 / food.servingSize;
+      return {
+        id: food.id,
+        name: food.name,
+        category: food.category,
+        caloriesPer100g: Math.round(food.calories * scale),
+        proteinPer100g: Math.round(food.protein * scale * 10) / 10,
+        carbsPer100g: Math.round(food.carbs * scale * 10) / 10,
+        fatPer100g: Math.round(food.fat * scale * 10) / 10,
+        defaultQty: food.servingSize,
+        quantityMode: food.servingUnit === "piece" ? "piece" : food.servingUnit === "ml" ? "ml" : "grams",
+        isPublic: true,
+        servingSize: food.servingSize,
+        servingUnit: food.servingUnit,
+        emoji: food.emoji ?? undefined,
+        isCustom: false,
+      };
+    });
+
     // Deduplicate
     const merged: any[] = [...customMapped];
     const seenNames = new Set(customMapped.map((item) => item.name.toLowerCase()));
 
     for (const item of globalMapped) {
+      if (!seenNames.has(item.name.toLowerCase())) {
+        merged.push(item);
+        seenNames.add(item.name.toLowerCase());
+      }
+    }
+
+    for (const item of publicMapped) {
       if (!seenNames.has(item.name.toLowerCase())) {
         merged.push(item);
         seenNames.add(item.name.toLowerCase());
@@ -1137,7 +1173,96 @@ app.delete("/api/meal-templates/:id", async (req, res) => {
   }
 });
 
-// 16. POST /api/water-logs - Upsert daily water logs
+// 16. POST /api/public-foods - Create a public food (nutrition per serving)
+app.post("/api/public-foods", async (req, res) => {
+  try {
+    const userId = await resolveUserId(req);
+    const { name, category, calories, protein, carbs, fat, servingSize, servingUnit, emoji } = req.body;
+
+    if (!name || calories === undefined || protein === undefined || !servingSize || !servingUnit) {
+      return res.status(400).json({ error: "Missing required fields: name, calories, protein, servingSize, servingUnit" });
+    }
+
+    const newFood = await prisma.publicFood.create({
+      data: {
+        userId,
+        name: name.trim(),
+        category: category || "Custom",
+        calories: Math.max(0, Math.round(Number(calories))),
+        protein: Math.max(0, Number(protein)),
+        carbs: carbs !== undefined ? Math.max(0, Number(carbs)) : 0,
+        fat: fat !== undefined ? Math.max(0, Number(fat)) : 0,
+        servingSize: Math.max(1, Number(servingSize)),
+        servingUnit: servingUnit === "piece" ? "piece" : servingUnit === "ml" ? "ml" : "g",
+        emoji: emoji || "🍽️",
+      },
+    });
+
+    // Return in FoodDbItem-like shape converted to per-100g
+    const scale = 100 / newFood.servingSize;
+    res.status(201).json({
+      id: newFood.id,
+      name: newFood.name,
+      category: newFood.category,
+      caloriesPer100g: Math.round(newFood.calories * scale),
+      proteinPer100g: Math.round(newFood.protein * scale * 10) / 10,
+      carbsPer100g: Math.round(newFood.carbs * scale * 10) / 10,
+      fatPer100g: Math.round(newFood.fat * scale * 10) / 10,
+      defaultQty: newFood.servingSize,
+      quantityMode: newFood.servingUnit === "piece" ? "piece" as const : newFood.servingUnit === "ml" ? "ml" as const : "grams" as const,
+      emoji: newFood.emoji,
+      isPublic: true,
+      servingSize: newFood.servingSize,
+      servingUnit: newFood.servingUnit,
+    });
+  } catch (error: any) {
+    logger.error("Error creating public food:", { err: String(error) });
+    res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
+  }
+});
+
+// 16b. GET /api/public-foods/search - Search public foods
+app.get("/api/public-foods/search", async (req, res) => {
+  try {
+    await resolveUserId(req);
+    const q = (req.query.q as string || "").trim().toLowerCase();
+
+    const foods = q
+      ? await prisma.publicFood.findMany({
+          where: { name: { contains: q, mode: "insensitive" } },
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        })
+      : await prisma.publicFood.findMany({
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        });
+
+    const mapped = foods.map((f) => {
+      const scale = 100 / f.servingSize;
+      return {
+        id: f.id,
+        name: f.name,
+        category: f.category,
+        caloriesPer100g: Math.round(f.calories * scale),
+        proteinPer100g: Math.round(f.protein * scale * 10) / 10,
+        carbsPer100g: Math.round(f.carbs * scale * 10) / 10,
+        fatPer100g: Math.round(f.fat * scale * 10) / 10,
+        defaultQty: f.servingSize,
+        quantityMode: f.servingUnit === "piece" ? "piece" : f.servingUnit === "ml" ? "ml" : "grams",
+        emoji: f.emoji,
+        isPublic: true,
+        servingSize: f.servingSize,
+        servingUnit: f.servingUnit,
+      };
+    });
+
+    res.json(mapped);
+  } catch (error: any) {
+    logger.error("Error searching public foods:", { err: String(error) });
+    res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
+  }
+});
 app.post("/api/water-logs", async (req, res) => {
   try {
     const userId = await resolveUserId(req);

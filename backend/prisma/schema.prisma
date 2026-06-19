@@ -34,6 +34,7 @@ model User {
   settings      Settings?
   foodLogs      FoodLog[]
   customFoods   CustomFood[]
+  publicFoods   PublicFood[]
   mealTemplates MealTemplate[]
   waterLogs     WaterLog[]
 }
@@ -201,6 +202,25 @@ model MealTemplateItem {
   fat          Float
   emoji        String?
 
+  @@index([userId])
+}
+
+model PublicFood {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  category    String
+  calories    Float    // per servingSize
+  protein     Float    // per servingSize
+  carbs       Float    // per servingSize
+  fat         Float    // per servingSize
+  servingSize Float    // e.g. 50 (grams)
+  servingUnit String   // "g" | "ml" | "piece"
+  emoji       String?
+  createdAt   DateTime @default(now())
+
+  @@index([name])
   @@index([userId])
 }
 
