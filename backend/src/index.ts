@@ -907,6 +907,7 @@ app.get("/api/foods/search", searchLimiter, async (req, res) => {
         quantityMode: isPiece ? "piece" : food.servingUnit === "ml" ? "ml" : "grams",
         gramsPerPiece: isPiece ? food.servingSize : undefined,
         isPublic: true,
+        isOwner: food.userId === userId,
         servingSize: food.servingSize,
         servingUnit: food.servingUnit,
         emoji: food.emoji ?? undefined,
@@ -1228,7 +1229,7 @@ app.post("/api/public-foods", async (req, res) => {
 // 16b. GET /api/public-foods/search - Search public foods
 app.get("/api/public-foods/search", async (req, res) => {
   try {
-    await resolveUserId(req);
+    const userId = await resolveUserId(req);
     const q = (req.query.q as string || "").trim().toLowerCase();
 
     const foods = q
@@ -1259,6 +1260,7 @@ app.get("/api/public-foods/search", async (req, res) => {
         gramsPerPiece: isPiece ? f.servingSize : undefined,
         emoji: f.emoji,
         isPublic: true,
+        isOwner: f.userId === userId,
         servingSize: f.servingSize,
         servingUnit: f.servingUnit,
       };
@@ -1267,6 +1269,29 @@ app.get("/api/public-foods/search", async (req, res) => {
     res.json(mapped);
   } catch (error: any) {
     logger.error("Error searching public foods:", { err: String(error) });
+    res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
+  }
+});
+
+// 16c. DELETE /api/public-foods/:id - Delete own public food
+app.delete("/api/public-foods/:id", async (req, res) => {
+  try {
+    const userId = await resolveUserId(req);
+    const { id } = req.params;
+
+    // Verify the food exists and belongs to this user
+    const food = await prisma.publicFood.findUnique({ where: { id } });
+    if (!food) {
+      return res.status(404).json({ error: "Public food not found" });
+    }
+    if (food.userId !== userId) {
+      return res.status(403).json({ error: "You can only delete your own contributed foods" });
+    }
+
+    await prisma.publicFood.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (error: any) {
+    logger.error("Error deleting public food:", { err: String(error) });
     res.status(error?.statusCode || 500).json({ error: error?.message || "Internal server error" });
   }
 });
