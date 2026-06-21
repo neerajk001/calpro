@@ -22,6 +22,51 @@ function getLegacySecret(): Uint8Array | null {
   return new TextEncoder().encode(secret);
 }
 
+// ─── Clerk JWKS (mobile app auth via @clerk/clerk-expo) ─────────────────────
+const CLERK_JWKS = jose.createRemoteJWKSet(
+  new URL("https://api.clerk.com/v1/jwks")
+);
+
+async function verifyClerkToken(token: string): Promise<{ sub: string; email?: string } | null> {
+  try {
+    const decoded = jose.decodeJwt(token);
+    const iss = decoded.iss as string | undefined;
+    
+    if (!iss) {
+      logger.warn("Clerk token has no issuer claim");
+      return null;
+    }
+
+    if (!iss.startsWith("https://clerk.") && !iss.includes(".clerk.accounts.dev")) {
+      logger.warn(`Clerk token issuer '${iss}' is not a recognized Clerk domain`);
+      return null;
+    }
+
+    // Dynamically fetch keys from the specific Clerk instance
+    const jwksUrl = `${iss}/.well-known/jwks.json`;
+    
+    const dynamicJwks = jose.createRemoteJWKSet(new URL(jwksUrl));
+    const { payload } = await jose.jwtVerify(token, dynamicJwks, {
+      algorithms: ["RS256"],
+    });
+
+    if (!payload.sub) {
+      logger.warn("Clerk token payload has no sub claim");
+      return null;
+    }
+
+    const email = payload.email as string | undefined
+      || (payload as any).user_email as string | undefined;
+    
+    return { sub: payload.sub, email };
+  } catch (err: any) {
+    logger.error("Clerk token verification failed:", { 
+      message: err.message,
+    });
+    return null;
+  }
+}
+
 async function verifySupabaseToken(token: string): Promise<{ sub: string; email?: string } | null> {
   // 1. Try ES256 via JWKS (current signing method)
   try {
@@ -56,17 +101,41 @@ async function verifySupabaseToken(token: string): Promise<{ sub: string; email?
 }
 
 async function findOrCreateBySupabaseId(supabaseId: string, email?: string, name?: string, image?: string): Promise<string> {
-  // Use upsert to avoid race condition: getSession() + onAuthStateChange() fire
-  // simultaneously on login — both see no user, both try create → unique constraint crash.
-  // upsert is atomic: create if not exists, update if exists.
-  const user = await prisma.user.upsert({
-    where: { supabaseId },
-    update: {
-      email: email ?? undefined,
-      name: name ?? undefined,
-      image: image ?? undefined,
-    },
-    create: {
+  // 1. Try finding by supabaseId first
+  let user = await prisma.user.findUnique({ where: { supabaseId } });
+
+  if (user) {
+    // Update profile if they logged in
+    user = await prisma.user.update({
+      where: { supabaseId },
+      data: {
+        email: email ?? undefined,
+        name: name ?? undefined,
+        image: image ?? undefined,
+      },
+    });
+    return user.id;
+  }
+
+  // 2. Link using email address if they logged in under Clerk first
+  if (email) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      user = await prisma.user.update({
+        where: { email },
+        data: {
+          supabaseId,
+          name: name ?? undefined,
+          image: image ?? undefined,
+        },
+      });
+      return user.id;
+    }
+  }
+
+  // 3. Create a brand new user
+  user = await prisma.user.create({
+    data: {
       supabaseId,
       email,
       name,
@@ -77,17 +146,67 @@ async function findOrCreateBySupabaseId(supabaseId: string, email?: string, name
   return user.id;
 }
 
-async function findOrCreateByAnonymousId(anonymousId: string): Promise<string> {
-  let user = await prisma.user.findUnique({ where: { anonymousId } });
-  if (user) return user.id;
+async function findOrCreateByClerkId(clerkId: string, email?: string, name?: string): Promise<string> {
+  // 1. Try finding by clerkId first
+  let user = await prisma.user.findUnique({ where: { clerkId } });
 
+  if (user) {
+    user = await prisma.user.update({
+      where: { clerkId },
+      data: {
+        email: email ?? undefined,
+        name: name ?? undefined,
+      },
+    });
+    return user.id;
+  }
+
+  // 2. Link using email address if they logged in under Supabase first
+  if (email) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      user = await prisma.user.update({
+        where: { email },
+        data: {
+          clerkId,
+          name: name ?? undefined,
+        },
+      });
+      return user.id;
+    }
+  }
+
+  // 3. Create a brand new user
   user = await prisma.user.create({
     data: {
-      anonymousId,
+      clerkId,
+      email,
+      name,
       settings: { create: {} },
     },
   });
   return user.id;
+}
+
+async function findOrCreateByAnonymousId(anonymousId: string): Promise<string> {
+  try {
+    let user = await prisma.user.findUnique({ where: { anonymousId } });
+    if (user) return user.id;
+
+    user = await prisma.user.create({
+      data: {
+        anonymousId,
+        settings: { create: {} },
+      },
+    });
+    return user.id;
+  } catch (err: any) {
+    if (err.code === "P2002") {
+      const user = await prisma.user.findUnique({ where: { anonymousId } });
+      if (user) return user.id;
+    }
+    throw err;
+  }
 }
 
 /**
@@ -98,7 +217,7 @@ async function findOrCreateByAnonymousId(anonymousId: string): Promise<string> {
  * 2. X-Device-Id header → find-or-create anonymous User by anonymousId
  * 3. Neither → throws 401 error (no shared default user)
  */
-export { findOrCreateBySupabaseId, findOrCreateByAnonymousId };
+export { findOrCreateBySupabaseId, findOrCreateByClerkId, findOrCreateByAnonymousId };
 
 export function authenticateRequest(req: Request): { userId: string } | null {
   const authHeader = req.headers.authorization;
@@ -117,11 +236,23 @@ export async function resolveUserId(req: Request): Promise<string> {
   if (authHeader && authHeader.startsWith("Bearer ")) {
     triedAuth = true;
     const token = authHeader.slice(7);
-    const verified = await verifySupabaseToken(token);
-    if (verified) {
+
+    // Try Supabase token first
+    const supraVerified = await verifySupabaseToken(token);
+    if (supraVerified) {
       const name = req.headers["x-user-name"] as string | undefined;
       const image = req.headers["x-user-image"] as string | undefined;
-      userId = await findOrCreateBySupabaseId(verified.sub, verified.email, name, image);
+      userId = await findOrCreateBySupabaseId(supraVerified.sub, supraVerified.email, name, image);
+    }
+
+    // Try Clerk token if Supabase failed
+    if (!userId) {
+      const clerkVerified = await verifyClerkToken(token);
+      if (clerkVerified) {
+        const name = req.headers["x-user-name"] as string | undefined;
+        const email = clerkVerified.email || (req.headers["x-user-email"] as string | undefined);
+        userId = await findOrCreateByClerkId(clerkVerified.sub, email, name);
+      }
     }
   }
 

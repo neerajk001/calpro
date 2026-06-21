@@ -16,7 +16,7 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(compression());
-app.use(cors({ exposedHeaders: ["Authorization", "X-Device-Id"], allowedHeaders: ["Content-Type", "Authorization", "X-Device-Id", "X-User-Name", "X-User-Image"] }));
+app.use(cors({ exposedHeaders: ["Authorization", "X-Device-Id"], allowedHeaders: ["Content-Type", "Authorization", "X-Device-Id", "X-User-Name", "X-User-Email", "X-User-Image"] }));
 app.use(express.json({ limit: "5mb" }));
 app.use((_req, res, next) => {
   res.setTimeout(30000, () => {

@@ -27,6 +27,7 @@ model User {
   id            String         @id @default(cuid())
   createdAt     DateTime       @default(now())
   supabaseId    String?        @unique
+  clerkId       String?        @unique
   email         String?        @unique
   name          String?
   image         String?
