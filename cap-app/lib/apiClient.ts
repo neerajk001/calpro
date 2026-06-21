@@ -12,7 +12,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
   const authHeaders = await getAuthHeaders();
   const url = `${BACKEND_URL}${path}`;
-  console.log(`[apiClient] Requesting ${options?.method || "GET"} ${url} (hasAuth: ${!!authHeaders["Authorization"]})`);
+  // Verbose logging removed for production
 
   const promise = fetch(url, {
     ...options,

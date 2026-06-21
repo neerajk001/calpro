@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "cap-app",
-    "slug": "cap-app",
+    "name": "LogMyMeal",
+    "slug": "logmymeal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.logmymeal.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

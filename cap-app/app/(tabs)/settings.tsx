@@ -91,7 +91,7 @@ export default function Settings() {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       const redirectUrl = Linking.createURL("/", { scheme: "capapp" });
-      console.log("[Auth] Starting OAuth with redirect URL:", redirectUrl);
+      // OAuth flow started
       const { createdSessionId, setActive } = await startOAuthFlow({ redirectUrl });
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
